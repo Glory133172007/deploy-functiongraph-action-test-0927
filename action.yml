@@ -1,0 +1,34 @@
+name: 'functiongraph-deploy-action'
+description: 'deploy function to huaweicloud'
+author: 'wenchui'
+inputs:
+  AK: # change this
+    required: true
+    description: 'huaweicloud SK'
+    default: 'default value if applicable'
+  SK: # change this
+    required: true
+    description: 'huaweicloud SK'
+    default: 'default value if applicable'
+  endpoint: # change this
+    required: true
+    description: 'huaweicloud functiongraph endpoint'
+    default: 'default value if applicable'
+  project_id: # change this
+    required: true
+    description: 'huaweicloud SK'
+    default: 'default value if applicable'
+  function_urn: # change this
+    required: true
+    description: 'huaweicloud SK'
+    default: 'default value if applicable'
+  function_codetype:
+    required: true
+    description:"support obs,zip,jar,file,dir"
+  function_file: # change this
+    required: true
+    description: 'obs url,local java jar path,local zip file path,local function file path,local directory path'
+    default: 'default value if applicable'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
