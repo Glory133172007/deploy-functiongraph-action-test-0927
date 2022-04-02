@@ -2,11 +2,11 @@ name: 'functiongraph-deploy-action'
 description: 'deploy function to huaweicloud'
 author: 'wenchui'
 inputs:
-  AK: # change this
+  ak: # change this
     required: true
     description: 'huaweicloud SK'
     default: 'default value if applicable'
-  SK: # change this
+  sk: # change this
     required: true
     description: 'huaweicloud SK'
     default: 'default value if applicable'
