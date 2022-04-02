@@ -5,30 +5,25 @@ inputs:
   ak: # change this
     required: true
     description: 'huaweicloud SK'
-    default: 'default value if applicable'
   sk: # change this
     required: true
     description: 'huaweicloud SK'
-    default: 'default value if applicable'
   endpoint: # change this
     required: true
     description: 'huaweicloud functiongraph endpoint'
-    default: 'default value if applicable'
+    default: 'https://functiongraph.cn-north-4.myhuaweicloud.com'
   project_id: # change this
     required: true
-    description: 'huaweicloud SK'
-    default: 'default value if applicable'
+    description: 'huaweicloud project_id'
   function_urn: # change this
     required: true
-    description: 'huaweicloud SK'
-    default: 'default value if applicable'
+    description: 'huaweicloud functiongraph urn address'
   function_codetype:
     required: true
     description:"support obs,zip,jar,file,dir"
   function_file: # change this
     required: true
     description: 'obs url,local java jar path,local zip file path,local function file path,local directory path'
-    default: 'default value if applicable'
 runs:
   using: 'node16'
   main: 'dist/index.js'
