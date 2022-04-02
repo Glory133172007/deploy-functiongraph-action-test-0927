@@ -68,6 +68,7 @@ export async function run(){
     }
   }
   request.withBody(body);
+  
   accore.info("---------- start request");
   const result = await client.updateFunctionCode(request);
   result.then((result: any) => {

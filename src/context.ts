@@ -76,39 +76,3 @@ export function getInputs(): Inputs {
     function_file: core.getInput('function_file',{required:true})
   }
 }
-
-export function getZipInputs(): Inputs{
-  return{
-    ak : "IKH1ZG9RRPPPANUWQKQA",
-    sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
-    endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-    project_id : "0dd8cb413000906a2fcdc019b5a84546",
-    function_codetype: "zip",
-    function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
-    function_file : "/Users/a/opensource/functiongraph-deploy-action/resource/zipfunction/index.zip"
-  }
-}
-
-export function getFileInputs(): Inputs{
-  return{
-    ak : "IKH1ZG9RRPPPANUWQKQA",
-    sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
-    endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-    project_id : "0dd8cb413000906a2fcdc019b5a84546",
-    function_codetype: "file",
-    function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
-    function_file : "/Users/a/opensource/functiongraph-deploy-action/resource/index.py"
-  }
-}
-
-export function getDirInputs(): Inputs{
-  return{
-    ak : "IKH1ZG9RRPPPANUWQKQA",
-    sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
-    endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-    project_id : "0dd8cb413000906a2fcdc019b5a84546",
-    function_codetype: "dir",
-    function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
-    function_file : "/Users/a/opensource/functiongraph-deploy-action/resource/functions"
-  }
-}

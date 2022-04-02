@@ -25,6 +25,11 @@ export function checkInputs(inputs: context.Inputs): boolean {
   return true
 }
 
+/**
+ * 检查codetype是否在允许的范围之内
+ * @param codeType 
+ * @returns 
+ */
 export function checkCodeType(codeType:string){
   if(context.codeTypeArray.indexOf(codeType) > -1){
     return true;
@@ -125,16 +130,17 @@ export function checkFileOrDirExist(function_type:string,filePath:string): boole
         }
         break;
       case "file" :
-        if(stat.isFile() && stat.size >0){ //文件存在且文件的大小不为0
+        //文件存在且文件的大小不为0
+        if(stat.isFile() && stat.size >0){ 
           checkResult = true;
         } else{
           core.info("file path is not file or file is empty");
         }
         break;
       case "dir" :
+        //确实为目录文件，且目录下的文件数量不为0
         const files:string[]=fs.readdirSync(filePath);
         if(stat.isDirectory() && files.length > 0){
-          //需要检测目录是否为空
           core.info("dirString[] " + files);
           checkResult = true;
         }else{

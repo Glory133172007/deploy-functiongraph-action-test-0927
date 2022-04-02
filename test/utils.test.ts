@@ -95,8 +95,8 @@ test('test check file and dir exist and not empty',() => {
 })
  export function getOBSInputs(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      ak : "**********************************************",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
       function_codetype: "obs",
@@ -107,8 +107,8 @@ test('test check file and dir exist and not empty',() => {
 
   export function getOBSInputs_endpintWrong(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      ak : "**********************************************",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-1.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
       function_codetype: "obs",
@@ -119,7 +119,7 @@ test('test check file and dir exist and not empty',() => {
 
   export function getOBSInputs_urn_wrong(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
+      ak : "**********************************************",
       sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
@@ -131,7 +131,7 @@ test('test check file and dir exist and not empty',() => {
 
   export function getOBSInputs_obs_wrong(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
+      ak : "**********************************************",
       sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
@@ -143,8 +143,8 @@ test('test check file and dir exist and not empty',() => {
   
   export function getJarInputs(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      ak : "**********************************************",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
       function_codetype: "jar",
@@ -155,8 +155,8 @@ test('test check file and dir exist and not empty',() => {
   
   export function getZipInputs(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      ak : "**********************************************",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
       function_codetype: "zip",
@@ -167,8 +167,8 @@ test('test check file and dir exist and not empty',() => {
   
   export function getFileInputs(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      ak : "**********************************************",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
       function_codetype: "file",
@@ -179,8 +179,8 @@ test('test check file and dir exist and not empty',() => {
   
   export function getDirInputs(): context.Inputs{
     return{
-      ak : "IKH1ZG9RRPPPANUWQKQA",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      ak : "**********************************************",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "0dd8cb413000906a2fcdc019b5a84546",
       function_codetype: "dir",
