@@ -6,16 +6,15 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "format": "prettier --write '**/*.ts'",
-    "format-check": "prettier --check '**/*.ts'",
-    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/*.{ts,tsx}\"",
+    "format-check": "prettier --check \"src/*.{js,jsx,ts,tsx,json,css,scss,less,md}\"",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run package && npm test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/huaweicloud/functiongraph-deploy-action.git"
   },
   "keywords": [
     "actions",
@@ -26,6 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.6.0",
+    "@actions/io": "^1.1.2",
     "@huaweicloud/huaweicloud-sdk-core": "^3.0.34-rc",
     "@huaweicloud/huaweicloud-sdk-devstar": "^3.0.34-rc",
     "@huaweicloud/huaweicloud-sdk-functiongraph": "^3.0.34-rc",
@@ -33,16 +33,13 @@
     "fs-extra": "^10.0.1",
     "mime": "^3.0.0",
     "moment": "^2.29.1",
-    "moment-timezone": "^0.5.34"
+    "moment-timezone": "^0.5.34",
+    "typescript-action": "*"
   },
   "devDependencies": {
     "@types/mime": "^2.0.3",
     "@types/node": "^16.10.5",
-    "@typescript-eslint/parser": "^5.8.1",
     "@vercel/ncc": "^0.31.1",
-    "eslint": "^7.32.0",
-    "eslint-plugin-github": "^4.3.2",
-    "eslint-plugin-jest": "^25.3.2",
     "jest": "^27.2.5",
     "js-yaml": "^4.1.0",
     "prettier": "2.5.1",

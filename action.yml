@@ -1,27 +1,27 @@
-name: 'functiongraph-deploy-action'
+name: 'HuaweiCloud Functiongraph Deploy'
 description: 'deploy function to huaweicloud'
 author: 'wenchui'
 inputs:
-  ak: # change this
+  ak: 
     required: true
     description: 'huaweicloud SK'
-  sk: # change this
+  sk: 
     required: true
     description: 'huaweicloud SK'
-  endpoint: # change this
+  endpoint: 
     required: true
     description: 'huaweicloud functiongraph endpoint'
     default: 'https://functiongraph.cn-north-4.myhuaweicloud.com'
-  project_id: # change this
+  project_id: 
     required: true
     description: 'huaweicloud project_id'
-  function_urn: # change this
+  function_urn: 
     required: true
     description: 'huaweicloud functiongraph urn address'
   function_codetype:
     required: true
     description:"support obs,zip,jar,file,dir"
-  function_file: # change this
+  function_file: 
     required: true
     description: 'obs url,local java jar path,local zip file path,local function file path,local directory path'
 runs:

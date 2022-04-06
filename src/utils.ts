@@ -10,13 +10,13 @@ import * as fileutil from './fileUtils'
  */
 export function checkInputs(inputs: context.Inputs): boolean {
   if (
-    checkObejectIsNull(inputs.ak) ||
-    checkObejectIsNull(inputs.sk) ||
-    checkObejectIsNull(inputs.endpoint) ||
-    checkObejectIsNull(inputs.function_codetype) ||
-    checkObejectIsNull(inputs.function_urn) ||
-    checkObejectIsNull(inputs.project_id) ||
-    checkObejectIsNull(inputs.function_file) 
+    checkParameterIsNull(inputs.ak) ||
+    checkParameterIsNull(inputs.sk) ||
+    checkParameterIsNull(inputs.endpoint) ||
+    checkParameterIsNull(inputs.function_codetype) ||
+    checkParameterIsNull(inputs.function_urn) ||
+    checkParameterIsNull(inputs.project_id) ||
+    checkParameterIsNull(inputs.function_file)
   ) {
     core.info('Please fill all the required parameters')
     return false
@@ -27,14 +27,14 @@ export function checkInputs(inputs: context.Inputs): boolean {
 
 /**
  * 检查codetype是否在允许的范围之内
- * @param codeType 
- * @returns 
+ * @param codeType
+ * @returns
  */
-export function checkCodeType(codeType:string){
-  if(context.codeTypeArray.indexOf(codeType) > -1){
-    return true;
+export function checkCodeType(codeType: string) {
+  if (context.codeTypeArray.indexOf(codeType) > -1) {
+    return true
   }
-  return false;
+  return false
 }
 
 /**
@@ -43,8 +43,7 @@ export function checkCodeType(codeType:string){
  * @returns
  */
 export function checkIPV4Addr(ipaddr: string): boolean {
-  let ipRegx = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/
-  return ipRegx.test(ipaddr) ? true : false
+  return context.IPREGX.test(ipaddr)
 }
 
 /**
@@ -52,11 +51,17 @@ export function checkIPV4Addr(ipaddr: string): boolean {
  * @param s
  * @returns
  */
-export function checkObejectIsNull(s: string): boolean {
-  if (s == undefined || s == null || s == '' || s.trim().length == 0) {
-    return true
-  }
-  return false
+export function checkParameterIsNull(parameter: string): boolean {
+  // if (parameter == undefined || parameter == null || parameter == '' || parameter.trim().length == 0) {
+  //   return true
+  // }
+  // return false
+  return (
+    parameter == undefined ||
+    parameter == null ||
+    parameter == '' ||
+    parameter.trim().length == 0
+  )
 }
 
 /**
@@ -77,18 +82,17 @@ export function checkCommandsDanger(commands: string[]): boolean {
 }
 
 /**
- * 检查命令行中是否有黑名单中的高危命令
+ * 检查命令行中是否有黑名单中的高危命令，对存在的高危命令给出提示
  * @param command
  * @returns
  */
 export function checkCommandDanger(command: string): boolean {
   let isCommandDanger = false
-  const dangerCommandSet = context.dangerCommandSet;
-  for (var i = 0; i < dangerCommandSet.length; i++) {
-    if (command.indexOf(dangerCommandSet[i]) > -1) {
+  for (var dCommand in context.dangerCommandSet) {
+    if (command.includes(dCommand)) {
       core.info(
         'find danger operation "' +
-          dangerCommandSet[i] +
+          dCommand +
           '" in command line "' +
           command +
           '",please remove it '
@@ -96,65 +100,66 @@ export function checkCommandDanger(command: string): boolean {
       isCommandDanger = true
     }
   }
-  i
   return isCommandDanger
 }
 
 /**
  * 检查文件或者目录是否存在，并判断文件类型是否匹配
  * 对所有输入的类型进行了校验，不需要defalt了
- * 
- * @param function_type 
- * @param filePath 
- * @returns 
+ *
+ * @param function_type
+ * @param filePath
+ * @returns
  */
-export function checkFileOrDirExist(function_type:string,filePath:string): boolean{
-  core.info("check local file " + filePath + " exist");
-  let checkResult:boolean = false;
+export function checkFileOrDirExist(
+  function_type: string,
+  filePath: string
+): boolean {
+  core.info('check local file ' + filePath + ' exist')
+  let checkResult: boolean = false
   try {
-    const stat = fs.statSync(filePath);
+    const stat = fs.statSync(filePath)
     console.log(stat)
-    switch(function_type){
-      case "jar" :
-        const jarType = fileutil.getFileMimeType(filePath);
-        core.info("filePath: "+filePath+"mime type " + jarType);
-        if(stat.isFile() && jarType === context.JAR_MIME_TYPE){
-          checkResult = true;
+    switch (function_type) {
+      case 'jar':
+        const jarType = fileutil.getFileMimeType(filePath)
+        core.info('filePath: ' + filePath + 'mime type ' + jarType)
+        if (stat.isFile() && jarType === context.JAR_MIME_TYPE) {
+          checkResult = true
         }
-        break;
-      case "zip" :
-        const zipType = fileutil.getFileMimeType(filePath);
-        core.info("filePath: "+filePath+"mime type " + zipType);
-        if(stat.isFile() && zipType === context.ZIP_MIME_TYPE){
-          checkResult = true;
+        break
+      case 'zip':
+        const zipType = fileutil.getFileMimeType(filePath)
+        core.info('filePath: ' + filePath + 'mime type ' + zipType)
+        if (stat.isFile() && zipType === context.ZIP_MIME_TYPE) {
+          checkResult = true
         }
-        break;
-      case "file" :
+        break
+      case 'file':
         //文件存在且文件的大小不为0
-        if(stat.isFile() && stat.size >0){ 
-          checkResult = true;
-        } else{
-          core.info("file path is not file or file is empty");
+        if (stat.isFile() && stat.size > 0) {
+          checkResult = true
+        } else {
+          core.info('file path is not file or file is empty')
         }
-        break;
-      case "dir" :
+        break
+      case 'dir':
         //确实为目录文件，且目录下的文件数量不为0
-        const files:string[]=fs.readdirSync(filePath);
-        if(stat.isDirectory() && files.length > 0){
-          core.info("dirString[] " + files);
-          checkResult = true;
-        }else{
-          core.info("file path is not directory or dircectory is empty");
+        const files: string[] = fs.readdirSync(filePath)
+        if (stat.isDirectory() && files.length > 0) {
+          core.info('dirString[] ' + files)
+          checkResult = true
+        } else {
+          core.info('file path is not directory or dircectory is empty')
         }
-        break;       
+        break
     }
   } catch (error) {
-    core.info("file or directory not exist")
+    core.info('file or directory not exist')
     console.log(error)
   }
-  return checkResult;
+  return checkResult
 }
-
 
 /**
  * 1、region必须在指定范围的region列表中
@@ -162,35 +167,50 @@ export function checkFileOrDirExist(function_type:string,filePath:string): boole
  * 3、如果type为obs，obs的region也必须和endpint，function保持一致
  * 校验 endpoint，function urn，obs是否在同一个region，如果不在同一个region无法完成部署
  */
-export function checkRegion(inputs:context.Inputs) : boolean{
+export function checkRegion(inputs: context.Inputs): boolean {
   const regionArray = context.regionArray
-  let endpointRegion = getRegionFromEndpoint(inputs.endpoint,1,".");
-  if(checkObejectIsNull(endpointRegion) || regionArray.indexOf(endpointRegion) === -1){
-    core.info("can not find any region in endpoint,or region not in avaiable region list");
-    return false;
+  let endpointRegion = getRegionFromEndpoint(inputs.endpoint, 1, '.')
+  if (
+    checkParameterIsNull(endpointRegion) ||
+    regionArray.indexOf(endpointRegion) === -1
+  ) {
+    core.info(
+      'can not find any region in endpoint,or region not in avaiable region list'
+    )
+    return false
   }
-  let urnRegion = getRegionFromEndpoint(inputs.function_urn,2,":");
-  if(checkObejectIsNull(endpointRegion) || regionArray.indexOf(endpointRegion) === -1){
-    core.info("can not find any region in urn,or region not in avaiable region list");
-    return false;
+  let urnRegion = getRegionFromEndpoint(inputs.function_urn, 2, ':')
+  if (
+    checkParameterIsNull(endpointRegion) ||
+    regionArray.indexOf(endpointRegion) === -1
+  ) {
+    core.info(
+      'can not find any region in urn,or region not in avaiable region list'
+    )
+    return false
   }
-  if(endpointRegion != urnRegion){
-    core.info("endping region must the same as urn region");
-    return false;
+  if (endpointRegion != urnRegion) {
+    core.info('endping region must the same as urn region')
+    return false
   }
   //文件为obs类型时，需要单独分析obs
-  if(inputs.function_codetype === "obs"){
-    let obsRegion = getRegionFromEndpoint(inputs.function_file,2,".");
-    if(checkObejectIsNull(obsRegion) || regionArray.indexOf(obsRegion) === -1){
-      core.info("can not find any region in obs url,or region not in avaiable region list");
-      return false;
+  if (inputs.function_codetype === 'obs') {
+    let obsRegion = getRegionFromEndpoint(inputs.function_file, 2, '.')
+    if (
+      checkParameterIsNull(obsRegion) ||
+      regionArray.indexOf(obsRegion) === -1
+    ) {
+      core.info(
+        'can not find any region in obs url,or region not in avaiable region list'
+      )
+      return false
     }
-    if(endpointRegion != obsRegion){
-      core.info("endping region must the same as obs region");
-      return false;
+    if (endpointRegion != obsRegion) {
+      core.info('endping region must the same as obs region')
+      return false
     }
   }
-  return true;
+  return true
 }
 
 /**
@@ -198,19 +218,22 @@ export function checkRegion(inputs:context.Inputs) : boolean{
  * endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
  * function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
  * https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip
- * @param endpoint 
- * @returns 
+ * @param endpoint
+ * @returns
  */
-export function getRegionFromEndpoint(url:string,index:number,regix:string) : string{
-  let region:string = "";
-  let urlArray:string[] = url.split(regix);
-  if(urlArray.length >= (index+1)){
-    region = urlArray[index];
+export function getRegionFromEndpoint(
+  url: string,
+  index: number,
+  regix: string
+): string {
+  let region: string = ''
+  let urlArray: string[] = url.split(regix)
+  if (urlArray.length >= index + 1) {
+    region = urlArray[index]
   }
-  core.info("get currentRegion : " + region);
-  return region;
+  core.info('get currentRegion : ' + region)
+  return region
 }
-
 
 /**
  * 检查用户配置的function是否存在
@@ -218,14 +241,14 @@ export function getRegionFromEndpoint(url:string,index:number,regix:string) : st
 //export function checkFunctionExist(){}
 
 /**
- * 
+ *
  * @param filePath 从文件路径中获取到文件名，如xxxx.jar,xxxx.zip等
- * @returns 
+ * @returns
  */
- export function getFileNameFromPath(filePath:string):string{
-  if(filePath.indexOf("/") === -1){
-    return filePath;
+export function getFileNameFromPath(filePath: string): string {
+  if (filePath.indexOf('/') === -1) {
+    return filePath
   }
-  const pathArray = filePath.split("/");
-  return pathArray[pathArray.length - 1];
+  const pathArray = filePath.split('/')
+  return pathArray[pathArray.length - 1]
 }

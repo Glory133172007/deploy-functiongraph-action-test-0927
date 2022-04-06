@@ -41,9 +41,7 @@ export async function checkBase64Install(): Promise<boolean> {
  * 针对不同操作系统完成sshpass安装，可以细分为macos,linux-centos,linux-ubunto,windows等
  * @param platform
  */
-export async function installBase64ByPlatform(
-  platform: string
-): Promise<void> {
+export async function installBase64ByPlatform(platform: string): Promise<void> {
   if (platform === 'darwin') {
     await installBase64OnMacos()
   }
@@ -53,7 +51,7 @@ export async function installBase64ByPlatform(
 }
 
 /**
- * mac系统安装sshpass
+ * mac系统安装sshpass,安装脚本可能过期，因为sshpass.rb存放地址可能变了
  * 有可能先要完成xcode-select 的安装，可以执行 xcode-select --install
  */
 export async function installBase64OnMacos(): Promise<void> {
@@ -86,12 +84,12 @@ export async function installBase64OnLinux(): Promise<void> {
 
   if (osRelease.indexOf('Fedora') > -1) {
     core.info('current system is Fedor,use Dnf to install base64')
-    installCommand = `dnf install -y sshpass`
+    installCommand = `dnf install -y base64`
   }
 
   if (osRelease.indexOf('SUSE') > -1) {
     core.info('current system is OpenSuSE,use Zypper to install base64')
-    installCommand = `zypper in docker`
+    installCommand = `zypper in base64`
   }
   await execCommand(installCommand)
 }
@@ -101,7 +99,6 @@ export async function installBase64OnLinux(): Promise<void> {
  * @param command
  */
 export async function execCommand(command: string): Promise<void> {
-  //core.info('current install command is : ' + command)
   const execCommandResult = await (cp.execSync(command) || '').toString()
   core.info(execCommandResult)
 }
