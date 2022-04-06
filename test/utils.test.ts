@@ -46,6 +46,14 @@ test('test check file and dir exist and not empty',() => {
 
 })
 
+test('test check file and dir is empty',() => {
+    let emptyDirPath = "/Users/a/opensource/test"
+    expect(utils.checkFileOrDirExist("dir",emptyDirPath)).toEqual(false);
+
+    let emptyFilePath = "/Users/a/opensource/test.ts";
+    expect(utils.checkFileOrDirExist("file",emptyFilePath)).toEqual(false);
+})
+
 test("test check function type",()=>{
     expect(utils.checkCodeType("obs")).toEqual(true);
     expect(utils.checkCodeType("zip")).toEqual(true);
