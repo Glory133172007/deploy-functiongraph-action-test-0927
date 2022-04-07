@@ -38,15 +38,6 @@ export function checkCodeType(codeType: string) {
 }
 
 /**
- * 检查是否是正常的IP地址
- * @param ipaddr
- * @returns
- */
-export function checkIPV4Addr(ipaddr: string): boolean {
-  return context.IPREGX.test(ipaddr)
-}
-
-/**
  * 判断字符串是否为空
  * @param s
  * @returns
@@ -62,45 +53,6 @@ export function checkParameterIsNull(parameter: string): boolean {
     parameter == '' ||
     parameter.trim().length == 0
   )
-}
-
-/**
- *
- * @param commands 检查是否有影响操作系统安全的高危命令
- * @returns
- */
-export function checkCommandsDanger(commands: string[]): boolean {
-  var isCommandsDanger: boolean = false
-  for (var i = 0; i < commands.length; i++) {
-    var command = commands[i]
-    if (checkCommandDanger(command)) {
-      isCommandsDanger = true
-      break
-    }
-  }
-  return isCommandsDanger
-}
-
-/**
- * 检查命令行中是否有黑名单中的高危命令，对存在的高危命令给出提示
- * @param command
- * @returns
- */
-export function checkCommandDanger(command: string): boolean {
-  let isCommandDanger = false
-  for (var dCommand in context.dangerCommandSet) {
-    if (command.includes(dCommand)) {
-      core.info(
-        'find danger operation "' +
-          dCommand +
-          '" in command line "' +
-          command +
-          '",please remove it '
-      )
-      isCommandDanger = true
-    }
-  }
-  return isCommandDanger
 }
 
 /**
@@ -215,9 +167,6 @@ export function checkRegion(inputs: context.Inputs): boolean {
 
 /**
  * 从指定的url中分离出region信息
- * endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
- * function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
- * https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip
  * @param endpoint
  * @returns
  */

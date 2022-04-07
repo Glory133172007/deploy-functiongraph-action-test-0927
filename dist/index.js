@@ -534,7 +534,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getFileNameFromPath = exports.getRegionFromEndpoint = exports.checkRegion = exports.checkFileOrDirExist = exports.checkCommandDanger = exports.checkCommandsDanger = exports.checkParameterIsNull = exports.checkIPV4Addr = exports.checkCodeType = exports.checkInputs = void 0;
+exports.getFileNameFromPath = exports.getRegionFromEndpoint = exports.checkRegion = exports.checkFileOrDirExist = exports.checkParameterIsNull = exports.checkCodeType = exports.checkInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const context = __importStar(__nccwpck_require__(3842));
 const fs = __importStar(__nccwpck_require__(5630));
@@ -571,15 +571,6 @@ function checkCodeType(codeType) {
 }
 exports.checkCodeType = checkCodeType;
 /**
- * 检查是否是正常的IP地址
- * @param ipaddr
- * @returns
- */
-function checkIPV4Addr(ipaddr) {
-    return context.IPREGX.test(ipaddr);
-}
-exports.checkIPV4Addr = checkIPV4Addr;
-/**
  * 判断字符串是否为空
  * @param s
  * @returns
@@ -595,43 +586,6 @@ function checkParameterIsNull(parameter) {
         parameter.trim().length == 0);
 }
 exports.checkParameterIsNull = checkParameterIsNull;
-/**
- *
- * @param commands 检查是否有影响操作系统安全的高危命令
- * @returns
- */
-function checkCommandsDanger(commands) {
-    var isCommandsDanger = false;
-    for (var i = 0; i < commands.length; i++) {
-        var command = commands[i];
-        if (checkCommandDanger(command)) {
-            isCommandsDanger = true;
-            break;
-        }
-    }
-    return isCommandsDanger;
-}
-exports.checkCommandsDanger = checkCommandsDanger;
-/**
- * 检查命令行中是否有黑名单中的高危命令，对存在的高危命令给出提示
- * @param command
- * @returns
- */
-function checkCommandDanger(command) {
-    let isCommandDanger = false;
-    for (var dCommand in context.dangerCommandSet) {
-        if (command.includes(dCommand)) {
-            core.info('find danger operation "' +
-                dCommand +
-                '" in command line "' +
-                command +
-                '",please remove it ');
-            isCommandDanger = true;
-        }
-    }
-    return isCommandDanger;
-}
-exports.checkCommandDanger = checkCommandDanger;
 /**
  * 检查文件或者目录是否存在，并判断文件类型是否匹配
  * 对所有输入的类型进行了校验，不需要defalt了
@@ -732,9 +686,6 @@ function checkRegion(inputs) {
 exports.checkRegion = checkRegion;
 /**
  * 从指定的url中分离出region信息
- * endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
- * function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
- * https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip
  * @param endpoint
  * @returns
  */
