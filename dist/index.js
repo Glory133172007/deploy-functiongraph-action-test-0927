@@ -564,7 +564,7 @@ exports.checkInputs = checkInputs;
  * @returns
  */
 function checkCodeType(codeType) {
-    if (context.codeTypeArray.indexOf(codeType) > -1) {
+    if (context.codeTypeArray.includes(codeType)) {
         return true;
     }
     return false;

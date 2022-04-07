@@ -31,7 +31,7 @@ export function checkInputs(inputs: context.Inputs): boolean {
  * @returns
  */
 export function checkCodeType(codeType: string) {
-  if (context.codeTypeArray.indexOf(codeType) > -1) {
+  if (context.codeTypeArray.includes(codeType)) {
     return true
   }
   return false
