@@ -4,7 +4,7 @@ author: 'wenchui'
 inputs:
   ak: 
     required: true
-    description: 'huaweicloud SK'
+    description: 'huaweicloud AK'
   sk: 
     required: true
     description: 'huaweicloud SK'
