@@ -597,10 +597,6 @@ exports.checkCodeType = checkCodeType;
  * @returns
  */
 function checkParameterIsNull(parameter) {
-    // if (parameter == undefined || parameter == null || parameter == '' || parameter.trim().length == 0) {
-    //   return true
-    // }
-    // return false
     return (parameter == undefined ||
         parameter == null ||
         parameter == '' ||

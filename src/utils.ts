@@ -43,10 +43,6 @@ export function checkCodeType(codeType: string) {
  * @returns
  */
 export function checkParameterIsNull(parameter: string): boolean {
-  // if (parameter == undefined || parameter == null || parameter == '' || parameter.trim().length == 0) {
-  //   return true
-  // }
-  // return false
   return (
     parameter == undefined ||
     parameter == null ||
