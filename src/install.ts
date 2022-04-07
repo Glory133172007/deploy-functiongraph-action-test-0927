@@ -16,7 +16,7 @@ export async function installBase64OnSystem(): Promise<boolean> {
   }
 
   core.info('start install sshpass')
-  let platform = os.platform()
+  const platform = os.platform()
   installBase64ByPlatform(platform)
   return checkBase64Install()
 }
@@ -26,13 +26,13 @@ export async function installBase64OnSystem(): Promise<boolean> {
  * @returns
  */
 export async function checkBase64Install(): Promise<boolean> {
-  let base64 = await io.which('base64')
+  const base64 = await io.which('base64')
   if (!base64) {
     core.info('base64 not installed or not set to the path')
     return false
   }
   core.info('base64 already installed and set to the path')
-  let sbase64Version = (cp.execSync(`${base64} -V`) || '').toString()
+  const sbase64Version = (cp.execSync(`${base64} -V`) || '').toString()
   core.info(sbase64Version)
   return true
 }
@@ -70,7 +70,7 @@ export async function installBase64OnMacos(): Promise<void> {
  */
 export async function installBase64OnLinux(): Promise<void> {
   const osRelease = await (cp.execSync(`cat /etc/os-release`) || '').toString()
-  let installCommand: string = 'yum -y install -q base64'
+  let installCommand = 'yum -y install -q base64'
 
   if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
     core.info('current system is Ubuntu,use apt-get to install base64')

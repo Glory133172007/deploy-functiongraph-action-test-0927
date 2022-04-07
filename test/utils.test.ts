@@ -46,6 +46,14 @@ test('test check file and dir exist and not empty',() => {
 
 })
 
+test('test check relative path exist',()=>{
+  let relativeDirPath = "./resource"
+  expect(utils.checkFileOrDirExist("dir",relativeDirPath)).toEqual(true);
+
+  let relativeFilePath = "./resource/index.py";
+  expect(utils.checkFileOrDirExist("file",relativeFilePath)).toEqual(true);
+})
+
 test('test check file and dir is empty',() => {
     let emptyDirPath = "/Users/a/opensource/test"
     expect(utils.checkFileOrDirExist("dir",emptyDirPath)).toEqual(false);

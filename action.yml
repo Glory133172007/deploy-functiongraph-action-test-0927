@@ -18,7 +18,7 @@ inputs:
   function_urn: 
     required: true
     description: 'huaweicloud functiongraph urn address'
-  function_codetype:
+  function_codetype: 
     required: true
     description:"support obs,zip,jar,file,dir"
   function_file: 

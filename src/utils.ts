@@ -169,7 +169,7 @@ export function checkFileOrDirExist(
  */
 export function checkRegion(inputs: context.Inputs): boolean {
   const regionArray = context.regionArray
-  let endpointRegion = getRegionFromEndpoint(inputs.endpoint, 1, '.')
+  const endpointRegion = getRegionFromEndpoint(inputs.endpoint, 1, '.')
   if (
     checkParameterIsNull(endpointRegion) ||
     regionArray.indexOf(endpointRegion) === -1
@@ -179,7 +179,7 @@ export function checkRegion(inputs: context.Inputs): boolean {
     )
     return false
   }
-  let urnRegion = getRegionFromEndpoint(inputs.function_urn, 2, ':')
+  const urnRegion = getRegionFromEndpoint(inputs.function_urn, 2, ':')
   if (
     checkParameterIsNull(endpointRegion) ||
     regionArray.indexOf(endpointRegion) === -1
@@ -195,7 +195,7 @@ export function checkRegion(inputs: context.Inputs): boolean {
   }
   //文件为obs类型时，需要单独分析obs
   if (inputs.function_codetype === 'obs') {
-    let obsRegion = getRegionFromEndpoint(inputs.function_file, 2, '.')
+    const obsRegion = getRegionFromEndpoint(inputs.function_file, 2, '.')
     if (
       checkParameterIsNull(obsRegion) ||
       regionArray.indexOf(obsRegion) === -1
@@ -227,7 +227,7 @@ export function getRegionFromEndpoint(
   regix: string
 ): string {
   let region: string = ''
-  let urlArray: string[] = url.split(regix)
+  const urlArray: string[] = url.split(regix)
   if (urlArray.length >= index + 1) {
     region = urlArray[index]
   }

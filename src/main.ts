@@ -84,9 +84,8 @@ export async function run() {
     }
   }
   request.withBody(body)
-
   accore.info('---------- start request')
-  const result = await client.updateFunctionCode(request)
+  const result = client.updateFunctionCode(request)
   result
     .then((result: any) => {
       accore.info('JSON.stringify(result)::' + JSON.stringify(result))

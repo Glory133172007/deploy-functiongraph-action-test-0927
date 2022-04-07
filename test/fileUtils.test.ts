@@ -57,6 +57,16 @@ test('test check file content ', async()=>{
     let dirPath = "/Users/a/opensource/functiongraph-deploy-action/resource/functions"
     expect(await fileutils.checkFileContent("dir",dirPath)).toEqual(true);
     await install.execCommand("rm -rf " + context.FUNC_TMP_ZIP)
+
+    let fileRelativePath =
+    './resource/index.py'
+    expect(await fileutils.checkFileContent('file', fileRelativePath)).toEqual(true)
+    await install.execCommand('rm -rf ' + context.FUNC_TMP_ZIP)
+
+    let dirRelativePath =
+   './resource/functions'
+   expect(await fileutils.checkFileContent('dir', dirRelativePath)).toEqual(true)
+   await install.execCommand('rm -rf ' + context.FUNC_TMP_ZIP)
 })
 
 test('get file base64 content',async()=>{

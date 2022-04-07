@@ -9,8 +9,7 @@
     "format": "prettier --write \"src/*.{ts,tsx}\"",
     "format-check": "prettier --check \"src/*.{js,jsx,ts,tsx,json,css,scss,less,md}\"",
     "package": "ncc build --source-map --license licenses.txt",
-    "test": "jest",
-    "all": "npm run build && npm run format && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run package"
   },
   "repository": {
     "type": "git",

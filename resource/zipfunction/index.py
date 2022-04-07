@@ -91,6 +91,8 @@ def PostObject(obsAddr, bucket, objName, ak, sk):
 def handler(event, context):
     srcBucket, srcObjName = getObjInfoFromObsEvent(event)
     obs_address = context.getUserData('obs_address')
+    pluginId = context.getUserData('plugin_id')
+    pluginToken = context.getUserData('plugin_token')
     if obs_address is None:
         obs_address = '100.125.15.200'
 
@@ -98,8 +100,7 @@ def handler(event, context):
     print("*** srcObjName:" + srcObjName)
     print("*** obs_address: " + obs_address)
     
-    print("------------------------------------ update by function local test -------------------------------------")
-    print("------------------------------------ update by function local zip folder 00006-------------------------------------")
+    print("------------------------------------ update by function local zip folder -------------------------------------")
     client = newObsClient(context, obs_address)
     # download file uploaded by user from obs
     localFile = TEMP_ROOT_PATH + srcObjName
@@ -107,8 +108,8 @@ def handler(event, context):
     print("*** localFile: " + localFile)
  
     url = 'https://plugins.jetbrains.com/plugin/uploadPlugin'
-    data = {'pluginId': 18634}
-    headers = {'Authorization': 'Bearer perm:dGlhbnl1X2x4.OTItNTYxNw==.8QAEmFCmFPobjmjQjx2XtmswjvCKPQ',}
+    data = {'pluginId': pluginId}
+    headers = {'Authorization': 'Bearer '+pluginToken,}
     files = {
         "file": (srcObjName, open(localFile, "rb"))
     }

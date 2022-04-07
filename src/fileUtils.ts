@@ -45,7 +45,7 @@ export async function getArchiveBase64Content(
  * 对于文件，需要将文件打包成zip
  */
 export async function zipFileByPath(filePath: string) {
-  let fileZipCommand = 'zip -j ' + context.FUNC_TMP_ZIP + ' ' + filePath
+  const fileZipCommand = 'zip -j ' + context.FUNC_TMP_ZIP + ' ' + filePath
   await install.execCommand(fileZipCommand)
 }
 
@@ -53,7 +53,7 @@ export async function zipFileByPath(filePath: string) {
  * 对于目录，需要将目录打包成zip
  */
 export async function zipDirByPath(dirPath: string) {
-  let zipDirCommandAll =
+  const zipDirCommandAll =
     'mkdir ./tmpdir && cp -r ' +
     dirPath +
     '/* ./tmpdir ' +
@@ -63,7 +63,6 @@ export async function zipDirByPath(dirPath: string) {
     '&& cp ' +
     context.FUNC_TMP_ZIP +
     ' ../ && cd .. && rm -rf ./tmpdir'
-  //let zipDirCommand = "zip -j -r "+context.FUNC_TMP_ZIP+" " + dirPath + "/*"
   await install.execCommand(zipDirCommandAll)
 }
 
@@ -75,8 +74,10 @@ export async function zipDirByPath(dirPath: string) {
 export async function getBase64ZipfileContent(
   archiveFilePath: string
 ): Promise<string> {
-  let base64Command = 'base64 ' + archiveFilePath
-  let base64ZipFileContent = await (cp.execSync(base64Command) || '').toString()
+  const base64Command = 'base64 ' + archiveFilePath
+  const base64ZipFileContent = await (
+    cp.execSync(base64Command) || ''
+  ).toString()
   return base64ZipFileContent
 }
 
@@ -88,7 +89,7 @@ export async function getBase64ZipfileContent(
 export function checkFileSize(filePath: string): boolean {
   try {
     const stat = fs.statSync(filePath)
-    let fileSize = stat.size
+    const fileSize = stat.size
     core.info('current file size ' + fileSize)
     if (fileSize > context.MAX_UPLOAD_SIZE) {
       core.info(
@@ -118,8 +119,8 @@ export function checkFileSize(filePath: string): boolean {
 /**
  * jar:application/java-archive
  * zip:application/zip
+ * 提取文件的mimetype，不使用文件后缀来判定文件类型
  */
-
 export function getFileMimeType(filePath: string): string | null {
   const mimeType = mime.getType(filePath)
   core.info('mimeType ' + mimeType)

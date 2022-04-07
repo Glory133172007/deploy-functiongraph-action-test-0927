@@ -159,7 +159,7 @@ exports.getArchiveBase64Content = getArchiveBase64Content;
  */
 function zipFileByPath(filePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        let fileZipCommand = 'zip -j ' + context.FUNC_TMP_ZIP + ' ' + filePath;
+        const fileZipCommand = 'zip -j ' + context.FUNC_TMP_ZIP + ' ' + filePath;
         yield install.execCommand(fileZipCommand);
     });
 }
@@ -169,7 +169,7 @@ exports.zipFileByPath = zipFileByPath;
  */
 function zipDirByPath(dirPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        let zipDirCommandAll = 'mkdir ./tmpdir && cp -r ' +
+        const zipDirCommandAll = 'mkdir ./tmpdir && cp -r ' +
             dirPath +
             '/* ./tmpdir ' +
             '&& cd ./tmpdir && zip -r ' +
@@ -178,7 +178,6 @@ function zipDirByPath(dirPath) {
             '&& cp ' +
             context.FUNC_TMP_ZIP +
             ' ../ && cd .. && rm -rf ./tmpdir';
-        //let zipDirCommand = "zip -j -r "+context.FUNC_TMP_ZIP+" " + dirPath + "/*"
         yield install.execCommand(zipDirCommandAll);
     });
 }
@@ -190,8 +189,8 @@ exports.zipDirByPath = zipDirByPath;
  */
 function getBase64ZipfileContent(archiveFilePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        let base64Command = 'base64 ' + archiveFilePath;
-        let base64ZipFileContent = yield (cp.execSync(base64Command) || '').toString();
+        const base64Command = 'base64 ' + archiveFilePath;
+        const base64ZipFileContent = yield (cp.execSync(base64Command) || '').toString();
         return base64ZipFileContent;
     });
 }
@@ -204,7 +203,7 @@ exports.getBase64ZipfileContent = getBase64ZipfileContent;
 function checkFileSize(filePath) {
     try {
         const stat = fs.statSync(filePath);
-        let fileSize = stat.size;
+        const fileSize = stat.size;
         core.info('current file size ' + fileSize);
         if (fileSize > context.MAX_UPLOAD_SIZE) {
             core.info('the upload file ' +
@@ -232,6 +231,7 @@ exports.checkFileSize = checkFileSize;
 /**
  * jar:application/java-archive
  * zip:application/zip
+ * 提取文件的mimetype，不使用文件后缀来判定文件类型
  */
 function getFileMimeType(filePath) {
     const mimeType = mime.getType(filePath);
@@ -295,7 +295,7 @@ function installBase64OnSystem() {
             return isInstalld;
         }
         core.info('start install sshpass');
-        let platform = os.platform();
+        const platform = os.platform();
         installBase64ByPlatform(platform);
         return checkBase64Install();
     });
@@ -307,13 +307,13 @@ exports.installBase64OnSystem = installBase64OnSystem;
  */
 function checkBase64Install() {
     return __awaiter(this, void 0, void 0, function* () {
-        let base64 = yield io.which('base64');
+        const base64 = yield io.which('base64');
         if (!base64) {
             core.info('base64 not installed or not set to the path');
             return false;
         }
         core.info('base64 already installed and set to the path');
-        let sbase64Version = (cp.execSync(`${base64} -V`) || '').toString();
+        const sbase64Version = (cp.execSync(`${base64} -V`) || '').toString();
         core.info(sbase64Version);
         return true;
     });
@@ -492,7 +492,7 @@ function run() {
         }
         request.withBody(body);
         accore.info('---------- start request');
-        const result = yield client.updateFunctionCode(request);
+        const result = client.updateFunctionCode(request);
         result
             .then((result) => {
             accore.info('JSON.stringify(result)::' + JSON.stringify(result));
@@ -589,7 +589,10 @@ function checkParameterIsNull(parameter) {
     //   return true
     // }
     // return false
-    return parameter == undefined || parameter == null || parameter == '' || parameter.trim().length == 0;
+    return (parameter == undefined ||
+        parameter == null ||
+        parameter == '' ||
+        parameter.trim().length == 0);
 }
 exports.checkParameterIsNull = checkParameterIsNull;
 /**
@@ -695,13 +698,13 @@ exports.checkFileOrDirExist = checkFileOrDirExist;
  */
 function checkRegion(inputs) {
     const regionArray = context.regionArray;
-    let endpointRegion = getRegionFromEndpoint(inputs.endpoint, 1, '.');
+    const endpointRegion = getRegionFromEndpoint(inputs.endpoint, 1, '.');
     if (checkParameterIsNull(endpointRegion) ||
         regionArray.indexOf(endpointRegion) === -1) {
         core.info('can not find any region in endpoint,or region not in avaiable region list');
         return false;
     }
-    let urnRegion = getRegionFromEndpoint(inputs.function_urn, 2, ':');
+    const urnRegion = getRegionFromEndpoint(inputs.function_urn, 2, ':');
     if (checkParameterIsNull(endpointRegion) ||
         regionArray.indexOf(endpointRegion) === -1) {
         core.info('can not find any region in urn,or region not in avaiable region list');
@@ -713,7 +716,7 @@ function checkRegion(inputs) {
     }
     //文件为obs类型时，需要单独分析obs
     if (inputs.function_codetype === 'obs') {
-        let obsRegion = getRegionFromEndpoint(inputs.function_file, 2, '.');
+        const obsRegion = getRegionFromEndpoint(inputs.function_file, 2, '.');
         if (checkParameterIsNull(obsRegion) ||
             regionArray.indexOf(obsRegion) === -1) {
             core.info('can not find any region in obs url,or region not in avaiable region list');
@@ -737,7 +740,7 @@ exports.checkRegion = checkRegion;
  */
 function getRegionFromEndpoint(url, index, regix) {
     let region = '';
-    let urlArray = url.split(regix);
+    const urlArray = url.split(regix);
     if (urlArray.length >= index + 1) {
         region = urlArray[index];
     }
