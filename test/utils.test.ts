@@ -136,7 +136,7 @@ test('test check file and dir exist and not empty',() => {
   export function getOBSInputs_urn_wrong(): context.Inputs{
     return{
       ak : "**********************************************",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "****************************",
       function_codetype: "obs",
@@ -148,7 +148,7 @@ test('test check file and dir exist and not empty',() => {
   export function getOBSInputs_obs_wrong(): context.Inputs{
     return{
       ak : "**********************************************",
-      sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
+      sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
       project_id : "****************************",
       function_codetype: "obs",
