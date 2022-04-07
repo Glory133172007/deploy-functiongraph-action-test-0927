@@ -288,16 +288,16 @@ const os = __importStar(__nccwpck_require__(2087));
  */
 function installBase64OnSystem() {
     return __awaiter(this, void 0, void 0, function* () {
-        const isInstalld = yield checkBase64Install();
+        let platform = os.platform();
+        const isInstalld = yield checkBase64Install(platform);
         core.info(`is install ${isInstalld}`);
         if (isInstalld) {
-            core.info('sshPass already installed and set to the path');
+            core.info('Base64 already installed and set to the path');
             return isInstalld;
         }
-        core.info('start install sshpass');
-        const platform = os.platform();
+        core.info('start install Base64');
         installBase64ByPlatform(platform);
-        return checkBase64Install();
+        return checkBase64Install(platform);
     });
 }
 exports.installBase64OnSystem = installBase64OnSystem;
@@ -305,16 +305,22 @@ exports.installBase64OnSystem = installBase64OnSystem;
  * 检查sshpass是否已经在系统上完成安装，并输出版本
  * @returns
  */
-function checkBase64Install() {
+function checkBase64Install(platform) {
     return __awaiter(this, void 0, void 0, function* () {
-        const base64 = yield io.which('base64');
+        let base64 = yield io.which('base64');
         if (!base64) {
             core.info('base64 not installed or not set to the path');
             return false;
         }
         core.info('base64 already installed and set to the path');
-        const sbase64Version = (cp.execSync(`${base64} -V`) || '').toString();
-        core.info(sbase64Version);
+        if (platform === 'darwin') {
+            const macosCheckVersion = `${base64} --help`;
+            execCommand(macosCheckVersion);
+        }
+        if (platform === 'linux') {
+            const linuxCheckVersion = `${base64} --version`;
+            execCommand(linuxCheckVersion);
+        }
         return true;
     });
 }
@@ -335,13 +341,14 @@ function installBase64ByPlatform(platform) {
 }
 exports.installBase64ByPlatform = installBase64ByPlatform;
 /**
- * mac系统安装sshpass,安装脚本可能过期，因为sshpass.rb存放地址可能变了
- * 有可能先要完成xcode-select 的安装，可以执行 xcode-select --install
+ * mac系统安装base64
+ * 需要先安装brew
  */
 function installBase64OnMacos() {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('current system is Ubuntu,use apt-get to install Base64');
-        yield (cp.execSync(`wget https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb && brew install sshpass.rb`) || '').toString();
+        core.info('current system is macos,use brew to install Base64');
+        const installBase64CMD = 'brew install base64';
+        yield execCommand(installBase64CMD);
     });
 }
 exports.installBase64OnMacos = installBase64OnMacos;
@@ -353,22 +360,22 @@ exports.installBase64OnMacos = installBase64OnMacos;
 function installBase64OnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         const osRelease = yield (cp.execSync(`cat /etc/os-release`) || '').toString();
-        let installCommand = 'yum -y install -q base64';
+        let installCommand = 'yum -y install -q coreutils';
         if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
             core.info('current system is Ubuntu,use apt-get to install base64');
-            installCommand = `apt-get -y -q update && apt-get -y install -q base64`;
+            installCommand = `apt-get -y -q update && apt-get -y install -q coreutils`;
         }
         if (osRelease.indexOf('CentOS') > -1) {
             core.info('current system is Centos,use yum to install base64');
-            installCommand = `yum -y install -q base64`;
+            installCommand = `yum -y install -q coreutils`;
         }
         if (osRelease.indexOf('Fedora') > -1) {
             core.info('current system is Fedor,use Dnf to install base64');
-            installCommand = `dnf install -y base64`;
+            installCommand = `dnf install -y -q coreutils`;
         }
         if (osRelease.indexOf('SUSE') > -1) {
             core.info('current system is OpenSuSE,use Zypper to install base64');
-            installCommand = `zypper in base64`;
+            installCommand = `zypper in coreutils`;
         }
         yield execCommand(installCommand);
     });
@@ -423,15 +430,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.genRequest = exports.run = void 0;
 const accore = __importStar(__nccwpck_require__(2186));
 const utils = __importStar(__nccwpck_require__(918));
 const context = __importStar(__nccwpck_require__(3842));
 const fileutils = __importStar(__nccwpck_require__(1066));
+const install = __importStar(__nccwpck_require__(9039));
 const core = __nccwpck_require__(4820);
 const functiongraph = __nccwpck_require__(5301);
 /**
- * 1、对参数和文件进行校验
+ * 1、对安装工具，参数和文件进行校验
  * 2、基于ak/sk 鉴权
  * 3、发起部署
  * @returns
@@ -439,6 +447,12 @@ const functiongraph = __nccwpck_require__(5301);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const inputs = context.getInputs();
+        accore.info('---------- check Base64 on system');
+        const installSuccess = yield install.installBase64OnSystem();
+        if (!installSuccess) {
+            core.info('can not install Base64 on system');
+            return;
+        }
         accore.info('---------- check input parameters');
         if (!utils.checkInputs(inputs) ||
             !utils.checkCodeType(inputs.function_codetype) ||
@@ -463,6 +477,22 @@ function run() {
             .withEndpoint(inputs.endpoint)
             .build();
         accore.info('---------- gen request');
+        const request = yield genRequest(inputs);
+        accore.info('---------- start request');
+        const result = client.updateFunctionCode(request);
+        result
+            .then((result) => {
+            accore.info('JSON.stringify(result)::' + JSON.stringify(result));
+        })
+            .catch((ex) => {
+            accore.info('exception:' + JSON.stringify(ex));
+        });
+        accore.info('---------- end request');
+    });
+}
+exports.run = run;
+function genRequest(inputs) {
+    return __awaiter(this, void 0, void 0, function* () {
         const request = new functiongraph.UpdateFunctionCodeRequest();
         request.functionUrn = inputs.function_urn;
         const body = new functiongraph.UpdateFunctionCodeRequestBody();
@@ -491,19 +521,10 @@ function run() {
             }
         }
         request.withBody(body);
-        accore.info('---------- start request');
-        const result = client.updateFunctionCode(request);
-        result
-            .then((result) => {
-            accore.info('JSON.stringify(result)::' + JSON.stringify(result));
-        })
-            .catch((ex) => {
-            accore.info('exception:' + JSON.stringify(ex));
-        });
-        accore.info('---------- end request');
+        return request;
     });
 }
-exports.run = run;
+exports.genRequest = genRequest;
 run();
 
 

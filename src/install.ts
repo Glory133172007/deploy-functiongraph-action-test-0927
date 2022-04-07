@@ -8,32 +8,38 @@ import * as os from 'os'
  * @returns
  */
 export async function installBase64OnSystem(): Promise<boolean> {
-  const isInstalld = await checkBase64Install()
+  let platform = os.platform()
+  const isInstalld = await checkBase64Install(platform)
   core.info(`is install ${isInstalld}`)
   if (isInstalld) {
-    core.info('sshPass already installed and set to the path')
+    core.info('Base64 already installed and set to the path')
     return isInstalld
   }
 
-  core.info('start install sshpass')
-  const platform = os.platform()
+  core.info('start install Base64')
   installBase64ByPlatform(platform)
-  return checkBase64Install()
+  return checkBase64Install(platform)
 }
 
 /**
  * 检查sshpass是否已经在系统上完成安装，并输出版本
  * @returns
  */
-export async function checkBase64Install(): Promise<boolean> {
-  const base64 = await io.which('base64')
+export async function checkBase64Install(platform: string): Promise<boolean> {
+  let base64 = await io.which('base64')
   if (!base64) {
     core.info('base64 not installed or not set to the path')
     return false
   }
   core.info('base64 already installed and set to the path')
-  const sbase64Version = (cp.execSync(`${base64} -V`) || '').toString()
-  core.info(sbase64Version)
+  if (platform === 'darwin') {
+    const macosCheckVersion = `${base64} --help`
+    execCommand(macosCheckVersion)
+  }
+  if (platform === 'linux') {
+    const linuxCheckVersion = `${base64} --version`
+    execCommand(linuxCheckVersion)
+  }
   return true
 }
 
@@ -51,16 +57,13 @@ export async function installBase64ByPlatform(platform: string): Promise<void> {
 }
 
 /**
- * mac系统安装sshpass,安装脚本可能过期，因为sshpass.rb存放地址可能变了
- * 有可能先要完成xcode-select 的安装，可以执行 xcode-select --install
+ * mac系统安装base64
+ * 需要先安装brew
  */
 export async function installBase64OnMacos(): Promise<void> {
-  core.info('current system is Ubuntu,use apt-get to install Base64')
-  await (
-    cp.execSync(
-      `wget https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb && brew install sshpass.rb`
-    ) || ''
-  ).toString()
+  core.info('current system is macos,use brew to install Base64')
+  const installBase64CMD = 'brew install base64'
+  await execCommand(installBase64CMD)
 }
 
 /**
@@ -70,26 +73,26 @@ export async function installBase64OnMacos(): Promise<void> {
  */
 export async function installBase64OnLinux(): Promise<void> {
   const osRelease = await (cp.execSync(`cat /etc/os-release`) || '').toString()
-  let installCommand = 'yum -y install -q base64'
+  let installCommand: string = 'yum -y install -q coreutils'
 
   if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
     core.info('current system is Ubuntu,use apt-get to install base64')
-    installCommand = `apt-get -y -q update && apt-get -y install -q base64`
+    installCommand = `apt-get -y -q update && apt-get -y install -q coreutils`
   }
 
   if (osRelease.indexOf('CentOS') > -1) {
     core.info('current system is Centos,use yum to install base64')
-    installCommand = `yum -y install -q base64`
+    installCommand = `yum -y install -q coreutils`
   }
 
   if (osRelease.indexOf('Fedora') > -1) {
     core.info('current system is Fedor,use Dnf to install base64')
-    installCommand = `dnf install -y base64`
+    installCommand = `dnf install -y -q coreutils`
   }
 
   if (osRelease.indexOf('SUSE') > -1) {
     core.info('current system is OpenSuSE,use Zypper to install base64')
-    installCommand = `zypper in base64`
+    installCommand = `zypper in coreutils`
   }
   await execCommand(installCommand)
 }

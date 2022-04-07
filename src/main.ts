@@ -1,20 +1,27 @@
 import * as accore from '@actions/core'
-import * as cp from 'child_process'
 import * as utils from './utils'
 import * as context from './context'
 import * as fileutils from './fileUtils'
+import * as install from './install'
 
 const core = require('@huaweicloud/huaweicloud-sdk-core')
 const functiongraph = require('@huaweicloud/huaweicloud-sdk-functiongraph')
 
 /**
- * 1、对参数和文件进行校验
+ * 1、对安装工具，参数和文件进行校验
  * 2、基于ak/sk 鉴权
  * 3、发起部署
  * @returns
  */
 export async function run() {
   const inputs: context.Inputs = context.getInputs()
+
+  accore.info('---------- check Base64 on system')
+  const installSuccess = await install.installBase64OnSystem()
+  if (!installSuccess) {
+    core.info('can not install Base64 on system')
+    return
+  }
 
   accore.info('---------- check input parameters')
   if (
@@ -51,6 +58,21 @@ export async function run() {
     .build()
 
   accore.info('---------- gen request')
+  const request = await genRequest(inputs)
+
+  accore.info('---------- start request')
+  const result = client.updateFunctionCode(request)
+  result
+    .then((result: any) => {
+      accore.info('JSON.stringify(result)::' + JSON.stringify(result))
+    })
+    .catch((ex: any) => {
+      accore.info('exception:' + JSON.stringify(ex))
+    })
+  accore.info('---------- end request')
+}
+
+export async function genRequest(inputs: context.Inputs): Promise<any> {
   const request = new functiongraph.UpdateFunctionCodeRequest()
   request.functionUrn = inputs.function_urn
   const body = new functiongraph.UpdateFunctionCodeRequestBody()
@@ -84,16 +106,7 @@ export async function run() {
     }
   }
   request.withBody(body)
-  accore.info('---------- start request')
-  const result = client.updateFunctionCode(request)
-  result
-    .then((result: any) => {
-      accore.info('JSON.stringify(result)::' + JSON.stringify(result))
-    })
-    .catch((ex: any) => {
-      accore.info('exception:' + JSON.stringify(ex))
-    })
-  accore.info('---------- end request')
+  return request
 }
 
 run()
