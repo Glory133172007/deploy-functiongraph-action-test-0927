@@ -23,6 +23,8 @@ function_file:函数文件的路径，如果是obs，请填写该文件在OBS上
 
 ## **使用样例:**
 deploy-functiongraph-action 在github workflow 上的使用样例:
+### **参数说明:**
+需要在项目的setting--Secret--Actions下添加 AK,SK,PROJECTID,FUNCTIONAME四个参数
 ### 1、OBS方式
 如果函数文件比较大(超过50M),请先将文件上传到OBS，然后将该文件在OBS中的路径配置到function_file上,function_codetype填写为obs
 ```yaml
@@ -32,8 +34,8 @@ deploy-functiongraph-action 在github workflow 上的使用样例:
     ak: ${{ secrets.AK }}
     sk: ${{ secrets.SK }}
     endpoint: https://functiongraph.cn-north-4.myhuaweicloud.com
-    project_id: 0dd8cb413000906a2fcdc019b5a84546
-    function_urn: urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest
+    project_id: ${{ secrets.PROJECTID }}
+    function_urn: urn:fss:cn-north-4:${{ secrets.PROJECTID }}:function:default:${{ secrets.FUNCTIONNAME}}:latest
     function_codetype: obs
     function_file: "https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip
 ```
@@ -46,8 +48,8 @@ name: deploy jar to huaweicloud functiongraph
     ak: ${{ secrets.AK }}
     sk: ${{ secrets.SK }}
     endpoint: https://functiongraph.cn-north-4.myhuaweicloud.com
-    project_id: 0dd8cb413000906a2fcdc019b5a84546
-    function_urn: urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest
+    project_id: ${{ secrets.PROJECTID }}
+    function_urn: urn:fss:cn-north-4:${{ secrets.PROJECTID }}:function:default:${{ secrets.FUNCTIONNAME}}:latest
     function_codetype: jar
     function_file: /Users/a/Downloads/demoapp.jar
  ```   
@@ -60,8 +62,8 @@ name: deploy jar to huaweicloud functiongraph
     ak: ${{ secrets.AK }}
     sk: ${{ secrets.SK }}
     endpoint: https://functiongraph.cn-north-4.myhuaweicloud.com
-    project_id: 0dd8cb413000906a2fcdc019b5a84546
-    function_urn: urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest
+    project_id: ${{ secrets.PROJECTID }}
+    function_urn: urn:fss:cn-north-4:${{ secrets.PROJECTID }}:function:default:${{ secrets.FUNCTIONNAME}}:latest
     function_codetype: file
     function_file: /Users/a/opensource/resource/index.py
  ```   
@@ -74,8 +76,8 @@ name: deploy jar to huaweicloud functiongraph
     ak: ${{ secrets.AK }}
     sk: ${{ secrets.SK }}
     endpoint: https://functiongraph.cn-north-4.myhuaweicloud.com
-    project_id: 0dd8cb413000906a2fcdc019b5a84546
-    function_urn: urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest
+    project_id: ${{ secrets.PROJECTID }}
+    function_urn: urn:fss:cn-north-4:${{ secrets.PROJECTID }}:function:default:${{ secrets.FUNCTIONNAME}}:latest
     function_codetype: dir
     function_file: /Users/a/opensource/resource/functions
  ```  
@@ -88,8 +90,8 @@ name: deploy jar to huaweicloud functiongraph
     ak: ${{ secrets.AK }}
     sk: ${{ secrets.SK }}
     endpoint: https://functiongraph.cn-north-4.myhuaweicloud.com
-    project_id: 0dd8cb413000906a2fcdc019b5a84546
-    function_urn: urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest
+    project_id: ${{ secrets.PROJECTID }}
+    function_urn: urn:fss:cn-north-4:${{ secrets.PROJECTID }}:function:default:${{ secrets.FUNCTIONNAME}}:latest
     function_codetype: zip
     function_file: /Users/a/opensource/resource/index_py.zip
  ```

@@ -114,9 +114,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "obs",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip"
     }
   }
@@ -126,9 +126,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-1.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "obs",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip"
     }
   }
@@ -138,9 +138,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "obs",
-      function_urn :"urn:fss:cn-north-1:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-1:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "https://huaweihdnbucket.obs.cn-north-4.myhuaweicloud.com/function/publishmarket/index_obs.zip"
     }
   }
@@ -150,9 +150,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "iRlvan7O0Apq9IMQ8sATlYuWLKBJvsrsH0GP9Whx",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "obs",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "https://huaweihdnbucket.obs.cn-north-1.myhuaweicloud.com/function/publishmarket/index_obs.zip"
     }
   }
@@ -162,9 +162,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "jar",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "/Users/a/Downloads/demoapp.jar"
     }
   }
@@ -174,9 +174,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "zip",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "/Users/a/opensource/functiongraph-deploy-action/resource/index_py.zip"
     }
   }
@@ -186,9 +186,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "file",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "/Users/a/opensource/functiongraph-deploy-action/resource/index.py"
     }
   }
@@ -198,9 +198,9 @@ test('test check file and dir exist and not empty',() => {
       ak : "**********************************************",
       sk : "**********************************************",
       endpoint : "https://functiongraph.cn-north-4.myhuaweicloud.com",
-      project_id : "0dd8cb413000906a2fcdc019b5a84546",
+      project_id : "****************************",
       function_codetype: "dir",
-      function_urn :"urn:fss:cn-north-4:0dd8cb413000906a2fcdc019b5a84546:function:default:uploadPluginToJetBrainsMacket:latest",
+      function_urn :"urn:fss:cn-north-4:****************************:function:default:uploadPluginToJetBrainsMacket:latest",
       function_file : "/Users/a/opensource/functiongraph-deploy-action/resource/functions"
     }
   }
