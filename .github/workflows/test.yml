@@ -1,0 +1,29 @@
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run all
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+         ak: ${{ secrets.AK }}
+         sk: ${{ secrets.SK }}
+         endpoint: https://functiongraph.cn-north-4.myhuaweicloud.com
+         project_id: ${{ secrets.PROJECTID }}
+         function_codetype: file
+         function_urn: urn:fss:cn-north-4:${{ secrets.PROJECTID }}:function:default:${{ secrets.FUNCTIONNAME }}:latest
+         function_file: ./resource/index.py
