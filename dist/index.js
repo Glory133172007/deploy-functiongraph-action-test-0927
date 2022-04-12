@@ -47,8 +47,21 @@ exports.IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/;
  * 亚太-新加坡	    ap-southeast-3	https://functiongraph.ap-southeast-3.myhuaweicloud.com
  * 中国-香港	      ap-southeast-1	https://functiongraph.ap-southeast-1.myhuaweicloud.com
  */
-exports.regionArray = new Array('af-south-1', 'cn-north-4', 'cn-north-1', 'cn-east-2', 'cn-east-3', 'cn-south-1', 'na-mexico-1', 'sa-brazil-1', 'la-south-2', 'ap-southeast-2', 'ap-southeast-3', 'ap-southeast-1');
-exports.codeTypeArray = new Array('file', 'jar', 'dir', 'obs', 'zip');
+exports.regionArray = [
+    'af-south-1',
+    'cn-north-4',
+    'cn-north-1',
+    'cn-east-2',
+    'cn-east-3',
+    'cn-south-1',
+    'na-mexico-1',
+    'sa-brazil-1',
+    'la-south-2',
+    'ap-southeast-2',
+    'ap-southeast-3',
+    'ap-southeast-1'
+];
+exports.codeTypeArray = ['file', 'jar', 'dir', 'obs', 'zip'];
 exports.JAR_MIME_TYPE = 'application/java-archive';
 exports.ZIP_MIME_TYPE = 'application/zip';
 //高危命令列表，持续完善
@@ -436,8 +449,8 @@ const utils = __importStar(__nccwpck_require__(918));
 const context = __importStar(__nccwpck_require__(3842));
 const fileutils = __importStar(__nccwpck_require__(1066));
 const install = __importStar(__nccwpck_require__(9039));
-const core = __nccwpck_require__(4820);
-const functiongraph = __nccwpck_require__(5301);
+const huaweicloud_sdk_core_1 = __nccwpck_require__(4820);
+const huaweicloud_sdk_functiongraph_1 = __nccwpck_require__(5301);
 /**
  * 1、对安装工具，参数和文件进行校验
  * 2、基于ak/sk 鉴权
@@ -450,7 +463,7 @@ function run() {
         accore.info('---------- check Base64 on system');
         const installSuccess = yield install.installBase64OnSystem();
         if (!installSuccess) {
-            core.info('can not install Base64 on system');
+            accore.info('can not install Base64 on system');
             return;
         }
         accore.info('---------- check input parameters');
@@ -463,16 +476,16 @@ function run() {
         }
         accore.info('---------- check file content');
         if (!(yield fileutils.checkFileContent(inputs.function_codetype, inputs.function_file))) {
-            core.info('check file content error');
+            accore.info('check file content error');
             return;
         }
         accore.info('---------- gen functiongraph basicCredentials');
-        const basicCredentials = new core.BasicCredentials()
+        const basicCredentials = new huaweicloud_sdk_core_1.BasicCredentials()
             .withAk(inputs.ak)
             .withSk(inputs.sk)
             .withProjectId(inputs.project_id);
         accore.info('---------- gen functiongraph client');
-        const client = functiongraph.FunctionGraphClient.newBuilder()
+        const client = huaweicloud_sdk_functiongraph_1.FunctionGraphClient.newBuilder()
             .withCredential(basicCredentials)
             .withEndpoint(inputs.endpoint)
             .build();
@@ -493,15 +506,15 @@ function run() {
 exports.run = run;
 function genRequest(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new functiongraph.UpdateFunctionCodeRequest();
+        const request = new huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequest();
         request.functionUrn = inputs.function_urn;
-        const body = new functiongraph.UpdateFunctionCodeRequestBody();
-        const funcCodebody = new functiongraph.FuncCode();
+        const body = new huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBody();
+        const funcCodebody = new huaweicloud_sdk_functiongraph_1.FuncCode();
         accore.info('---------- gen body');
         if (inputs.function_codetype === 'obs') {
             body.withCodeUrl(inputs.function_file);
             body.withFuncCode(funcCodebody);
-            body.withCodeType('obs');
+            body.withCodeType(huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBodyCodeTypeEnum.OBS);
         }
         else {
             const base64Content = yield fileutils.getArchiveBase64Content(inputs.function_codetype, inputs.function_file);
@@ -514,10 +527,10 @@ function genRequest(inputs) {
             }
             body.withCodeFilename(fileName);
             if (inputs.function_codetype === 'jar') {
-                body.withCodeType('jar');
+                body.withCodeType(huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBodyCodeTypeEnum.JAR);
             }
             else {
-                body.withCodeType('zip');
+                body.withCodeType(huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBodyCodeTypeEnum.ZIP);
             }
         }
         request.withBody(body);
@@ -597,9 +610,9 @@ exports.checkCodeType = checkCodeType;
  * @returns
  */
 function checkParameterIsNull(parameter) {
-    return (parameter == undefined ||
-        parameter == null ||
-        parameter == '' ||
+    return (parameter === undefined ||
+        parameter === null ||
+        parameter === '' ||
         parameter.trim().length == 0);
 }
 exports.checkParameterIsNull = checkParameterIsNull;
@@ -618,20 +631,22 @@ function checkFileOrDirExist(function_type, filePath) {
         const stat = fs.statSync(filePath);
         console.log(stat);
         switch (function_type) {
-            case 'jar':
+            case 'jar': {
                 const jarType = fileutil.getFileMimeType(filePath);
                 core.info('filePath: ' + filePath + 'mime type ' + jarType);
                 if (stat.isFile() && jarType === context.JAR_MIME_TYPE) {
                     checkResult = true;
                 }
                 break;
-            case 'zip':
+            }
+            case 'zip': {
                 const zipType = fileutil.getFileMimeType(filePath);
                 core.info('filePath: ' + filePath + 'mime type ' + zipType);
                 if (stat.isFile() && zipType === context.ZIP_MIME_TYPE) {
                     checkResult = true;
                 }
                 break;
+            }
             case 'file':
                 //文件存在且文件的大小不为0
                 if (stat.isFile() && stat.size > 0) {
@@ -641,7 +656,7 @@ function checkFileOrDirExist(function_type, filePath) {
                     core.info('file path is not file or file is empty');
                 }
                 break;
-            case 'dir':
+            case 'dir': {
                 //确实为目录文件，且目录下的文件数量不为0
                 const files = fs.readdirSync(filePath);
                 if (stat.isDirectory() && files.length > 0) {
@@ -652,6 +667,7 @@ function checkFileOrDirExist(function_type, filePath) {
                     core.info('file path is not directory or dircectory is empty');
                 }
                 break;
+            }
         }
     }
     catch (error) {

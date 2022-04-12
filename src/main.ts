@@ -3,8 +3,14 @@ import * as utils from './utils'
 import * as context from './context'
 import * as fileutils from './fileUtils'
 import * as install from './install'
-import { BasicCredentials } from '@huaweicloud/huaweicloud-sdk-core'
-import { FuncCode, FunctionGraphClient, UpdateFunctionCodeRequest, UpdateFunctionCodeRequestBody, UpdateFunctionCodeRequestBodyCodeTypeEnum } from '@huaweicloud/huaweicloud-sdk-functiongraph'
+import {BasicCredentials} from '@huaweicloud/huaweicloud-sdk-core'
+import {
+  FuncCode,
+  FunctionGraphClient,
+  UpdateFunctionCodeRequest,
+  UpdateFunctionCodeRequestBody,
+  UpdateFunctionCodeRequestBodyCodeTypeEnum
+} from '@huaweicloud/huaweicloud-sdk-functiongraph'
 
 /**
  * 1、对安装工具，参数和文件进行校验

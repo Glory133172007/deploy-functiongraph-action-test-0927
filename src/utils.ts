@@ -69,7 +69,7 @@ export function checkFileOrDirExist(
     const stat = fs.statSync(filePath)
     console.log(stat)
     switch (function_type) {
-      case 'jar':{
+      case 'jar': {
         const jarType = fileutil.getFileMimeType(filePath)
         core.info('filePath: ' + filePath + 'mime type ' + jarType)
         if (stat.isFile() && jarType === context.JAR_MIME_TYPE) {
@@ -77,7 +77,7 @@ export function checkFileOrDirExist(
         }
         break
       }
-      case 'zip':{
+      case 'zip': {
         const zipType = fileutil.getFileMimeType(filePath)
         core.info('filePath: ' + filePath + 'mime type ' + zipType)
         if (stat.isFile() && zipType === context.ZIP_MIME_TYPE) {
@@ -93,7 +93,7 @@ export function checkFileOrDirExist(
           core.info('file path is not file or file is empty')
         }
         break
-      case 'dir':{
+      case 'dir': {
         //确实为目录文件，且目录下的文件数量不为0
         const files: string[] = fs.readdirSync(filePath)
         if (stat.isDirectory() && files.length > 0) {
