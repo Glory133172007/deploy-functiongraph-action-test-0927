@@ -44,9 +44,9 @@ export function checkCodeType(codeType: string) {
  */
 export function checkParameterIsNull(parameter: string): boolean {
   return (
-    parameter == undefined ||
-    parameter == null ||
-    parameter == '' ||
+    parameter === undefined ||
+    parameter === null ||
+    parameter === '' ||
     parameter.trim().length == 0
   )
 }
@@ -64,25 +64,27 @@ export function checkFileOrDirExist(
   filePath: string
 ): boolean {
   core.info('check local file ' + filePath + ' exist')
-  let checkResult: boolean = false
+  let checkResult = false
   try {
     const stat = fs.statSync(filePath)
     console.log(stat)
     switch (function_type) {
-      case 'jar':
+      case 'jar':{
         const jarType = fileutil.getFileMimeType(filePath)
         core.info('filePath: ' + filePath + 'mime type ' + jarType)
         if (stat.isFile() && jarType === context.JAR_MIME_TYPE) {
           checkResult = true
         }
         break
-      case 'zip':
+      }
+      case 'zip':{
         const zipType = fileutil.getFileMimeType(filePath)
         core.info('filePath: ' + filePath + 'mime type ' + zipType)
         if (stat.isFile() && zipType === context.ZIP_MIME_TYPE) {
           checkResult = true
         }
         break
+      }
       case 'file':
         //文件存在且文件的大小不为0
         if (stat.isFile() && stat.size > 0) {
@@ -91,7 +93,7 @@ export function checkFileOrDirExist(
           core.info('file path is not file or file is empty')
         }
         break
-      case 'dir':
+      case 'dir':{
         //确实为目录文件，且目录下的文件数量不为0
         const files: string[] = fs.readdirSync(filePath)
         if (stat.isDirectory() && files.length > 0) {
@@ -101,6 +103,7 @@ export function checkFileOrDirExist(
           core.info('file path is not directory or dircectory is empty')
         }
         break
+      }
     }
   } catch (error) {
     core.info('file or directory not exist')
@@ -171,7 +174,7 @@ export function getRegionFromEndpoint(
   index: number,
   regix: string
 ): string {
-  let region: string = ''
+  let region = ''
   const urlArray: string[] = url.split(regix)
   if (urlArray.length >= index + 1) {
     region = urlArray[index]

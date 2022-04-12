@@ -17,7 +17,7 @@ export async function checkFileContent(
   fileType: string,
   filePath: string
 ): Promise<boolean> {
-  let checkResult: boolean = false
+  let checkResult = false
   if (fileType === 'zip' || fileType === 'jar') {
     checkResult = checkFileSize(filePath)
   } else if (fileType === 'file') {

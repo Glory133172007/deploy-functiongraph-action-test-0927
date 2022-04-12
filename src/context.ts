@@ -31,7 +31,7 @@ export const IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/
  * 亚太-新加坡	    ap-southeast-3	https://functiongraph.ap-southeast-3.myhuaweicloud.com
  * 中国-香港	      ap-southeast-1	https://functiongraph.ap-southeast-1.myhuaweicloud.com
  */
-export const regionArray = new Array(
+export const regionArray = [
   'af-south-1',
   'cn-north-4',
   'cn-north-1',
@@ -44,9 +44,9 @@ export const regionArray = new Array(
   'ap-southeast-2',
   'ap-southeast-3',
   'ap-southeast-1'
-)
+]
 
-export const codeTypeArray = new Array('file', 'jar', 'dir', 'obs', 'zip')
+export const codeTypeArray = ['file', 'jar', 'dir', 'obs', 'zip']
 
 export const JAR_MIME_TYPE = 'application/java-archive'
 
