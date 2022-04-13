@@ -73,7 +73,7 @@ export async function installBase64OnMacos(): Promise<void> {
  */
 export async function installBase64OnLinux(): Promise<void> {
   const osRelease = await (cp.execSync(`cat /etc/os-release`) || '').toString()
-  let installCommand: string = 'yum -y install -q coreutils'
+  let installCommand = 'yum -y install -q coreutils'
 
   if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
     core.info('current system is Ubuntu,use apt-get to install base64')
