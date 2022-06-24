@@ -184,11 +184,6 @@ export function getRegionFromEndpoint(
 }
 
 /**
- * 检查用户配置的function是否存在
- */
-//export function checkFunctionExist(){}
-
-/**
  *
  * @param filePath 从文件路径中获取到文件名，如xxxx.jar,xxxx.zip等
  * @returns
