@@ -20,10 +20,10 @@ inputs:
     description: 'huaweicloud functiongraph urn address'
   function_codetype: 
     required: true
-    description:"support obs,zip,jar,file,dir"
+    description: 'support obs, zip, jar, file, dir'
   function_file: 
     required: true
-    description: 'obs url,local java jar path,local zip file path,local function file path,local directory path'
+    description: 'obs url, local java jar path, local zip file path, local function file path, local directory path'
 runs:
   using: 'node16'
   main: 'dist/index.js'
