@@ -1,5 +1,5 @@
 name: 'HuaweiCloud Functiongraph Deploy'
-description: 'deploy function to huaweicloud'
+description: 'Deploy Your Function to HuaweiCloud'
 branding:
   icon: 'cloud'
   color: 'red'
