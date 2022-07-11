@@ -7,20 +7,20 @@ author: 'wenchui'
 inputs:
   ak: 
     required: true
-    description: 'huawei cloud AK'
+    description: 'Huawei Cloud AK'
   sk: 
     required: true
-    description: 'huawei cloud SK'
+    description: 'Huawei Cloud SK'
   endpoint: 
     required: true
-    description: 'huaweicloud functiongraph endpoint'
+    description: 'Huawei Cloud functiongraph endpoint'
     default: 'https://functiongraph.cn-north-4.myhuaweicloud.com'
   project_id: 
     required: true
-    description: 'huawei cloud project_id'
+    description: 'Huawei Cloud project_id'
   function_urn: 
     required: true
-    description: 'huawei cloud functiongraph urn address'
+    description: 'Huawei Cloud functiongraph urn address'
   function_codetype: 
     required: true
     description: 'support obs, zip, jar, file, dir'
