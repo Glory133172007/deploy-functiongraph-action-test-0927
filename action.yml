@@ -1,23 +1,26 @@
-name: 'HuaweiCloud Functiongraph Deploy'
-description: 'deploy function to huaweicloud'
+name: 'Huawei Cloud Functiongraph Deploy'
+description: 'Deploy Your Function to Huawei Cloud'
+branding:
+  icon: 'cloud'
+  color: 'red'
 author: 'wenchui'
 inputs:
   ak: 
     required: true
-    description: 'huaweicloud AK'
+    description: 'Huawei Cloud AK'
   sk: 
     required: true
-    description: 'huaweicloud SK'
+    description: 'Huawei Cloud SK'
   endpoint: 
     required: true
-    description: 'huaweicloud functiongraph endpoint'
+    description: 'Huawei Cloud functiongraph endpoint'
     default: 'https://functiongraph.cn-north-4.myhuaweicloud.com'
   project_id: 
     required: true
-    description: 'huaweicloud project_id'
+    description: 'Huawei Cloud project_id'
   function_urn: 
     required: true
-    description: 'huaweicloud functiongraph urn address'
+    description: 'Huawei Cloud functiongraph urn address'
   function_codetype: 
     required: true
     description: 'support obs, zip, jar, file, dir'
