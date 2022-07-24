@@ -60,6 +60,7 @@ export async function run() {
   const client = FunctionGraphClient.newBuilder()
     .withCredential(basicCredentials)
     .withEndpoint(inputs.endpoint)
+    .withOptions({customUserAgent: context.CUSTOM_USER_AGENT_FUNCTIONGRAPH})
     .build()
 
   accore.info('---------- gen request')

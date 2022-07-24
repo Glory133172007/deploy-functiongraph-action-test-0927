@@ -30,7 +30,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInputs = exports.dangerCommandSet = exports.ZIP_MIME_TYPE = exports.JAR_MIME_TYPE = exports.codeTypeArray = exports.regionArray = exports.IPREGX = exports.MAX_UPLOAD_SIZE = exports.FUNC_TMP_ZIP = void 0;
+exports.CUSTOM_USER_AGENT_FUNCTIONGRAPH = exports.getInputs = exports.dangerCommandSet = exports.ZIP_MIME_TYPE = exports.JAR_MIME_TYPE = exports.codeTypeArray = exports.regionArray = exports.IPREGX = exports.MAX_UPLOAD_SIZE = exports.FUNC_TMP_ZIP = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 exports.FUNC_TMP_ZIP = 'functmp.zip';
 //允许通过SDK上传的最大文件尺寸，50M，52428800字节
@@ -92,6 +92,7 @@ function getInputs() {
     };
 }
 exports.getInputs = getInputs;
+exports.CUSTOM_USER_AGENT_FUNCTIONGRAPH = 'DevKit-GitHub:HuaweiCloud Functiongraph Deploy';
 
 
 /***/ }),
@@ -504,6 +505,7 @@ function run() {
         const client = huaweicloud_sdk_functiongraph_1.FunctionGraphClient.newBuilder()
             .withCredential(basicCredentials)
             .withEndpoint(inputs.endpoint)
+            .withOptions({ customUserAgent: context.CUSTOM_USER_AGENT_FUNCTIONGRAPH })
             .build();
         accore.info('---------- gen request');
         const request = yield genRequest(inputs);
@@ -3097,12 +3099,21 @@ var ClientBuilder = /** @class */ (function () {
         this.region = region;
         return this;
     };
+    ClientBuilder.prototype.withOptions = function (options) {
+        this.userOptions = options;
+        return this;
+    };
     ClientBuilder.prototype.build = function () {
+        var _a;
         var axiosOptions = {
             disableSslVerification: true
         };
         if (this.proxyAgent) {
             Object.assign(axiosOptions, { proxyAgent: this.proxyAgent });
+        }
+        if ((_a = this.userOptions) === null || _a === void 0 ? void 0 : _a.customUserAgent) {
+            axiosOptions.headers = axiosOptions.headers || {};
+            axiosOptions.headers["User-Agent"] = this.userOptions.customUserAgent;
         }
         if (!this.credential) {
             this.credential = this.getCredentialFromEnvironment();
@@ -3326,6 +3337,9 @@ var HcClient = /** @class */ (function () {
                         Object.keys(pathParams).forEach(function (x) {
                             url = url.replace("{" + x + "}", pathParams[x]);
                         });
+                        if (options.method === 'DELETE' && (options.data && (Object.keys(options.data).length <= 0 || options.data.length <= 0))) {
+                            delete options.data;
+                        }
                         builder = new IHttpRequestBuilder_1.HttpRequestBuilder();
                         httpRequest = builder
                             .withEndpoint(url)
@@ -3350,7 +3364,7 @@ var HcClient = /** @class */ (function () {
         var headers = result.headers;
         var contentType = headers['content-type'];
         contentType = contentType.toLowerCase();
-        if (contentType && contentType == 'application/octet-stream') {
+        if (contentType && (contentType.startsWith('application/octet-stream') || contentType.startsWith("image"))) {
             return result.data;
         }
         else {
@@ -3940,7 +3954,6 @@ var GlobalCredentials = /** @class */ (function () {
         if (this.securityToken) {
             builder.addHeaders("X-Security-Token", this.securityToken);
         }
-        // builder.addHeaders("Content-Type", "application/json");
         builder.addAllHeaders(httpRequest.headers);
         Object.assign(httpRequest, builder.build());
         var headers = AKSKSigner_1.AKSKSigner.sign(httpRequest, this);
@@ -4419,7 +4432,7 @@ var DefaultHttpClient = /** @class */ (function () {
     };
     DefaultHttpClient.prototype._request = function (httpRequest) {
         return __awaiter(this, void 0, void 0, function () {
-            var endpoint, queryParams, method, data, headers, url, requestParams, methods, res;
+            var endpoint, queryParams, method, data, headers, url, customUserAgent, requestParams, methods, res;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4428,7 +4441,15 @@ var DefaultHttpClient = /** @class */ (function () {
                         this.logger.debug("send request start: ".concat(endpoint, " "));
                         url = endpoint;
                         url = stripTrailingSlash(url);
-                        headers['User-Agent'] = "huaweicloud-usdk-nodejs/3.0";
+                        if (this.defaultOption.headers) {
+                            customUserAgent = this.defaultOption.headers['User-Agent'];
+                            if (customUserAgent) {
+                                headers['User-Agent'] = ["huaweicloud-usdk-nodejs/3.0", customUserAgent].join(" ");
+                            }
+                            else {
+                                headers['User-Agent'] = "huaweicloud-usdk-nodejs/3.0";
+                            }
+                        }
                         requestParams = {
                             url: url,
                             method: method,
@@ -5369,7 +5390,7 @@ var log4js_1 = __nccwpck_require__(3048);
         },
     },
     categories: {
-        default: { appenders: ['dateFile', 'console'], level: 'debug', enableCallStack: true }
+        default: { appenders: ['console'], level: 'debug', enableCallStack: true }
     }
 });
 exports.Logger4jInstance = (0, log4js_1.getLogger)();
@@ -5399,6 +5420,46 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(8794), exports);
 __exportStar(__nccwpck_require__(6831), exports);
+__exportStar(__nccwpck_require__(4477), exports);
+
+
+/***/ }),
+
+/***/ 4477:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/*
+ * Copyright 2021 Huawei Technologies Co.,Ltd.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Region = void 0;
+var Region = /** @class */ (function () {
+    function Region(id, endpoint) {
+        this.id = id;
+        this.endpoint = endpoint;
+    }
+    return Region;
+}());
+exports.Region = Region;
 
 
 /***/ }),
@@ -5454,12 +5515,15 @@ var ClientBuilder_1 = __nccwpck_require__(5414);
 var AsyncInvokeFunctionRequest_1 = __nccwpck_require__(1875);
 var AsyncInvokeReservedFunctionRequest_1 = __nccwpck_require__(7920);
 var BatchDeleteFunctionTriggersRequest_1 = __nccwpck_require__(7969);
+var BatchDeleteWorkflowsRequest_1 = __nccwpck_require__(1384);
+var CancelAsyncInvocationRequest_1 = __nccwpck_require__(7692);
 var CreateDependencyRequest_1 = __nccwpck_require__(1909);
 var CreateEventRequest_1 = __nccwpck_require__(5003);
 var CreateFunctionRequest_1 = __nccwpck_require__(5407);
 var CreateFunctionTriggerRequest_1 = __nccwpck_require__(3450);
 var CreateFunctionVersionRequest_1 = __nccwpck_require__(7750);
 var CreateVersionAliasRequest_1 = __nccwpck_require__(8966);
+var CreateWorkflowRequest_1 = __nccwpck_require__(9810);
 var DeleteDependencyRequest_1 = __nccwpck_require__(5761);
 var DeleteEventRequest_1 = __nccwpck_require__(1745);
 var DeleteFunctionAsyncInvokeConfigRequest_1 = __nccwpck_require__(5849);
@@ -5479,6 +5543,9 @@ var ListFunctionVersionsRequest_1 = __nccwpck_require__(7747);
 var ListFunctionsRequest_1 = __nccwpck_require__(6605);
 var ListStatisticsRequest_1 = __nccwpck_require__(6054);
 var ListVersionAliasesRequest_1 = __nccwpck_require__(6382);
+var ListWorkflowExecutionsRequest_1 = __nccwpck_require__(1848);
+var ListWorkflowsRequest_1 = __nccwpck_require__(2224);
+var RetryWorkFlowRequest_1 = __nccwpck_require__(4097);
 var ShowDependencyRequest_1 = __nccwpck_require__(3992);
 var ShowEventRequest_1 = __nccwpck_require__(3155);
 var ShowFunctionAsyncInvokeConfigRequest_1 = __nccwpck_require__(6778);
@@ -5486,8 +5553,15 @@ var ShowFunctionCodeRequest_1 = __nccwpck_require__(5050);
 var ShowFunctionConfigRequest_1 = __nccwpck_require__(3050);
 var ShowFunctionTriggerRequest_1 = __nccwpck_require__(6953);
 var ShowLtsLogDetailsRequest_1 = __nccwpck_require__(1277);
+var ShowTenantMetricRequest_1 = __nccwpck_require__(6307);
 var ShowTracingRequest_1 = __nccwpck_require__(3147);
 var ShowVersionAliasRequest_1 = __nccwpck_require__(9833);
+var ShowWorkFlowMetricRequest_1 = __nccwpck_require__(2910);
+var ShowWorkFlowRequest_1 = __nccwpck_require__(1105);
+var ShowWorkflowExecutionRequest_1 = __nccwpck_require__(5374);
+var StartSyncWorkflowExecutionRequest_1 = __nccwpck_require__(4404);
+var StartWorkflowExecutionRequest_1 = __nccwpck_require__(1831);
+var StopWorkFlowRequest_1 = __nccwpck_require__(8029);
 var UpdateDependencyRequest_1 = __nccwpck_require__(7370);
 var UpdateEventRequest_1 = __nccwpck_require__(7470);
 var UpdateFunctionAsyncInvokeConfigRequest_1 = __nccwpck_require__(7864);
@@ -5497,6 +5571,7 @@ var UpdateFunctionReservedInstancesRequest_1 = __nccwpck_require__(8658);
 var UpdateTracingRequest_1 = __nccwpck_require__(2336);
 var UpdateTriggerRequest_1 = __nccwpck_require__(4140);
 var UpdateVersionAliasRequest_1 = __nccwpck_require__(4616);
+var UpdateWorkFlowRequest_1 = __nccwpck_require__(8235);
 var FunctionGraphClient = /** @class */ (function () {
     function FunctionGraphClient(client) {
         this.hcClient = client;
@@ -5509,6 +5584,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 异步执行函数。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 异步执行函数。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {{ [key: string]: object; }} asyncInvokeFunctionRequestBody
@@ -5522,7 +5601,12 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
-     * 函数异步执行并返回预留实例ID用于场景指客户端请求执行比较费时任务，不需要同步等待执行完成返回结果，该方法提前返回任务执行对应的预留实例ID, 如果预留实例有异常， 可以通过该实例ID把对应实例删除（该接口主要针对白名单用户）。
+     * 函数异步执行并返回预留实例ID用于场景指客户端请求执行比较费时任务，不需要同步等待执行完成返回结果，该方法提前返回任务执行对应的预留实例ID, 如果预留实例有异常，
+     * 可以通过该实例ID把对应实例删除（该接口主要针对白名单用户）。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 函数异步执行并返回预留实例ID。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {{ [key: string]: object; }} asyncInvokeReservedFunctionRequestBody 函数异步执行并返回预留实例请求body体。
@@ -5536,7 +5620,67 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 删除指定函数所有触发器设置。
+     *
+     * 在提供函数版本且非latest的情况下，删除对应函数版本的触发器。
+     * 在提供函数别名的情况下，删除对应函数别名的触发器。
+     * 在不提供函数版本（也不提供别名）或版本为latest的情况下，删除该函数所有的触发器（包括所有版本和别名）。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 删除指定函数的所有触发器。
+     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.batchDeleteFunctionTriggers = function (batchDeleteFunctionTriggersRequest) {
+        var options = (0, exports.ParamCreater)().batchDeleteFunctionTriggers(batchDeleteFunctionTriggersRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 删除工作流列表
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 删除工作流列表
+     * @param {BatchDeleteWorkflowsRequestBody} batchDeleteWorkflowsRequestBody 函数流批量操作body体
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.batchDeleteWorkflows = function (batchDeleteWorkflowsRequest) {
+        var options = (0, exports.ParamCreater)().batchDeleteWorkflows(batchDeleteWorkflowsRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 停止函数异步调用请求
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 停止函数异步调用请求
+     * @param {string} functionUrn 函数URN
+     * @param {CancelAsyncInvocationRequestBody} cancelAsyncInvocationRequestBody 更新tags的请求体
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.cancelAsyncInvocation = function (cancelAsyncInvocationRequest) {
+        var options = (0, exports.ParamCreater)().cancelAsyncInvocation(cancelAsyncInvocationRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 创建依赖包。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 创建依赖包
      * @param {CreateDependencyRequestBody} createDependencyRequestBody 添加依赖包的请求体。
      * @param {*} [options] Override http request option.
@@ -5550,6 +5694,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 创建测试事件。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 创建测试事件
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {CreateEventRequestBody} createEventRequestBody 创建测试事件请求体。
@@ -5564,6 +5712,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 创建指定的函数。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 创建函数。
      * @param {CreateFunctionRequestBody} createFunctionRequestBody 创建函数请求body体。
      * @param {*} [options] Override http request option.
@@ -5576,7 +5728,33 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 创建触发器。
+     *
+     * - 可以创建的触发器类型包括TIMER、APIG、CTS、DDS、DMS、DIS、LTS、OBS、SMN、KAFKA。
+     * - DDS和KAFKA触发器创建时默认为DISABLED状态，其他触发器默认为ACTIVE状态。
+     * - TIMER、DDS、DMS、KAFKA、LTS触发器支持禁用，其他触发器不支持。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 创建触发器。
+     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
+     * @param {CreateFunctionTriggerRequestBody} createFunctionTriggerRequestBody
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.createFunctionTrigger = function (createFunctionTriggerRequest) {
+        var options = (0, exports.ParamCreater)().createFunctionTrigger(createFunctionTriggerRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 发布函数版本。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 发布函数版本。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {CreateFunctionVersionRequestBody} createFunctionVersionRequestBody
@@ -5591,6 +5769,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 创建函数灰度版本别名。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 创建函数版本别名。
      * @param {string} functionUrn 函数的URN。
      * @param {CreateVersionAliasRequestBody} createVersionAliasRequestBody 创建函数请求body体。
@@ -5604,7 +5786,28 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 创建工作流列表
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 创建工作流列表
+     * @param {CreateWorkflowRequestBody} createWorkflowRequestBody 函数流创建body体
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.createWorkflow = function (createWorkflowRequest) {
+        var options = (0, exports.ParamCreater)().createWorkflow(createWorkflowRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 删除指定的依赖包。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 删除依赖包
      * @param {string} dependId 依赖包的ID。
      * @param {*} [options] Override http request option.
@@ -5618,6 +5821,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 删除测试事件。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 删除测试事件
      * @param {string} eventId 事件ID。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
@@ -5631,7 +5838,14 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
-     * 删除指定的函数或者特定的版本（不允许删除latest版本）。  如果URN中包含函数版本或者别名，则删除特定的函数版本或者别名指向的版本以及该版本关联的trigger。 如果URN中不包含版本或者别名，则删除整个函数，包含所有版本以及别名，触发器。
+     * 删除指定的函数或者特定的版本（不允许删除latest版本）。
+     *
+     * 如果URN中包含函数版本或者别名，则删除特定的函数版本或者别名指向的版本以及该版本关联的trigger。
+     * 如果URN中不包含版本或者别名，则删除整个函数，包含所有版本以及别名，触发器。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 删除函数/版本。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。  不允许删除函数的latest版本，如要删除整个函数（包含所有版本），提供不带任何版本号/别名的urn，如： urn:fss:xxxxxxxx:7aad83af3e8d42e99ac194e8419e2c9b:function:default:test
      * @param {*} [options] Override http request option.
@@ -5645,6 +5859,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 删除函数异步配置信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 删除函数异步配置信息。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {*} [options] Override http request option.
@@ -5657,7 +5875,30 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 删除触发器。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 删除触发器。
+     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
+     * @param {'TIMER' | 'APIG' | 'CTS' | 'DDS' | 'DMS' | 'DIS' | 'LTS' | 'OBS' | 'SMN' | 'KAFKA'} triggerTypeCode 触发器类型代码。
+     * @param {string} triggerId 触发器编码。
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.deleteFunctionTrigger = function (deleteFunctionTriggerRequest) {
+        var options = (0, exports.ParamCreater)().deleteFunctionTrigger(deleteFunctionTriggerRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 删除函数版本别名。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 删除函数版本别名。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {string} aliasName 要删除的别名名称。
@@ -5672,6 +5913,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 开通lts日志上报功能。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 开通lts日志上报功能。
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5684,6 +5929,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 导出函数。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 导出函数。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {boolean} [config] 是否导出函数配置
@@ -5700,6 +5949,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 导入函数。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 导入函数。
      * @param {ImportFunctionRequestBody} importFunctionRequestBody 导入函数的请求body体。
      * @param {*} [options] Override http request option.
@@ -5713,6 +5966,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 同步调用指的是客户端请求需要明确等到响应结果，也就是说这样的请求必须得调用到用户的函数，并且等到调用完成才返回。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 同步执行函数。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {{ [key: string]: object; }} invokeFunctionRequestBody
@@ -5729,9 +5986,13 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取依赖包列表。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取依赖包列表
      * @param {'public' | 'private' | 'all'} [dependencyType] 依赖包类型public：公开,private:私有，all：全部。缺省时查询全量。
-     * @param {'Java8' | 'Java11' | 'Node.js6.10' | 'Node.js8.10' | 'Node.js10.16' | 'Node.js12.13' | 'Node.js14.18' | 'Python2.7' | 'Python3.6' | 'Python3.9' | 'Go1.8' | 'Go1.x' | 'C#(.NET Core 2.0)' | 'C#(.NET Core 2.1)' | 'C#(.NET Core 3.1)' | 'PHP7.3'} [runtime] 运行时语言 Java11、Nodejs14.18、Python3.9在type为v2时支持
+     * @param {'Java8' | 'Java11' | 'Node.js6.10' | 'Node.js8.10' | 'Node.js10.16' | 'Node.js12.13' | 'Node.js14.18' | 'Python2.7' | 'Python3.6' | 'Go1.8' | 'Go1.x' | 'C#(.NET Core 2.0)' | 'C#(.NET Core 2.1)' | 'C#(.NET Core 3.1)' | 'PHP7.3' | 'Python3.9'} [runtime] FunctionGraph函数的执行环境 Python2.7: Python语言2.7版本。 Python3.6: Pyton语言3.6版本。 Python3.9: Python语言3.9版本。 Go1.8: Go语言1.8版本。 Go1.x: Go语言1.x版本。 Java8: Java语言8版本。 Java11: Java语言11版本。 Node.js6.10: Nodejs语言6.10版本。 Node.js8.10: Nodejs语言8.10版本。 Node.js10.16: Nodejs语言10.16版本。 Node.js12.13: Nodejs语言12.13版本。 Node.js14.18: Nodejs语言14.18版本。 C#(.NET Core 2.0): C#语言2.0版本。 C#(.NET Core 2.1): C#语言2.1版本。 C#(.NET Core 3.1): C#语言3.1版本。 Custom: 自定义运行时。 PHP7.3: Php语言7.3版本
      * @param {string} [name] 依赖包名称。
      * @param {string} [marker] 上一次查询依赖包的最后记录位置，默认为\&quot;0\&quot;。
      * @param {string} [limit] 本次查询可获取的依赖包的最大数目，默认为\&quot;400\&quot;。
@@ -5746,6 +6007,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取指定函数的测试事件列表。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取测试事件列表
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {*} [options] Override http request option.
@@ -5759,10 +6024,15 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取函数异步调用请求列表
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数异步调用请求列表
      * @param {string} functionUrn 函数URN
      * @param {string} [requestId] 需要查询的异步请求ID。如果不指定，默认查询所有异步调用记录
      * @param {string} [limit] 本次查询最大返回的数据条数，最大值500，默认值100
+     * @param {string} [marker] 本次查询起始位置，默认值0
      * @param {'WAIT' | 'RUNNING' | 'SUCCESS' | 'FAIL' | 'DISCARD'} [status] 本次查询指定的异步调用状态，支持5种状态，如果不指定，则查询所有状态的调用记录 WAIT: 等待 RUNNING: 执行中 SUCCESS: 执行成功 FAIL: 执行失败 DISCARD: 请求丢弃
      * @param {Date} [queryBeginTime] 搜索起始时间（格式为YYYY-MM-DD\&#39;T\&#39;HH:mm:ss,UTC时间）。如果不指定默认为当前时间前1小时
      * @param {Date} [queryEndTime] 搜索结束时间（格式为YYYY-MM-DD\&#39;T\&#39;HH:mm:ss,UTC时间）。如果不指定默认为当前时间
@@ -5777,6 +6047,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取函数异步配置列表。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数异步配置列表
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {string} [marker] 上一次查询到的最后的记录位置。
@@ -5792,9 +6066,13 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取指定时间段的函数运行指标。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取指定时间段的函数运行指标
      * @param {string} funcUrn 函数的URN（Uniform Resource Name），唯一标识函数。
-     * @param {string} period 获取最近多少分钟内函数执行的指标。
+     * @param {'5' | '15' | '60'} period 获取最近多少分钟内函数执行的指标。
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5805,7 +6083,28 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 获取指定函数的所有触发器设置。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取指定函数的所有触发器。
+     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.listFunctionTriggers = function (listFunctionTriggersRequest) {
+        var options = (0, exports.ParamCreater)().listFunctionTriggers(listFunctionTriggersRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 获取指定函数的版本列表。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取指定函数的版本列表。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {string} [marker] 上一次查询到的最后的记录位置。
@@ -5821,6 +6120,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取函数列表
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数列表
      * @param {string} [marker] 上一次查询到的最后的记录位置。
      * @param {string} [maxitems] 每次查询获取的最大函数记录数量 最大值：400 如果不提供该值或者提供的值大于400或等于0，则使用默认值：400 如果该值小于0，则返回参数错误。
@@ -5836,6 +6139,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 查询租户配额
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 查询租户配额
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5847,10 +6154,18 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
-     * 租户函数统计信息。  返回三类的统计信息，函数格式和大小使用情况包括配额和使用量，流量报告。 通过查询参数filter可以进行过滤，查询参数period可以指定返回的时间段。
+     * 租户函数统计信息。
+     *
+     * 返回三类的统计信息，函数格式和大小使用情况包括配额和使用量，流量报告。
+     * 通过查询参数filter可以进行过滤，查询参数period可以指定返回的时间段。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 租户函数统计信息
      * @param {'monitor_data' | 'monthly_report'} filter 参数过滤器。
      * @param {string} [period] 时间段单位为分钟，与filter参数配合使用。
+     * @param {'0' | '1' | '2' | '3'} [option] 月度统计的维度，filter参数取值为monthly_report时才生效。 - \&quot;0\&quot;:表示统计本月。 - \&quot;1\&quot;:表示统计上月。 - \&quot;2\&quot;:表示统计最近三个月。 - \&quot;3\&quot;:表示统计最近六个月。 - 当取值不在以上范围时，默认取\&quot;0”。
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5862,6 +6177,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取函数版本别名列表。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取指定函数所有版本别名列表。
      * @param {string} functionUrn 函数的URN。
      * @param {*} [options] Override http request option.
@@ -5874,7 +6193,69 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 获取指定函数流执行实例列表
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取指定函数流执行实例列表
+     * @param {string} workflowId 函数工作流ID
+     * @param {number} [limit] 分页查询，每页显示的条目数量，最大数量200，超过200后只返回200
+     * @param {'success' | 'fail' | 'running' | 'timeout' | 'cancel'} [status] 需要过滤的流程实例状态
+     * @param {string} [startTime] 查询开始时间，UTC时间。若起始时间未填写，以终止时间前推3天为起始时间
+     * @param {string} [endTime] 查询开始时间，UTC时间。若终止时间未填写，以起始时间后退3天未终止时间。若均未填写，默认查询最近3天数据。
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.listWorkflowExecutions = function (listWorkflowExecutionsRequest) {
+        var options = (0, exports.ParamCreater)().listWorkflowExecutions(listWorkflowExecutionsRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 查询工作流列表
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 查询工作流列表
+     * @param {string} [workflowName] 函数流名称
+     * @param {number} [limit] 分页查询，每页显示的条目数量，最大数量200，超过200后只返回200
+     * @param {number} [offset] 分页查询，分页的偏移量，表示从此偏移量开始查询，偏移量小于0时，自动转换为0
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.listWorkflows = function (listWorkflowsRequest) {
+        var options = (0, exports.ParamCreater)().listWorkflows(listWorkflowsRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 重试工作流
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 重试工作流
+     * @param {string} workflowId 函数工作流ID
+     * @param {string} executionId 函数流执行实例ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.retryWorkFlow = function (retryWorkFlowRequest) {
+        var options = (0, exports.ParamCreater)().retryWorkFlow(retryWorkFlowRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 获取指定依赖包。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取指定依赖包
      * @param {string} dependId 依赖包的ID。
      * @param {*} [options] Override http request option.
@@ -5888,6 +6269,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取测试事件详细信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取测试事件详细信息
      * @param {string} eventId 事件ID。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
@@ -5902,6 +6287,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取函数异步配置信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数异步配置信息。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {*} [options] Override http request option.
@@ -5915,6 +6304,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取指定函数的代码。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取指定函数代码。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {*} [options] Override http request option.
@@ -5928,6 +6321,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取指定函数的metadata。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数的metadata。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {*} [options] Override http request option.
@@ -5940,7 +6337,30 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 获取特定触发器的信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取指定触发器的信息。
+     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
+     * @param {'TIMER' | 'APIG' | 'CTS' | 'DDS' | 'DMS' | 'DIS' | 'LTS' | 'OBS' | 'SMN' | 'KAFKA'} triggerTypeCode
+     * @param {string} triggerId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.showFunctionTrigger = function (showFunctionTriggerRequest) {
+        var options = (0, exports.ParamCreater)().showFunctionTrigger(showFunctionTriggerRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 获取指定函数的lts日志组日志流配置。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取指定函数的lts日志组日志流配置。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {*} [options] Override http request option.
@@ -5953,7 +6373,30 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 获取函数流指标
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取函数流指标
+     * @param {string} [period] 时间段，单位为分钟
+     * @param {string} [startTime] 开始时间，精确到ms的时间戳
+     * @param {string} [endTime] 结束时间，精确到ms的时间戳
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.showTenantMetric = function (showTenantMetricRequest) {
+        var options = (0, exports.ParamCreater)().showTenantMetric(showTenantMetricRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 获取函数调用链配置
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数调用链配置
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {*} [options] Override http request option.
@@ -5967,6 +6410,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 获取函数指定的版本别名信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 获取函数版本的指定别名信息。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {string} aliasName 要查询的别名名称。
@@ -5980,7 +6427,122 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
+     * 获取指定函数流实例
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取指定函数流实例
+     * @param {string} workflowId 函数工作流ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.showWorkFlow = function (showWorkFlowRequest) {
+        var options = (0, exports.ParamCreater)().showWorkFlow(showWorkFlowRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 获取指定工作流指标
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取指定工作流指标
+     * @param {string} workflowUrn 函数工作流URN, 格式为： urn:fss:&lt;region_id&gt;:&lt;project_id&gt;:workflow:\\&lt;package\\&gt;:&lt;workflow_name&gt;:\\&lt;version\\&gt; 注意： package当前只支持default version当前只支持latest
+     * @param {string} [period] 时间段，单位为分钟
+     * @param {string} [startTime] 开始时间，精确到ms的时间戳
+     * @param {string} [endTime] 结束时间，精确到ms的时间戳
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.showWorkFlowMetric = function (showWorkFlowMetricRequest) {
+        var options = (0, exports.ParamCreater)().showWorkFlowMetric(showWorkFlowMetricRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 获取指定函数流执行实例。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 获取指定函数流执行实例
+     * @param {string} workflowId 函数工作流ID
+     * @param {string} executionId 函数流执行实例ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.showWorkflowExecution = function (showWorkflowExecutionRequest) {
+        var options = (0, exports.ParamCreater)().showWorkflowExecution(showWorkflowExecutionRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 同步执行函数流
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 同步执行函数流
+     * @param {string} workflowId 函数工作流ID
+     * @param {StartSyncWorkflowExecutionRequestBody} startSyncWorkflowExecutionRequestBody 函数流执行body体
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.startSyncWorkflowExecution = function (startSyncWorkflowExecutionRequest) {
+        var options = (0, exports.ParamCreater)().startSyncWorkflowExecution(startSyncWorkflowExecutionRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 开始执行函数流
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 开始执行函数流
+     * @param {string} workflowId 函数工作流ID
+     * @param {StartWorkflowExecutionRequestBody} startWorkflowExecutionRequestBody 函数流创建body体
+     * @param {string} [xCreateTime] workflowRun task create time
+     * @param {string} [xWorkflowRunID] workflowRun id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.startWorkflowExecution = function (startWorkflowExecutionRequest) {
+        var options = (0, exports.ParamCreater)().startWorkflowExecution(startWorkflowExecutionRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 停止工作流
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 停止工作流
+     * @param {string} workflowId 函数工作流ID
+     * @param {string} executionId 函数流执行实例ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.stopWorkFlow = function (stopWorkFlowRequest) {
+        var options = (0, exports.ParamCreater)().stopWorkFlow(stopWorkFlowRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
      * 更新依赖包指定依赖包。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 更新依赖包指定依赖包
      * @param {string} dependId 依赖包的ID。
      * @param {UpdateDependencyRequestBody} updateDependencyRequestBody 更新依赖包的请求体。
@@ -5995,6 +6557,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 更新测试事件。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 更新测试事件
      * @param {string} eventId 事件ID。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
@@ -6010,6 +6576,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 设置函数异步配置信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 设置函数异步配置信息。
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {UpdateFunctionAsyncInvokeConfigRequestBody} updateFunctionAsyncInvokeConfigRequestBody 设置函数异步配置请求体。
@@ -6024,6 +6594,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 修改指定的函数的代码。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 修改函数代码。
      * @param {string} functionUrn 函数的URN，详细解释见表1 FunctionGraph函数字段说明表的描述。
      * @param {UpdateFunctionCodeRequestBody} updateFunctionCodeRequestBody
@@ -6038,6 +6612,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 修改指定的函数的metadata信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 修改函数的metadata信息。
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型。
      * @param {UpdateFunctionConfigRequestBody} updateFunctionConfigRequestBody
@@ -6052,6 +6630,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 为函数绑定预留实例
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 更新函数预留实例个数
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {UpdateFunctionReservedInstancesRequestBody} updateFunctionReservedInstancesRequestBody 更新函数预留实例请求体
@@ -6066,6 +6648,10 @@ var FunctionGraphClient = /** @class */ (function () {
     };
     /**
      * 修改函数调用链配置,开通/修改传入aksk，关闭aksk传空
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 修改函数调用链配置
      * @param {string} functionUrn 函数的URN（Uniform Resource Name），唯一标识函数。
      * @param {UpdateTracingRequestBody} updateTracingRequestBody 请求body
@@ -6079,92 +6665,11 @@ var FunctionGraphClient = /** @class */ (function () {
         return this.hcClient.sendRequest(options);
     };
     /**
-     * 修改函数版本别名信息。
-     * @summary 修改函数版本别名信息。
-     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
-     * @param {string} aliasName 要更新的别名名称。
-     * @param {UpdateVersionAliasRequestBody} updateVersionAliasRequestBody 创建函数请求body体。
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    FunctionGraphClient.prototype.updateVersionAlias = function (updateVersionAliasRequest) {
-        var options = (0, exports.ParamCreater)().updateVersionAlias(updateVersionAliasRequest);
-        options['responseHeaders'] = [''];
-        // @ts-ignore
-        return this.hcClient.sendRequest(options);
-    };
-    /**
-     * 删除指定函数所有触发器设置。  在提供函数版本且非latest的情况下，删除对应函数版本的触发器。 在提供函数别名的情况下，删除对应函数别名的触发器。 在不提供函数版本（也不提供别名）或版本为latest的情况下，删除该函数所有的触发器（包括所有版本和别名）。
-     * @summary 删除指定函数的所有触发器。
-     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    FunctionGraphClient.prototype.batchDeleteFunctionTriggers = function (batchDeleteFunctionTriggersRequest) {
-        var options = (0, exports.ParamCreater)().batchDeleteFunctionTriggers(batchDeleteFunctionTriggersRequest);
-        options['responseHeaders'] = [''];
-        // @ts-ignore
-        return this.hcClient.sendRequest(options);
-    };
-    /**
-     * 创建触发器。  - 可以创建的触发器类型包括TIMER、APIG、CTS、DDS、DMS、DIS、LTS、OBS、SMN、KAFKA。 - DDS和KAFKA触发器创建时默认为DISABLED状态，其他触发器默认为ACTIVE状态。 - TIMER、DDS、DMS、KAFKA、LTS触发器支持禁用，其他触发器不支持。
-     * @summary 创建触发器。
-     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
-     * @param {CreateFunctionTriggerRequestBody} createFunctionTriggerRequestBody
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    FunctionGraphClient.prototype.createFunctionTrigger = function (createFunctionTriggerRequest) {
-        var options = (0, exports.ParamCreater)().createFunctionTrigger(createFunctionTriggerRequest);
-        options['responseHeaders'] = [''];
-        // @ts-ignore
-        return this.hcClient.sendRequest(options);
-    };
-    /**
-     * 删除触发器。
-     * @summary 删除触发器。
-     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
-     * @param {'TIMER' | 'APIG' | 'CTS' | 'DDS' | 'DMS' | 'DIS' | 'LTS' | 'OBS' | 'SMN' | 'KAFKA'} triggerTypeCode 触发器类型代码。
-     * @param {string} triggerId 触发器编码。
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    FunctionGraphClient.prototype.deleteFunctionTrigger = function (deleteFunctionTriggerRequest) {
-        var options = (0, exports.ParamCreater)().deleteFunctionTrigger(deleteFunctionTriggerRequest);
-        options['responseHeaders'] = [''];
-        // @ts-ignore
-        return this.hcClient.sendRequest(options);
-    };
-    /**
-     * 获取指定函数的所有触发器设置。
-     * @summary 获取指定函数的所有触发器。
-     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    FunctionGraphClient.prototype.listFunctionTriggers = function (listFunctionTriggersRequest) {
-        var options = (0, exports.ParamCreater)().listFunctionTriggers(listFunctionTriggersRequest);
-        options['responseHeaders'] = [''];
-        // @ts-ignore
-        return this.hcClient.sendRequest(options);
-    };
-    /**
-     * 获取特定触发器的信息。
-     * @summary 获取指定触发器的信息。
-     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
-     * @param {'TIMER' | 'APIG' | 'CTS' | 'DDS' | 'DMS' | 'DIS' | 'LTS' | 'OBS' | 'SMN' | 'KAFKA'} triggerTypeCode
-     * @param {string} triggerId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    FunctionGraphClient.prototype.showFunctionTrigger = function (showFunctionTriggerRequest) {
-        var options = (0, exports.ParamCreater)().showFunctionTrigger(showFunctionTriggerRequest);
-        options['responseHeaders'] = [''];
-        // @ts-ignore
-        return this.hcClient.sendRequest(options);
-    };
-    /**
      * 更新触发器
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
      * @summary 更新触发器
      * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
      * @param {'TIMER' | 'APIG' | 'CTS' | 'DDS' | 'DMS' | 'DIS' | 'LTS' | 'OBS' | 'SMN' | 'KAFKA'} triggerTypeCode 触发器类型代码。
@@ -6179,6 +6684,43 @@ var FunctionGraphClient = /** @class */ (function () {
         // @ts-ignore
         return this.hcClient.sendRequest(options);
     };
+    /**
+     * 修改函数版本别名信息。
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 修改函数版本别名信息。
+     * @param {string} functionUrn 函数的URN，详细解释见FunctionGraph函数模型的描述。
+     * @param {string} aliasName 要更新的别名名称。
+     * @param {UpdateVersionAliasRequestBody} updateVersionAliasRequestBody 创建函数请求body体。
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.updateVersionAlias = function (updateVersionAliasRequest) {
+        var options = (0, exports.ParamCreater)().updateVersionAlias(updateVersionAliasRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
+    /**
+     * 修改指定函数流实例
+     *
+     * 详细说明请参考华为云API Explorer。
+     * Please refer to Huawei cloud API Explorer for details.
+     *
+     * @summary 修改指定函数流实例
+     * @param {string} workflowId 函数工作流ID
+     * @param {UpdateWorkflowRequestBody} updateWorkflowRequestBody 函数流创建body体
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    FunctionGraphClient.prototype.updateWorkFlow = function (updateWorkFlowRequest) {
+        var options = (0, exports.ParamCreater)().updateWorkFlow(updateWorkFlowRequest);
+        options['responseHeaders'] = [''];
+        // @ts-ignore
+        return this.hcClient.sendRequest(options);
+    };
     return FunctionGraphClient;
 }());
 exports.FunctionGraphClient = FunctionGraphClient;
@@ -6186,6 +6728,9 @@ var ParamCreater = function () {
     return {
         /**
          * 异步执行函数。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         asyncInvokeFunction: function (asyncInvokeFunctionRequest) {
             var options = {
@@ -6223,7 +6768,11 @@ var ParamCreater = function () {
             return options;
         },
         /**
-         * 函数异步执行并返回预留实例ID用于场景指客户端请求执行比较费时任务，不需要同步等待执行完成返回结果，该方法提前返回任务执行对应的预留实例ID, 如果预留实例有异常， 可以通过该实例ID把对应实例删除（该接口主要针对白名单用户）。
+         * 函数异步执行并返回预留实例ID用于场景指客户端请求执行比较费时任务，不需要同步等待执行完成返回结果，该方法提前返回任务执行对应的预留实例ID, 如果预留实例有异常，
+         * 可以通过该实例ID把对应实例删除（该接口主要针对白名单用户）。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         asyncInvokeReservedFunction: function (asyncInvokeReservedFunctionRequest) {
             var options = {
@@ -6261,7 +6810,122 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 删除指定函数所有触发器设置。
+         *
+         * 在提供函数版本且非latest的情况下，删除对应函数版本的触发器。
+         * 在提供函数别名的情况下，删除对应函数别名的触发器。
+         * 在不提供函数版本（也不提供别名）或版本为latest的情况下，删除该函数所有的触发器（包括所有版本和别名）。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        batchDeleteFunctionTriggers: function (batchDeleteFunctionTriggersRequest) {
+            var options = {
+                method: "DELETE",
+                url: "/v2/{project_id}/fgs/triggers/{function_urn}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var functionUrn;
+            if (batchDeleteFunctionTriggersRequest !== null && batchDeleteFunctionTriggersRequest !== undefined) {
+                if (batchDeleteFunctionTriggersRequest instanceof BatchDeleteFunctionTriggersRequest_1.BatchDeleteFunctionTriggersRequest) {
+                    functionUrn = batchDeleteFunctionTriggersRequest.functionUrn;
+                }
+                else {
+                    functionUrn = batchDeleteFunctionTriggersRequest['function_urn'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling batchDeleteFunctionTriggers.');
+            }
+            options.pathParams = { 'function_urn': functionUrn, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 删除工作流列表
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        batchDeleteWorkflows: function (batchDeleteWorkflowsRequest) {
+            var options = {
+                method: "DELETE",
+                url: "/v2/{project_id}/fgs/workflows",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            if (batchDeleteWorkflowsRequest !== null && batchDeleteWorkflowsRequest !== undefined) {
+                if (batchDeleteWorkflowsRequest instanceof BatchDeleteWorkflowsRequest_1.BatchDeleteWorkflowsRequest) {
+                    body = batchDeleteWorkflowsRequest.body;
+                }
+                else {
+                    body = batchDeleteWorkflowsRequest['body'];
+                }
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 停止函数异步调用请求
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        cancelAsyncInvocation: function (cancelAsyncInvocationRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/functions/{function_urn}/cancel",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            var functionUrn;
+            if (cancelAsyncInvocationRequest !== null && cancelAsyncInvocationRequest !== undefined) {
+                if (cancelAsyncInvocationRequest instanceof CancelAsyncInvocationRequest_1.CancelAsyncInvocationRequest) {
+                    functionUrn = cancelAsyncInvocationRequest.functionUrn;
+                    body = cancelAsyncInvocationRequest.body;
+                }
+                else {
+                    functionUrn = cancelAsyncInvocationRequest['function_urn'];
+                    body = cancelAsyncInvocationRequest['body'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling cancelAsyncInvocation.');
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.pathParams = { 'function_urn': functionUrn, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 创建依赖包。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         createDependency: function (createDependencyRequest) {
             var options = {
@@ -6293,6 +6957,9 @@ var ParamCreater = function () {
         },
         /**
          * 创建测试事件。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         createEvent: function (createEventRequest) {
             var options = {
@@ -6331,6 +6998,9 @@ var ParamCreater = function () {
         },
         /**
          * 创建指定的函数。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         createFunction: function (createFunctionRequest) {
             var options = {
@@ -6361,7 +7031,55 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 创建触发器。
+         *
+         * - 可以创建的触发器类型包括TIMER、APIG、CTS、DDS、DMS、DIS、LTS、OBS、SMN、KAFKA。
+         * - DDS和KAFKA触发器创建时默认为DISABLED状态，其他触发器默认为ACTIVE状态。
+         * - TIMER、DDS、DMS、KAFKA、LTS触发器支持禁用，其他触发器不支持。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        createFunctionTrigger: function (createFunctionTriggerRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/triggers/{function_urn}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            var functionUrn;
+            if (createFunctionTriggerRequest !== null && createFunctionTriggerRequest !== undefined) {
+                if (createFunctionTriggerRequest instanceof CreateFunctionTriggerRequest_1.CreateFunctionTriggerRequest) {
+                    functionUrn = createFunctionTriggerRequest.functionUrn;
+                    body = createFunctionTriggerRequest.body;
+                }
+                else {
+                    functionUrn = createFunctionTriggerRequest['function_urn'];
+                    body = createFunctionTriggerRequest['body'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling createFunctionTrigger.');
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.pathParams = { 'function_urn': functionUrn, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 发布函数版本。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         createFunctionVersion: function (createFunctionVersionRequest) {
             var options = {
@@ -6400,6 +7118,9 @@ var ParamCreater = function () {
         },
         /**
          * 创建函数灰度版本别名。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         createVersionAlias: function (createVersionAliasRequest) {
             var options = {
@@ -6437,7 +7158,44 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 创建工作流列表
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        createWorkflow: function (createWorkflowRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/workflows",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            if (createWorkflowRequest !== null && createWorkflowRequest !== undefined) {
+                if (createWorkflowRequest instanceof CreateWorkflowRequest_1.CreateWorkflowRequest) {
+                    body = createWorkflowRequest.body;
+                }
+                else {
+                    body = createWorkflowRequest['body'];
+                }
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 删除指定的依赖包。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         deleteDependency: function (deleteDependencyRequest) {
             var options = {
@@ -6468,6 +7226,9 @@ var ParamCreater = function () {
         },
         /**
          * 删除测试事件。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         deleteEvent: function (deleteEventRequest) {
             var options = {
@@ -6503,7 +7264,13 @@ var ParamCreater = function () {
             return options;
         },
         /**
-         * 删除指定的函数或者特定的版本（不允许删除latest版本）。  如果URN中包含函数版本或者别名，则删除特定的函数版本或者别名指向的版本以及该版本关联的trigger。 如果URN中不包含版本或者别名，则删除整个函数，包含所有版本以及别名，触发器。
+         * 删除指定的函数或者特定的版本（不允许删除latest版本）。
+         *
+         * 如果URN中包含函数版本或者别名，则删除特定的函数版本或者别名指向的版本以及该版本关联的trigger。
+         * 如果URN中不包含版本或者别名，则删除整个函数，包含所有版本以及别名，触发器。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         deleteFunction: function (deleteFunctionRequest) {
             var options = {
@@ -6534,6 +7301,9 @@ var ParamCreater = function () {
         },
         /**
          * 删除函数异步配置信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         deleteFunctionAsyncInvokeConfig: function (deleteFunctionAsyncInvokeConfigRequest) {
             var options = {
@@ -6563,7 +7333,55 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 删除触发器。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        deleteFunctionTrigger: function (deleteFunctionTriggerRequest) {
+            var options = {
+                method: "DELETE",
+                url: "/v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var functionUrn;
+            var triggerTypeCode;
+            var triggerId;
+            if (deleteFunctionTriggerRequest !== null && deleteFunctionTriggerRequest !== undefined) {
+                if (deleteFunctionTriggerRequest instanceof DeleteFunctionTriggerRequest_1.DeleteFunctionTriggerRequest) {
+                    functionUrn = deleteFunctionTriggerRequest.functionUrn;
+                    triggerTypeCode = deleteFunctionTriggerRequest.triggerTypeCode;
+                    triggerId = deleteFunctionTriggerRequest.triggerId;
+                }
+                else {
+                    functionUrn = deleteFunctionTriggerRequest['function_urn'];
+                    triggerTypeCode = deleteFunctionTriggerRequest['trigger_type_code'];
+                    triggerId = deleteFunctionTriggerRequest['trigger_id'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling deleteFunctionTrigger.');
+            }
+            if (triggerTypeCode === null || triggerTypeCode === undefined) {
+                throw new RequiredError('triggerTypeCode', 'Required parameter triggerTypeCode was null or undefined when calling deleteFunctionTrigger.');
+            }
+            if (triggerId === null || triggerId === undefined) {
+                throw new RequiredError('triggerId', 'Required parameter triggerId was null or undefined when calling deleteFunctionTrigger.');
+            }
+            options.pathParams = { 'function_urn': functionUrn, 'trigger_type_code': triggerTypeCode, 'trigger_id': triggerId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 删除函数版本别名。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         deleteVersionAlias: function (deleteVersionAliasRequest) {
             var options = {
@@ -6600,6 +7418,9 @@ var ParamCreater = function () {
         },
         /**
          * 开通lts日志上报功能。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         enableLtsLogs: function () {
             var options = {
@@ -6617,6 +7438,9 @@ var ParamCreater = function () {
         },
         /**
          * 导出函数。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         exportFunction: function (exportFunctionRequest) {
             var options = {
@@ -6667,6 +7491,9 @@ var ParamCreater = function () {
         },
         /**
          * 导入函数。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         importFunction: function (importFunctionRequest) {
             var options = {
@@ -6698,6 +7525,9 @@ var ParamCreater = function () {
         },
         /**
          * 同步调用指的是客户端请求需要明确等到响应结果，也就是说这样的请求必须得调用到用户的函数，并且等到调用完成才返回。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         invokeFunction: function (invokeFunctionRequest) {
             var options = {
@@ -6748,6 +7578,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取依赖包列表。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listDependencies: function (listDependenciesRequest) {
             var options = {
@@ -6803,6 +7636,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取指定函数的测试事件列表。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listEvents: function (listEventsRequest) {
             var options = {
@@ -6833,6 +7669,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取函数异步调用请求列表
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listFunctionAsyncInvocations: function (listFunctionAsyncInvocationsRequest) {
             var options = {
@@ -6849,6 +7688,7 @@ var ParamCreater = function () {
             var functionUrn;
             var requestId;
             var limit;
+            var marker;
             var status;
             var queryBeginTime;
             var queryEndTime;
@@ -6857,6 +7697,7 @@ var ParamCreater = function () {
                     functionUrn = listFunctionAsyncInvocationsRequest.functionUrn;
                     requestId = listFunctionAsyncInvocationsRequest.requestId;
                     limit = listFunctionAsyncInvocationsRequest.limit;
+                    marker = listFunctionAsyncInvocationsRequest.marker;
                     status = listFunctionAsyncInvocationsRequest.status;
                     queryBeginTime = listFunctionAsyncInvocationsRequest.queryBeginTime;
                     queryEndTime = listFunctionAsyncInvocationsRequest.queryEndTime;
@@ -6865,6 +7706,7 @@ var ParamCreater = function () {
                     functionUrn = listFunctionAsyncInvocationsRequest['function_urn'];
                     requestId = listFunctionAsyncInvocationsRequest['request_id'];
                     limit = listFunctionAsyncInvocationsRequest['limit'];
+                    marker = listFunctionAsyncInvocationsRequest['marker'];
                     status = listFunctionAsyncInvocationsRequest['status'];
                     queryBeginTime = listFunctionAsyncInvocationsRequest['query_begin_time'];
                     queryEndTime = listFunctionAsyncInvocationsRequest['query_end_time'];
@@ -6878,6 +7720,9 @@ var ParamCreater = function () {
             }
             if (limit !== null && limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+            if (marker !== null && marker !== undefined) {
+                localVarQueryParameter['marker'] = marker;
             }
             if (status !== null && status !== undefined) {
                 localVarQueryParameter['status'] = status;
@@ -6895,6 +7740,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取函数异步配置列表。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listFunctionAsyncInvokeConfig: function (listFunctionAsyncInvokeConfigRequest) {
             var options = {
@@ -6939,6 +7787,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取指定时间段的函数运行指标。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listFunctionStatistics: function (listFunctionStatisticsRequest) {
             var options = {
@@ -6974,7 +7825,43 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 获取指定函数的所有触发器设置。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        listFunctionTriggers: function (listFunctionTriggersRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/triggers/{function_urn}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var functionUrn;
+            if (listFunctionTriggersRequest !== null && listFunctionTriggersRequest !== undefined) {
+                if (listFunctionTriggersRequest instanceof ListFunctionTriggersRequest_1.ListFunctionTriggersRequest) {
+                    functionUrn = listFunctionTriggersRequest.functionUrn;
+                }
+                else {
+                    functionUrn = listFunctionTriggersRequest['function_urn'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling listFunctionTriggers.');
+            }
+            options.pathParams = { 'function_urn': functionUrn, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 获取指定函数的版本列表。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listFunctionVersions: function (listFunctionVersionsRequest) {
             var options = {
@@ -7019,6 +7906,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取函数列表
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listFunctions: function (listFunctionsRequest) {
             var options = {
@@ -7062,6 +7952,9 @@ var ParamCreater = function () {
         },
         /**
          * 查询租户配额
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listQuotas: function () {
             var options = {
@@ -7078,7 +7971,13 @@ var ParamCreater = function () {
             return options;
         },
         /**
-         * 租户函数统计信息。  返回三类的统计信息，函数格式和大小使用情况包括配额和使用量，流量报告。 通过查询参数filter可以进行过滤，查询参数period可以指定返回的时间段。
+         * 租户函数统计信息。
+         *
+         * 返回三类的统计信息，函数格式和大小使用情况包括配额和使用量，流量报告。
+         * 通过查询参数filter可以进行过滤，查询参数period可以指定返回的时间段。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listStatistics: function (listStatisticsRequest) {
             var options = {
@@ -7094,14 +7993,17 @@ var ParamCreater = function () {
             var localVarQueryParameter = {};
             var filter;
             var period;
+            var option;
             if (listStatisticsRequest !== null && listStatisticsRequest !== undefined) {
                 if (listStatisticsRequest instanceof ListStatisticsRequest_1.ListStatisticsRequest) {
                     filter = listStatisticsRequest.filter;
                     period = listStatisticsRequest.period;
+                    option = listStatisticsRequest.option;
                 }
                 else {
                     filter = listStatisticsRequest['filter'];
                     period = listStatisticsRequest['period'];
+                    option = listStatisticsRequest['option'];
                 }
             }
             if (filter === null || filter === undefined) {
@@ -7113,12 +8015,18 @@ var ParamCreater = function () {
             if (period !== null && period !== undefined) {
                 localVarQueryParameter['period'] = period;
             }
+            if (option !== null && option !== undefined) {
+                localVarQueryParameter['option'] = option;
+            }
             options.queryParams = localVarQueryParameter;
             options.headers = localVarHeaderParameter;
             return options;
         },
         /**
          * 获取函数版本别名列表。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         listVersionAliases: function (listVersionAliasesRequest) {
             var options = {
@@ -7148,7 +8056,154 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 获取指定函数流执行实例列表
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        listWorkflowExecutions: function (listWorkflowExecutionsRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}/executions",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var localVarQueryParameter = {};
+            var workflowId;
+            var limit;
+            var status;
+            var startTime;
+            var endTime;
+            if (listWorkflowExecutionsRequest !== null && listWorkflowExecutionsRequest !== undefined) {
+                if (listWorkflowExecutionsRequest instanceof ListWorkflowExecutionsRequest_1.ListWorkflowExecutionsRequest) {
+                    workflowId = listWorkflowExecutionsRequest.workflowId;
+                    limit = listWorkflowExecutionsRequest.limit;
+                    status = listWorkflowExecutionsRequest.status;
+                    startTime = listWorkflowExecutionsRequest.startTime;
+                    endTime = listWorkflowExecutionsRequest.endTime;
+                }
+                else {
+                    workflowId = listWorkflowExecutionsRequest['workflow_id'];
+                    limit = listWorkflowExecutionsRequest['limit'];
+                    status = listWorkflowExecutionsRequest['status'];
+                    startTime = listWorkflowExecutionsRequest['start_time'];
+                    endTime = listWorkflowExecutionsRequest['end_time'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling listWorkflowExecutions.');
+            }
+            if (limit !== null && limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+            if (status !== null && status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+            if (startTime !== null && startTime !== undefined) {
+                localVarQueryParameter['start_time'] = startTime;
+            }
+            if (endTime !== null && endTime !== undefined) {
+                localVarQueryParameter['end_time'] = endTime;
+            }
+            options.queryParams = localVarQueryParameter;
+            options.pathParams = { 'workflow_id': workflowId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 查询工作流列表
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        listWorkflows: function (listWorkflowsRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/workflows",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var localVarQueryParameter = {};
+            var workflowName;
+            var limit;
+            var offset;
+            if (listWorkflowsRequest !== null && listWorkflowsRequest !== undefined) {
+                if (listWorkflowsRequest instanceof ListWorkflowsRequest_1.ListWorkflowsRequest) {
+                    workflowName = listWorkflowsRequest.workflowName;
+                    limit = listWorkflowsRequest.limit;
+                    offset = listWorkflowsRequest.offset;
+                }
+                else {
+                    workflowName = listWorkflowsRequest['workflow_name'];
+                    limit = listWorkflowsRequest['limit'];
+                    offset = listWorkflowsRequest['offset'];
+                }
+            }
+            if (workflowName !== null && workflowName !== undefined) {
+                localVarQueryParameter['workflow_name'] = workflowName;
+            }
+            if (limit !== null && limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+            if (offset !== null && offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+            options.queryParams = localVarQueryParameter;
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 重试工作流
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        retryWorkFlow: function (retryWorkFlowRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}/executions/{execution_id}/retry",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var workflowId;
+            var executionId;
+            if (retryWorkFlowRequest !== null && retryWorkFlowRequest !== undefined) {
+                if (retryWorkFlowRequest instanceof RetryWorkFlowRequest_1.RetryWorkFlowRequest) {
+                    workflowId = retryWorkFlowRequest.workflowId;
+                    executionId = retryWorkFlowRequest.executionId;
+                }
+                else {
+                    workflowId = retryWorkFlowRequest['workflow_id'];
+                    executionId = retryWorkFlowRequest['execution_id'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling retryWorkFlow.');
+            }
+            if (executionId === null || executionId === undefined) {
+                throw new RequiredError('executionId', 'Required parameter executionId was null or undefined when calling retryWorkFlow.');
+            }
+            options.pathParams = { 'workflow_id': workflowId, 'execution_id': executionId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 获取指定依赖包。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showDependency: function (showDependencyRequest) {
             var options = {
@@ -7179,6 +8234,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取测试事件详细信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showEvent: function (showEventRequest) {
             var options = {
@@ -7215,6 +8273,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取函数异步配置信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showFunctionAsyncInvokeConfig: function (showFunctionAsyncInvokeConfigRequest) {
             var options = {
@@ -7245,6 +8306,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取指定函数的代码。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showFunctionCode: function (showFunctionCodeRequest) {
             var options = {
@@ -7275,6 +8339,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取指定函数的metadata。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showFunctionConfig: function (showFunctionConfigRequest) {
             var options = {
@@ -7304,7 +8371,55 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 获取特定触发器的信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        showFunctionTrigger: function (showFunctionTriggerRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var functionUrn;
+            var triggerTypeCode;
+            var triggerId;
+            if (showFunctionTriggerRequest !== null && showFunctionTriggerRequest !== undefined) {
+                if (showFunctionTriggerRequest instanceof ShowFunctionTriggerRequest_1.ShowFunctionTriggerRequest) {
+                    functionUrn = showFunctionTriggerRequest.functionUrn;
+                    triggerTypeCode = showFunctionTriggerRequest.triggerTypeCode;
+                    triggerId = showFunctionTriggerRequest.triggerId;
+                }
+                else {
+                    functionUrn = showFunctionTriggerRequest['function_urn'];
+                    triggerTypeCode = showFunctionTriggerRequest['trigger_type_code'];
+                    triggerId = showFunctionTriggerRequest['trigger_id'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling showFunctionTrigger.');
+            }
+            if (triggerTypeCode === null || triggerTypeCode === undefined) {
+                throw new RequiredError('triggerTypeCode', 'Required parameter triggerTypeCode was null or undefined when calling showFunctionTrigger.');
+            }
+            if (triggerId === null || triggerId === undefined) {
+                throw new RequiredError('triggerId', 'Required parameter triggerId was null or undefined when calling showFunctionTrigger.');
+            }
+            options.pathParams = { 'function_urn': functionUrn, 'trigger_type_code': triggerTypeCode, 'trigger_id': triggerId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 获取指定函数的lts日志组日志流配置。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showLtsLogDetails: function (showLtsLogDetailsRequest) {
             var options = {
@@ -7334,7 +8449,56 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 获取函数流指标
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        showTenantMetric: function (showTenantMetricRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/workflow-statistic",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var localVarQueryParameter = {};
+            var period;
+            var startTime;
+            var endTime;
+            if (showTenantMetricRequest !== null && showTenantMetricRequest !== undefined) {
+                if (showTenantMetricRequest instanceof ShowTenantMetricRequest_1.ShowTenantMetricRequest) {
+                    period = showTenantMetricRequest.period;
+                    startTime = showTenantMetricRequest.startTime;
+                    endTime = showTenantMetricRequest.endTime;
+                }
+                else {
+                    period = showTenantMetricRequest['period'];
+                    startTime = showTenantMetricRequest['start_time'];
+                    endTime = showTenantMetricRequest['end_time'];
+                }
+            }
+            if (period !== null && period !== undefined) {
+                localVarQueryParameter['period'] = period;
+            }
+            if (startTime !== null && startTime !== undefined) {
+                localVarQueryParameter['start_time'] = startTime;
+            }
+            if (endTime !== null && endTime !== undefined) {
+                localVarQueryParameter['end_time'] = endTime;
+            }
+            options.queryParams = localVarQueryParameter;
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 获取函数调用链配置
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showTracing: function (showTracingRequest) {
             var options = {
@@ -7365,6 +8529,9 @@ var ParamCreater = function () {
         },
         /**
          * 获取函数指定的版本别名信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         showVersionAlias: function (showVersionAliasRequest) {
             var options = {
@@ -7400,7 +8567,268 @@ var ParamCreater = function () {
             return options;
         },
         /**
+         * 获取指定函数流实例
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        showWorkFlow: function (showWorkFlowRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var workflowId;
+            if (showWorkFlowRequest !== null && showWorkFlowRequest !== undefined) {
+                if (showWorkFlowRequest instanceof ShowWorkFlowRequest_1.ShowWorkFlowRequest) {
+                    workflowId = showWorkFlowRequest.workflowId;
+                }
+                else {
+                    workflowId = showWorkFlowRequest['workflow_id'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling showWorkFlow.');
+            }
+            options.pathParams = { 'workflow_id': workflowId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 获取指定工作流指标
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        showWorkFlowMetric: function (showWorkFlowMetricRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/workflow-statistic/{workflow_urn}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var localVarQueryParameter = {};
+            var workflowUrn;
+            var period;
+            var startTime;
+            var endTime;
+            if (showWorkFlowMetricRequest !== null && showWorkFlowMetricRequest !== undefined) {
+                if (showWorkFlowMetricRequest instanceof ShowWorkFlowMetricRequest_1.ShowWorkFlowMetricRequest) {
+                    workflowUrn = showWorkFlowMetricRequest.workflowUrn;
+                    period = showWorkFlowMetricRequest.period;
+                    startTime = showWorkFlowMetricRequest.startTime;
+                    endTime = showWorkFlowMetricRequest.endTime;
+                }
+                else {
+                    workflowUrn = showWorkFlowMetricRequest['workflow_urn'];
+                    period = showWorkFlowMetricRequest['period'];
+                    startTime = showWorkFlowMetricRequest['start_time'];
+                    endTime = showWorkFlowMetricRequest['end_time'];
+                }
+            }
+            if (workflowUrn === null || workflowUrn === undefined) {
+                throw new RequiredError('workflowUrn', 'Required parameter workflowUrn was null or undefined when calling showWorkFlowMetric.');
+            }
+            if (period !== null && period !== undefined) {
+                localVarQueryParameter['period'] = period;
+            }
+            if (startTime !== null && startTime !== undefined) {
+                localVarQueryParameter['start_time'] = startTime;
+            }
+            if (endTime !== null && endTime !== undefined) {
+                localVarQueryParameter['end_time'] = endTime;
+            }
+            options.queryParams = localVarQueryParameter;
+            options.pathParams = { 'workflow_urn': workflowUrn, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 获取指定函数流执行实例。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        showWorkflowExecution: function (showWorkflowExecutionRequest) {
+            var options = {
+                method: "GET",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}/executions/{execution_id}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var workflowId;
+            var executionId;
+            if (showWorkflowExecutionRequest !== null && showWorkflowExecutionRequest !== undefined) {
+                if (showWorkflowExecutionRequest instanceof ShowWorkflowExecutionRequest_1.ShowWorkflowExecutionRequest) {
+                    workflowId = showWorkflowExecutionRequest.workflowId;
+                    executionId = showWorkflowExecutionRequest.executionId;
+                }
+                else {
+                    workflowId = showWorkflowExecutionRequest['workflow_id'];
+                    executionId = showWorkflowExecutionRequest['execution_id'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling showWorkflowExecution.');
+            }
+            if (executionId === null || executionId === undefined) {
+                throw new RequiredError('executionId', 'Required parameter executionId was null or undefined when calling showWorkflowExecution.');
+            }
+            options.pathParams = { 'workflow_id': workflowId, 'execution_id': executionId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 同步执行函数流
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        startSyncWorkflowExecution: function (startSyncWorkflowExecutionRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}/sync-executions",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            var workflowId;
+            if (startSyncWorkflowExecutionRequest !== null && startSyncWorkflowExecutionRequest !== undefined) {
+                if (startSyncWorkflowExecutionRequest instanceof StartSyncWorkflowExecutionRequest_1.StartSyncWorkflowExecutionRequest) {
+                    workflowId = startSyncWorkflowExecutionRequest.workflowId;
+                    body = startSyncWorkflowExecutionRequest.body;
+                }
+                else {
+                    workflowId = startSyncWorkflowExecutionRequest['workflow_id'];
+                    body = startSyncWorkflowExecutionRequest['body'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling startSyncWorkflowExecution.');
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.pathParams = { 'workflow_id': workflowId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 开始执行函数流
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        startWorkflowExecution: function (startWorkflowExecutionRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}/executions",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            var workflowId;
+            var xCreateTime;
+            var xWorkflowRunID;
+            if (startWorkflowExecutionRequest !== null && startWorkflowExecutionRequest !== undefined) {
+                if (startWorkflowExecutionRequest instanceof StartWorkflowExecutionRequest_1.StartWorkflowExecutionRequest) {
+                    workflowId = startWorkflowExecutionRequest.workflowId;
+                    body = startWorkflowExecutionRequest.body;
+                    xCreateTime = startWorkflowExecutionRequest.xCreateTime;
+                    xWorkflowRunID = startWorkflowExecutionRequest.xWorkflowRunID;
+                }
+                else {
+                    workflowId = startWorkflowExecutionRequest['workflow_id'];
+                    body = startWorkflowExecutionRequest['body'];
+                    xCreateTime = startWorkflowExecutionRequest['X-Create-Time'];
+                    xWorkflowRunID = startWorkflowExecutionRequest['X-WorkflowRun-ID'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling startWorkflowExecution.');
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            if (xCreateTime !== undefined && xCreateTime !== null) {
+                localVarHeaderParameter['X-Create-Time'] = String(xCreateTime);
+            }
+            if (xWorkflowRunID !== undefined && xWorkflowRunID !== null) {
+                localVarHeaderParameter['X-WorkflowRun-ID'] = String(xWorkflowRunID);
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.pathParams = { 'workflow_id': workflowId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 停止工作流
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        stopWorkFlow: function (stopWorkFlowRequest) {
+            var options = {
+                method: "POST",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}/executions/{execution_id}/terminate",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var workflowId;
+            var executionId;
+            if (stopWorkFlowRequest !== null && stopWorkFlowRequest !== undefined) {
+                if (stopWorkFlowRequest instanceof StopWorkFlowRequest_1.StopWorkFlowRequest) {
+                    workflowId = stopWorkFlowRequest.workflowId;
+                    executionId = stopWorkFlowRequest.executionId;
+                }
+                else {
+                    workflowId = stopWorkFlowRequest['workflow_id'];
+                    executionId = stopWorkFlowRequest['execution_id'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling stopWorkFlow.');
+            }
+            if (executionId === null || executionId === undefined) {
+                throw new RequiredError('executionId', 'Required parameter executionId was null or undefined when calling stopWorkFlow.');
+            }
+            options.pathParams = { 'workflow_id': workflowId, 'execution_id': executionId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
          * 更新依赖包指定依赖包。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateDependency: function (updateDependencyRequest) {
             var options = {
@@ -7439,6 +8867,9 @@ var ParamCreater = function () {
         },
         /**
          * 更新测试事件。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateEvent: function (updateEventRequest) {
             var options = {
@@ -7483,6 +8914,9 @@ var ParamCreater = function () {
         },
         /**
          * 设置函数异步配置信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateFunctionAsyncInvokeConfig: function (updateFunctionAsyncInvokeConfigRequest) {
             var options = {
@@ -7521,6 +8955,9 @@ var ParamCreater = function () {
         },
         /**
          * 修改指定的函数的代码。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateFunctionCode: function (updateFunctionCodeRequest) {
             var options = {
@@ -7559,6 +8996,9 @@ var ParamCreater = function () {
         },
         /**
          * 修改指定的函数的metadata信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateFunctionConfig: function (updateFunctionConfigRequest) {
             var options = {
@@ -7597,6 +9037,9 @@ var ParamCreater = function () {
         },
         /**
          * 为函数绑定预留实例
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateFunctionReservedInstances: function (updateFunctionReservedInstancesRequest) {
             var options = {
@@ -7635,6 +9078,9 @@ var ParamCreater = function () {
         },
         /**
          * 修改函数调用链配置,开通/修改传入aksk，关闭aksk传空
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateTracing: function (updateTracingRequest) {
             var options = {
@@ -7672,233 +9118,10 @@ var ParamCreater = function () {
             return options;
         },
         /**
-         * 修改函数版本别名信息。
-         */
-        updateVersionAlias: function (updateVersionAliasRequest) {
-            var options = {
-                method: "PUT",
-                url: "/v2/{project_id}/fgs/functions/{function_urn}/aliases/{alias_name}",
-                contentType: "application/json",
-                queryParams: {},
-                pathParams: {},
-                headers: {},
-                data: {}
-            };
-            var localVarHeaderParameter = {};
-            var body;
-            var functionUrn;
-            var aliasName;
-            if (updateVersionAliasRequest !== null && updateVersionAliasRequest !== undefined) {
-                if (updateVersionAliasRequest instanceof UpdateVersionAliasRequest_1.UpdateVersionAliasRequest) {
-                    functionUrn = updateVersionAliasRequest.functionUrn;
-                    aliasName = updateVersionAliasRequest.aliasName;
-                    body = updateVersionAliasRequest.body;
-                }
-                else {
-                    functionUrn = updateVersionAliasRequest['function_urn'];
-                    aliasName = updateVersionAliasRequest['alias_name'];
-                    body = updateVersionAliasRequest['body'];
-                }
-            }
-            if (functionUrn === null || functionUrn === undefined) {
-                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling updateVersionAlias.');
-            }
-            if (aliasName === null || aliasName === undefined) {
-                throw new RequiredError('aliasName', 'Required parameter aliasName was null or undefined when calling updateVersionAlias.');
-            }
-            if (body === null || body === undefined) {
-                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
-            }
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-            options.data = body !== undefined ? body : {};
-            options.pathParams = { 'function_urn': functionUrn, 'alias_name': aliasName, };
-            options.headers = localVarHeaderParameter;
-            return options;
-        },
-        /**
-         * 删除指定函数所有触发器设置。  在提供函数版本且非latest的情况下，删除对应函数版本的触发器。 在提供函数别名的情况下，删除对应函数别名的触发器。 在不提供函数版本（也不提供别名）或版本为latest的情况下，删除该函数所有的触发器（包括所有版本和别名）。
-         */
-        batchDeleteFunctionTriggers: function (batchDeleteFunctionTriggersRequest) {
-            var options = {
-                method: "DELETE",
-                url: "/v2/{project_id}/fgs/triggers/{function_urn}",
-                contentType: "application/json",
-                queryParams: {},
-                pathParams: {},
-                headers: {},
-                data: {}
-            };
-            var localVarHeaderParameter = {};
-            var functionUrn;
-            if (batchDeleteFunctionTriggersRequest !== null && batchDeleteFunctionTriggersRequest !== undefined) {
-                if (batchDeleteFunctionTriggersRequest instanceof BatchDeleteFunctionTriggersRequest_1.BatchDeleteFunctionTriggersRequest) {
-                    functionUrn = batchDeleteFunctionTriggersRequest.functionUrn;
-                }
-                else {
-                    functionUrn = batchDeleteFunctionTriggersRequest['function_urn'];
-                }
-            }
-            if (functionUrn === null || functionUrn === undefined) {
-                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling batchDeleteFunctionTriggers.');
-            }
-            options.pathParams = { 'function_urn': functionUrn, };
-            options.headers = localVarHeaderParameter;
-            return options;
-        },
-        /**
-         * 创建触发器。  - 可以创建的触发器类型包括TIMER、APIG、CTS、DDS、DMS、DIS、LTS、OBS、SMN、KAFKA。 - DDS和KAFKA触发器创建时默认为DISABLED状态，其他触发器默认为ACTIVE状态。 - TIMER、DDS、DMS、KAFKA、LTS触发器支持禁用，其他触发器不支持。
-         */
-        createFunctionTrigger: function (createFunctionTriggerRequest) {
-            var options = {
-                method: "POST",
-                url: "/v2/{project_id}/fgs/triggers/{function_urn}",
-                contentType: "application/json",
-                queryParams: {},
-                pathParams: {},
-                headers: {},
-                data: {}
-            };
-            var localVarHeaderParameter = {};
-            var body;
-            var functionUrn;
-            if (createFunctionTriggerRequest !== null && createFunctionTriggerRequest !== undefined) {
-                if (createFunctionTriggerRequest instanceof CreateFunctionTriggerRequest_1.CreateFunctionTriggerRequest) {
-                    functionUrn = createFunctionTriggerRequest.functionUrn;
-                    body = createFunctionTriggerRequest.body;
-                }
-                else {
-                    functionUrn = createFunctionTriggerRequest['function_urn'];
-                    body = createFunctionTriggerRequest['body'];
-                }
-            }
-            if (functionUrn === null || functionUrn === undefined) {
-                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling createFunctionTrigger.');
-            }
-            if (body === null || body === undefined) {
-                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
-            }
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-            options.data = body !== undefined ? body : {};
-            options.pathParams = { 'function_urn': functionUrn, };
-            options.headers = localVarHeaderParameter;
-            return options;
-        },
-        /**
-         * 删除触发器。
-         */
-        deleteFunctionTrigger: function (deleteFunctionTriggerRequest) {
-            var options = {
-                method: "DELETE",
-                url: "/v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}",
-                contentType: "application/json",
-                queryParams: {},
-                pathParams: {},
-                headers: {},
-                data: {}
-            };
-            var localVarHeaderParameter = {};
-            var functionUrn;
-            var triggerTypeCode;
-            var triggerId;
-            if (deleteFunctionTriggerRequest !== null && deleteFunctionTriggerRequest !== undefined) {
-                if (deleteFunctionTriggerRequest instanceof DeleteFunctionTriggerRequest_1.DeleteFunctionTriggerRequest) {
-                    functionUrn = deleteFunctionTriggerRequest.functionUrn;
-                    triggerTypeCode = deleteFunctionTriggerRequest.triggerTypeCode;
-                    triggerId = deleteFunctionTriggerRequest.triggerId;
-                }
-                else {
-                    functionUrn = deleteFunctionTriggerRequest['function_urn'];
-                    triggerTypeCode = deleteFunctionTriggerRequest['trigger_type_code'];
-                    triggerId = deleteFunctionTriggerRequest['trigger_id'];
-                }
-            }
-            if (functionUrn === null || functionUrn === undefined) {
-                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling deleteFunctionTrigger.');
-            }
-            if (triggerTypeCode === null || triggerTypeCode === undefined) {
-                throw new RequiredError('triggerTypeCode', 'Required parameter triggerTypeCode was null or undefined when calling deleteFunctionTrigger.');
-            }
-            if (triggerId === null || triggerId === undefined) {
-                throw new RequiredError('triggerId', 'Required parameter triggerId was null or undefined when calling deleteFunctionTrigger.');
-            }
-            options.pathParams = { 'function_urn': functionUrn, 'trigger_type_code': triggerTypeCode, 'trigger_id': triggerId, };
-            options.headers = localVarHeaderParameter;
-            return options;
-        },
-        /**
-         * 获取指定函数的所有触发器设置。
-         */
-        listFunctionTriggers: function (listFunctionTriggersRequest) {
-            var options = {
-                method: "GET",
-                url: "/v2/{project_id}/fgs/triggers/{function_urn}",
-                contentType: "application/json",
-                queryParams: {},
-                pathParams: {},
-                headers: {},
-                data: {}
-            };
-            var localVarHeaderParameter = {};
-            var functionUrn;
-            if (listFunctionTriggersRequest !== null && listFunctionTriggersRequest !== undefined) {
-                if (listFunctionTriggersRequest instanceof ListFunctionTriggersRequest_1.ListFunctionTriggersRequest) {
-                    functionUrn = listFunctionTriggersRequest.functionUrn;
-                }
-                else {
-                    functionUrn = listFunctionTriggersRequest['function_urn'];
-                }
-            }
-            if (functionUrn === null || functionUrn === undefined) {
-                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling listFunctionTriggers.');
-            }
-            options.pathParams = { 'function_urn': functionUrn, };
-            options.headers = localVarHeaderParameter;
-            return options;
-        },
-        /**
-         * 获取特定触发器的信息。
-         */
-        showFunctionTrigger: function (showFunctionTriggerRequest) {
-            var options = {
-                method: "GET",
-                url: "/v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}",
-                contentType: "application/json",
-                queryParams: {},
-                pathParams: {},
-                headers: {},
-                data: {}
-            };
-            var localVarHeaderParameter = {};
-            var functionUrn;
-            var triggerTypeCode;
-            var triggerId;
-            if (showFunctionTriggerRequest !== null && showFunctionTriggerRequest !== undefined) {
-                if (showFunctionTriggerRequest instanceof ShowFunctionTriggerRequest_1.ShowFunctionTriggerRequest) {
-                    functionUrn = showFunctionTriggerRequest.functionUrn;
-                    triggerTypeCode = showFunctionTriggerRequest.triggerTypeCode;
-                    triggerId = showFunctionTriggerRequest.triggerId;
-                }
-                else {
-                    functionUrn = showFunctionTriggerRequest['function_urn'];
-                    triggerTypeCode = showFunctionTriggerRequest['trigger_type_code'];
-                    triggerId = showFunctionTriggerRequest['trigger_id'];
-                }
-            }
-            if (functionUrn === null || functionUrn === undefined) {
-                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling showFunctionTrigger.');
-            }
-            if (triggerTypeCode === null || triggerTypeCode === undefined) {
-                throw new RequiredError('triggerTypeCode', 'Required parameter triggerTypeCode was null or undefined when calling showFunctionTrigger.');
-            }
-            if (triggerId === null || triggerId === undefined) {
-                throw new RequiredError('triggerId', 'Required parameter triggerId was null or undefined when calling showFunctionTrigger.');
-            }
-            options.pathParams = { 'function_urn': functionUrn, 'trigger_type_code': triggerTypeCode, 'trigger_id': triggerId, };
-            options.headers = localVarHeaderParameter;
-            return options;
-        },
-        /**
          * 更新触发器
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
          */
         updateTrigger: function (updateTriggerRequest) {
             var options = {
@@ -7947,6 +9170,94 @@ var ParamCreater = function () {
             options.headers = localVarHeaderParameter;
             return options;
         },
+        /**
+         * 修改函数版本别名信息。
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        updateVersionAlias: function (updateVersionAliasRequest) {
+            var options = {
+                method: "PUT",
+                url: "/v2/{project_id}/fgs/functions/{function_urn}/aliases/{alias_name}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            var functionUrn;
+            var aliasName;
+            if (updateVersionAliasRequest !== null && updateVersionAliasRequest !== undefined) {
+                if (updateVersionAliasRequest instanceof UpdateVersionAliasRequest_1.UpdateVersionAliasRequest) {
+                    functionUrn = updateVersionAliasRequest.functionUrn;
+                    aliasName = updateVersionAliasRequest.aliasName;
+                    body = updateVersionAliasRequest.body;
+                }
+                else {
+                    functionUrn = updateVersionAliasRequest['function_urn'];
+                    aliasName = updateVersionAliasRequest['alias_name'];
+                    body = updateVersionAliasRequest['body'];
+                }
+            }
+            if (functionUrn === null || functionUrn === undefined) {
+                throw new RequiredError('functionUrn', 'Required parameter functionUrn was null or undefined when calling updateVersionAlias.');
+            }
+            if (aliasName === null || aliasName === undefined) {
+                throw new RequiredError('aliasName', 'Required parameter aliasName was null or undefined when calling updateVersionAlias.');
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.pathParams = { 'function_urn': functionUrn, 'alias_name': aliasName, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
+        /**
+         * 修改指定函数流实例
+         *
+         * 详细说明请参考华为云API Explorer。
+         * Please refer to Huawei cloud API Explorer for details.
+         */
+        updateWorkFlow: function (updateWorkFlowRequest) {
+            var options = {
+                method: "PUT",
+                url: "/v2/{project_id}/fgs/workflows/{workflow_id}",
+                contentType: "application/json",
+                queryParams: {},
+                pathParams: {},
+                headers: {},
+                data: {}
+            };
+            var localVarHeaderParameter = {};
+            var body;
+            var workflowId;
+            if (updateWorkFlowRequest !== null && updateWorkFlowRequest !== undefined) {
+                if (updateWorkFlowRequest instanceof UpdateWorkFlowRequest_1.UpdateWorkFlowRequest) {
+                    workflowId = updateWorkFlowRequest.workflowId;
+                    body = updateWorkFlowRequest.body;
+                }
+                else {
+                    workflowId = updateWorkFlowRequest['workflow_id'];
+                    body = updateWorkFlowRequest['body'];
+                }
+            }
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId', 'Required parameter workflowId was null or undefined when calling updateWorkFlow.');
+            }
+            if (body === null || body === undefined) {
+                throw new RequiredError('body', 'Required parameter body was null or undefined when calling body.');
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            options.data = body !== undefined ? body : {};
+            options.pathParams = { 'workflow_id': workflowId, };
+            options.headers = localVarHeaderParameter;
+            return options;
+        },
     };
 };
 exports.ParamCreater = ParamCreater;
@@ -7970,6 +9281,90 @@ var RequiredError = /** @class */ (function (_super) {
     return RequiredError;
 }(Error));
 exports.RequiredError = RequiredError;
+
+
+/***/ }),
+
+/***/ 7625:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FunctionGraphRegion = void 0;
+var region_1 = __nccwpck_require__(4477);
+var FunctionGraphRegion = /** @class */ (function () {
+    function FunctionGraphRegion() {
+    }
+    FunctionGraphRegion.createStaticFields = function () {
+        var map = new Map();
+        map.set("cn-north-4", FunctionGraphRegion.CN_NORTH_4);
+        map.set("cn-north-1", FunctionGraphRegion.CN_NORTH_1);
+        map.set("cn-east-2", FunctionGraphRegion.CN_EAST_2);
+        map.set("cn-east-3", FunctionGraphRegion.CN_EAST_3);
+        map.set("cn-south-1", FunctionGraphRegion.CN_SOUTH_1);
+        map.set("ap-southeast-2", FunctionGraphRegion.AP_SOUTHEAST_2);
+        map.set("ap-southeast-1", FunctionGraphRegion.AP_SOUTHEAST_1);
+        map.set("ap-southeast-3", FunctionGraphRegion.AP_SOUTHEAST_3);
+        map.set("af-south-1", FunctionGraphRegion.AF_SOUTH_1);
+        map.set("cn-southwest-2", FunctionGraphRegion.CN_SOUTHWEST_2);
+        return map;
+    };
+    FunctionGraphRegion.valueOf = function (regionId) {
+        if (!regionId) {
+            throw new Error("Unexpected empty parameter: regionId.");
+        }
+        var result = this.STATIC_FIELDS.get(regionId);
+        if (result) {
+            return result;
+        }
+        throw new Error("Unexpected regionId: ".concat(regionId, "."));
+    };
+    FunctionGraphRegion.CN_NORTH_4 = new region_1.Region("cn-north-4", "https://functiongraph.cn-north-4.myhuaweicloud.com");
+    FunctionGraphRegion.CN_NORTH_1 = new region_1.Region("cn-north-1", "https://functiongraph.cn-north-1.myhuaweicloud.com");
+    FunctionGraphRegion.CN_EAST_2 = new region_1.Region("cn-east-2", "https://functiongraph.cn-east-2.myhuaweicloud.com");
+    FunctionGraphRegion.CN_EAST_3 = new region_1.Region("cn-east-3", "https://functiongraph.cn-east-3.myhuaweicloud.com");
+    FunctionGraphRegion.CN_SOUTH_1 = new region_1.Region("cn-south-1", "https://functiongraph.cn-south-1.myhuaweicloud.com");
+    FunctionGraphRegion.AP_SOUTHEAST_2 = new region_1.Region("ap-southeast-2", "https://functiongraph.ap-southeast-2.myhuaweicloud.com");
+    FunctionGraphRegion.AP_SOUTHEAST_1 = new region_1.Region("ap-southeast-1", "https://functiongraph.ap-southeast-1.myhuaweicloud.com");
+    FunctionGraphRegion.AP_SOUTHEAST_3 = new region_1.Region("ap-southeast-3", "https://functiongraph.ap-southeast-3.myhuaweicloud.com");
+    FunctionGraphRegion.AF_SOUTH_1 = new region_1.Region("af-south-1", "https://functiongraph.af-south-1.myhuaweicloud.com");
+    FunctionGraphRegion.CN_SOUTHWEST_2 = new region_1.Region("cn-southwest-2", "https://functiongraph.cn-southwest-2.myhuaweicloud.com");
+    FunctionGraphRegion.STATIC_FIELDS = FunctionGraphRegion.createStaticFields();
+    return FunctionGraphRegion;
+}());
+exports.FunctionGraphRegion = FunctionGraphRegion;
+
+
+/***/ }),
+
+/***/ 7731:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Action = void 0;
+var Action = /** @class */ (function () {
+    function Action() {
+    }
+    Action.prototype.withFunctionRef = function (functionRef) {
+        this['function_ref'] = functionRef;
+        return this;
+    };
+    Object.defineProperty(Action.prototype, "functionRef", {
+        get: function () {
+            return this['function_ref'];
+        },
+        set: function (functionRef) {
+            this['function_ref'] = functionRef;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return Action;
+}());
+exports.Action = Action;
 
 
 /***/ }),
@@ -8211,6 +9606,217 @@ exports.BatchDeleteFunctionTriggersResponse = BatchDeleteFunctionTriggersRespons
 
 /***/ }),
 
+/***/ 1384:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BatchDeleteWorkflowsRequest = void 0;
+var BatchDeleteWorkflowsRequest = /** @class */ (function () {
+    function BatchDeleteWorkflowsRequest() {
+    }
+    BatchDeleteWorkflowsRequest.prototype.withBody = function (body) {
+        this['body'] = body;
+        return this;
+    };
+    return BatchDeleteWorkflowsRequest;
+}());
+exports.BatchDeleteWorkflowsRequest = BatchDeleteWorkflowsRequest;
+
+
+/***/ }),
+
+/***/ 8509:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BatchDeleteWorkflowsRequestBody = void 0;
+var BatchDeleteWorkflowsRequestBody = /** @class */ (function () {
+    function BatchDeleteWorkflowsRequestBody(workflowUrns) {
+        this['workflow_urns'] = workflowUrns;
+    }
+    BatchDeleteWorkflowsRequestBody.prototype.withWorkflowUrns = function (workflowUrns) {
+        this['workflow_urns'] = workflowUrns;
+        return this;
+    };
+    Object.defineProperty(BatchDeleteWorkflowsRequestBody.prototype, "workflowUrns", {
+        get: function () {
+            return this['workflow_urns'];
+        },
+        set: function (workflowUrns) {
+            this['workflow_urns'] = workflowUrns;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return BatchDeleteWorkflowsRequestBody;
+}());
+exports.BatchDeleteWorkflowsRequestBody = BatchDeleteWorkflowsRequestBody;
+
+
+/***/ }),
+
+/***/ 6868:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BatchDeleteWorkflowsResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var BatchDeleteWorkflowsResponse = /** @class */ (function (_super) {
+    __extends(BatchDeleteWorkflowsResponse, _super);
+    function BatchDeleteWorkflowsResponse() {
+        return _super.call(this) || this;
+    }
+    BatchDeleteWorkflowsResponse.prototype.withSuccess = function (success) {
+        this['success'] = success;
+        return this;
+    };
+    BatchDeleteWorkflowsResponse.prototype.withFail = function (fail) {
+        this['fail'] = fail;
+        return this;
+    };
+    return BatchDeleteWorkflowsResponse;
+}(SdkResponse_1.SdkResponse));
+exports.BatchDeleteWorkflowsResponse = BatchDeleteWorkflowsResponse;
+
+
+/***/ }),
+
+/***/ 7692:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CancelAsyncInvocationRequest = void 0;
+var CancelAsyncInvocationRequest = /** @class */ (function () {
+    function CancelAsyncInvocationRequest(functionUrn) {
+        this['function_urn'] = functionUrn;
+    }
+    CancelAsyncInvocationRequest.prototype.withFunctionUrn = function (functionUrn) {
+        this['function_urn'] = functionUrn;
+        return this;
+    };
+    Object.defineProperty(CancelAsyncInvocationRequest.prototype, "functionUrn", {
+        get: function () {
+            return this['function_urn'];
+        },
+        set: function (functionUrn) {
+            this['function_urn'] = functionUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CancelAsyncInvocationRequest.prototype.withBody = function (body) {
+        this['body'] = body;
+        return this;
+    };
+    return CancelAsyncInvocationRequest;
+}());
+exports.CancelAsyncInvocationRequest = CancelAsyncInvocationRequest;
+
+
+/***/ }),
+
+/***/ 2741:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CancelAsyncInvocationRequestBodyTypeEnum = exports.CancelAsyncInvocationRequestBody = void 0;
+var CancelAsyncInvocationRequestBody = /** @class */ (function () {
+    function CancelAsyncInvocationRequestBody() {
+    }
+    CancelAsyncInvocationRequestBody.prototype.withRequestId = function (requestId) {
+        this['request_id'] = requestId;
+        return this;
+    };
+    Object.defineProperty(CancelAsyncInvocationRequestBody.prototype, "requestId", {
+        get: function () {
+            return this['request_id'];
+        },
+        set: function (requestId) {
+            this['request_id'] = requestId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CancelAsyncInvocationRequestBody.prototype.withType = function (type) {
+        this['type'] = type;
+        return this;
+    };
+    return CancelAsyncInvocationRequestBody;
+}());
+exports.CancelAsyncInvocationRequestBody = CancelAsyncInvocationRequestBody;
+/**
+    * @export
+    * @enum {string}
+    */
+var CancelAsyncInvocationRequestBodyTypeEnum;
+(function (CancelAsyncInvocationRequestBodyTypeEnum) {
+    CancelAsyncInvocationRequestBodyTypeEnum["FORCE"] = "force";
+    CancelAsyncInvocationRequestBodyTypeEnum["RECURSIVE"] = "recursive";
+})(CancelAsyncInvocationRequestBodyTypeEnum = exports.CancelAsyncInvocationRequestBodyTypeEnum || (exports.CancelAsyncInvocationRequestBodyTypeEnum = {}));
+
+
+/***/ }),
+
+/***/ 1989:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CancelAsyncInvocationResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var CancelAsyncInvocationResponse = /** @class */ (function (_super) {
+    __extends(CancelAsyncInvocationResponse, _super);
+    function CancelAsyncInvocationResponse() {
+        return _super.call(this) || this;
+    }
+    return CancelAsyncInvocationResponse;
+}(SdkResponse_1.SdkResponse));
+exports.CancelAsyncInvocationResponse = CancelAsyncInvocationResponse;
+
+
+/***/ }),
+
 /***/ 1909:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -8317,13 +9923,13 @@ var CreateDependencyRequestBodyRuntimeEnum;
     CreateDependencyRequestBodyRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     CreateDependencyRequestBodyRuntimeEnum["PYTHON2_7"] = "Python2.7";
     CreateDependencyRequestBodyRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    CreateDependencyRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
     CreateDependencyRequestBodyRuntimeEnum["GO1_8"] = "Go1.8";
     CreateDependencyRequestBodyRuntimeEnum["GO1_X"] = "Go1.x";
     CreateDependencyRequestBodyRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     CreateDependencyRequestBodyRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     CreateDependencyRequestBodyRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     CreateDependencyRequestBodyRuntimeEnum["PHP7_3"] = "PHP7.3";
+    CreateDependencyRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(CreateDependencyRequestBodyRuntimeEnum = exports.CreateDependencyRequestBodyRuntimeEnum || (exports.CreateDependencyRequestBodyRuntimeEnum = {}));
 
 
@@ -8350,7 +9956,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CreateDependencyResponse = void 0;
+exports.CreateDependencyResponseRuntimeEnum = exports.CreateDependencyResponse = void 0;
 var SdkResponse_1 = __nccwpck_require__(9083);
 var CreateDependencyResponse = /** @class */ (function (_super) {
     __extends(CreateDependencyResponse, _super);
@@ -8406,6 +10012,29 @@ var CreateDependencyResponse = /** @class */ (function (_super) {
     return CreateDependencyResponse;
 }(SdkResponse_1.SdkResponse));
 exports.CreateDependencyResponse = CreateDependencyResponse;
+/**
+    * @export
+    * @enum {string}
+    */
+var CreateDependencyResponseRuntimeEnum;
+(function (CreateDependencyResponseRuntimeEnum) {
+    CreateDependencyResponseRuntimeEnum["JAVA8"] = "Java8";
+    CreateDependencyResponseRuntimeEnum["JAVA11"] = "Java11";
+    CreateDependencyResponseRuntimeEnum["NODE_JS6_10"] = "Node.js6.10";
+    CreateDependencyResponseRuntimeEnum["NODE_JS8_10"] = "Node.js8.10";
+    CreateDependencyResponseRuntimeEnum["NODE_JS10_16"] = "Node.js10.16";
+    CreateDependencyResponseRuntimeEnum["NODE_JS12_13"] = "Node.js12.13";
+    CreateDependencyResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
+    CreateDependencyResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
+    CreateDependencyResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
+    CreateDependencyResponseRuntimeEnum["GO1_8"] = "Go1.8";
+    CreateDependencyResponseRuntimeEnum["GO1_X"] = "Go1.x";
+    CreateDependencyResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
+    CreateDependencyResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
+    CreateDependencyResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
+    CreateDependencyResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    CreateDependencyResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
+})(CreateDependencyResponseRuntimeEnum = exports.CreateDependencyResponseRuntimeEnum || (exports.CreateDependencyResponseRuntimeEnum = {}));
 
 
 /***/ }),
@@ -8782,13 +10411,13 @@ var CreateFunctionRequestBodyRuntimeEnum;
     CreateFunctionRequestBodyRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     CreateFunctionRequestBodyRuntimeEnum["PYTHON2_7"] = "Python2.7";
     CreateFunctionRequestBodyRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    CreateFunctionRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
     CreateFunctionRequestBodyRuntimeEnum["GO1_8"] = "Go1.8";
     CreateFunctionRequestBodyRuntimeEnum["GO1_X"] = "Go1.x";
     CreateFunctionRequestBodyRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     CreateFunctionRequestBodyRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     CreateFunctionRequestBodyRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     CreateFunctionRequestBodyRuntimeEnum["PHP7_3"] = "PHP7.3";
+    CreateFunctionRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(CreateFunctionRequestBodyRuntimeEnum = exports.CreateFunctionRequestBodyRuntimeEnum || (exports.CreateFunctionRequestBodyRuntimeEnum = {}));
 /**
     * @export
@@ -9218,13 +10847,13 @@ var CreateFunctionResponseRuntimeEnum;
     CreateFunctionResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     CreateFunctionResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     CreateFunctionResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    CreateFunctionResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     CreateFunctionResponseRuntimeEnum["GO1_8"] = "Go1.8";
     CreateFunctionResponseRuntimeEnum["GO1_X"] = "Go1.x";
     CreateFunctionResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     CreateFunctionResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     CreateFunctionResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     CreateFunctionResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    CreateFunctionResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(CreateFunctionResponseRuntimeEnum = exports.CreateFunctionResponseRuntimeEnum || (exports.CreateFunctionResponseRuntimeEnum = {}));
 /**
     * @export
@@ -10055,13 +11684,13 @@ var CreateFunctionVersionResponseRuntimeEnum;
     CreateFunctionVersionResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     CreateFunctionVersionResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     CreateFunctionVersionResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    CreateFunctionVersionResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     CreateFunctionVersionResponseRuntimeEnum["GO1_8"] = "Go1.8";
     CreateFunctionVersionResponseRuntimeEnum["GO1_X"] = "Go1.x";
     CreateFunctionVersionResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     CreateFunctionVersionResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     CreateFunctionVersionResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     CreateFunctionVersionResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    CreateFunctionVersionResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(CreateFunctionVersionResponseRuntimeEnum = exports.CreateFunctionVersionResponseRuntimeEnum || (exports.CreateFunctionVersionResponseRuntimeEnum = {}));
 /**
     * @export
@@ -10253,6 +11882,226 @@ var CreateVersionAliasResponse = /** @class */ (function (_super) {
     return CreateVersionAliasResponse;
 }(SdkResponse_1.SdkResponse));
 exports.CreateVersionAliasResponse = CreateVersionAliasResponse;
+
+
+/***/ }),
+
+/***/ 9810:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreateWorkflowRequest = void 0;
+var CreateWorkflowRequest = /** @class */ (function () {
+    function CreateWorkflowRequest() {
+    }
+    CreateWorkflowRequest.prototype.withBody = function (body) {
+        this['body'] = body;
+        return this;
+    };
+    return CreateWorkflowRequest;
+}());
+exports.CreateWorkflowRequest = CreateWorkflowRequest;
+
+
+/***/ }),
+
+/***/ 3648:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreateWorkflowRequestBodyModeEnum = exports.CreateWorkflowRequestBody = void 0;
+var CreateWorkflowRequestBody = /** @class */ (function () {
+    function CreateWorkflowRequestBody(name, start, functions, states, constants, retries) {
+        this['name'] = name;
+        this['start'] = start;
+        this['functions'] = functions;
+        this['states'] = states;
+        this['constants'] = constants;
+        this['retries'] = retries;
+    }
+    CreateWorkflowRequestBody.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withDescription = function (description) {
+        this['description'] = description;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withTriggers = function (triggers) {
+        this['triggers'] = triggers;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withStart = function (start) {
+        this['start'] = start;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withFunctions = function (functions) {
+        this['functions'] = functions;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withStates = function (states) {
+        this['states'] = states;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withConstants = function (constants) {
+        this['constants'] = constants;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withRetries = function (retries) {
+        this['retries'] = retries;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withMode = function (mode) {
+        this['mode'] = mode;
+        return this;
+    };
+    CreateWorkflowRequestBody.prototype.withExpressConfig = function (expressConfig) {
+        this['express_config'] = expressConfig;
+        return this;
+    };
+    Object.defineProperty(CreateWorkflowRequestBody.prototype, "expressConfig", {
+        get: function () {
+            return this['express_config'];
+        },
+        set: function (expressConfig) {
+            this['express_config'] = expressConfig;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CreateWorkflowRequestBody.prototype.withEnterpriseProjectId = function (enterpriseProjectId) {
+        this['enterprise_project_id'] = enterpriseProjectId;
+        return this;
+    };
+    Object.defineProperty(CreateWorkflowRequestBody.prototype, "enterpriseProjectId", {
+        get: function () {
+            return this['enterprise_project_id'];
+        },
+        set: function (enterpriseProjectId) {
+            this['enterprise_project_id'] = enterpriseProjectId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return CreateWorkflowRequestBody;
+}());
+exports.CreateWorkflowRequestBody = CreateWorkflowRequestBody;
+/**
+    * @export
+    * @enum {string}
+    */
+var CreateWorkflowRequestBodyModeEnum;
+(function (CreateWorkflowRequestBodyModeEnum) {
+    CreateWorkflowRequestBodyModeEnum["NORMAL"] = "NORMAL";
+    CreateWorkflowRequestBodyModeEnum["EXPRESS"] = "EXPRESS";
+})(CreateWorkflowRequestBodyModeEnum = exports.CreateWorkflowRequestBodyModeEnum || (exports.CreateWorkflowRequestBodyModeEnum = {}));
+
+
+/***/ }),
+
+/***/ 4450:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreateWorkflowResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var CreateWorkflowResponse = /** @class */ (function (_super) {
+    __extends(CreateWorkflowResponse, _super);
+    function CreateWorkflowResponse() {
+        return _super.call(this) || this;
+    }
+    CreateWorkflowResponse.prototype.withId = function (id) {
+        this['id'] = id;
+        return this;
+    };
+    CreateWorkflowResponse.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(CreateWorkflowResponse.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CreateWorkflowResponse.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    CreateWorkflowResponse.prototype.withDescription = function (description) {
+        this['description'] = description;
+        return this;
+    };
+    CreateWorkflowResponse.prototype.withCreatedTime = function (createdTime) {
+        this['created_time'] = createdTime;
+        return this;
+    };
+    Object.defineProperty(CreateWorkflowResponse.prototype, "createdTime", {
+        get: function () {
+            return this['created_time'];
+        },
+        set: function (createdTime) {
+            this['created_time'] = createdTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CreateWorkflowResponse.prototype.withUpdatedTime = function (updatedTime) {
+        this['updated_time'] = updatedTime;
+        return this;
+    };
+    Object.defineProperty(CreateWorkflowResponse.prototype, "updatedTime", {
+        get: function () {
+            return this['updated_time'];
+        },
+        set: function (updatedTime) {
+            this['updated_time'] = updatedTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CreateWorkflowResponse.prototype.withCreatedBy = function (createdBy) {
+        this['created_by'] = createdBy;
+        return this;
+    };
+    Object.defineProperty(CreateWorkflowResponse.prototype, "createdBy", {
+        get: function () {
+            return this['created_by'];
+        },
+        set: function (createdBy) {
+            this['created_by'] = createdBy;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return CreateWorkflowResponse;
+}(SdkResponse_1.SdkResponse));
+exports.CreateWorkflowResponse = CreateWorkflowResponse;
 
 
 /***/ }),
@@ -10742,7 +12591,7 @@ exports.DeleteVersionAliasResponse = DeleteVersionAliasResponse;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Dependency = void 0;
+exports.DependencyRuntimeEnum = exports.Dependency = void 0;
 var Dependency = /** @class */ (function () {
     function Dependency(id, owner, link, runtime, etag, size, name, description) {
         this['id'] = id;
@@ -10803,6 +12652,29 @@ var Dependency = /** @class */ (function () {
     return Dependency;
 }());
 exports.Dependency = Dependency;
+/**
+    * @export
+    * @enum {string}
+    */
+var DependencyRuntimeEnum;
+(function (DependencyRuntimeEnum) {
+    DependencyRuntimeEnum["JAVA8"] = "Java8";
+    DependencyRuntimeEnum["JAVA11"] = "Java11";
+    DependencyRuntimeEnum["NODE_JS6_10"] = "Node.js6.10";
+    DependencyRuntimeEnum["NODE_JS8_10"] = "Node.js8.10";
+    DependencyRuntimeEnum["NODE_JS10_16"] = "Node.js10.16";
+    DependencyRuntimeEnum["NODE_JS12_13"] = "Node.js12.13";
+    DependencyRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
+    DependencyRuntimeEnum["PYTHON2_7"] = "Python2.7";
+    DependencyRuntimeEnum["PYTHON3_6"] = "Python3.6";
+    DependencyRuntimeEnum["GO1_8"] = "Go1.8";
+    DependencyRuntimeEnum["GO1_X"] = "Go1.x";
+    DependencyRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
+    DependencyRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
+    DependencyRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
+    DependencyRuntimeEnum["PHP7_3"] = "PHP7.3";
+    DependencyRuntimeEnum["PYTHON3_9"] = "Python3.9";
+})(DependencyRuntimeEnum = exports.DependencyRuntimeEnum || (exports.DependencyRuntimeEnum = {}));
 
 
 /***/ }),
@@ -10943,6 +12815,47 @@ var ExportFunctionResponse = /** @class */ (function (_super) {
     return ExportFunctionResponse;
 }(SdkResponse_1.SdkResponse));
 exports.ExportFunctionResponse = ExportFunctionResponse;
+
+
+/***/ }),
+
+/***/ 3052:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ExpressConfigLogLevelEnum = exports.ExpressConfig = void 0;
+var ExpressConfig = /** @class */ (function () {
+    function ExpressConfig() {
+    }
+    ExpressConfig.prototype.withLogLevel = function (logLevel) {
+        this['log_level'] = logLevel;
+        return this;
+    };
+    Object.defineProperty(ExpressConfig.prototype, "logLevel", {
+        get: function () {
+            return this['log_level'];
+        },
+        set: function (logLevel) {
+            this['log_level'] = logLevel;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ExpressConfig;
+}());
+exports.ExpressConfig = ExpressConfig;
+/**
+    * @export
+    * @enum {string}
+    */
+var ExpressConfigLogLevelEnum;
+(function (ExpressConfigLogLevelEnum) {
+    ExpressConfigLogLevelEnum["ALL"] = "ALL";
+    ExpressConfigLogLevelEnum["ERROR"] = "ERROR";
+    ExpressConfigLogLevelEnum["NONE"] = "NONE";
+})(ExpressConfigLogLevelEnum = exports.ExpressConfigLogLevelEnum || (exports.ExpressConfigLogLevelEnum = {}));
 
 
 /***/ }),
@@ -11217,6 +13130,37 @@ exports.FuncVpc = FuncVpc;
 
 /***/ }),
 
+/***/ 5315:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Function = void 0;
+var Function = /** @class */ (function () {
+    function Function(name, operation) {
+        this['name'] = name;
+        this['operation'] = operation;
+    }
+    Function.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    Function.prototype.withOperation = function (operation) {
+        this['operation'] = operation;
+        return this;
+    };
+    Function.prototype.withMetadata = function (metadata) {
+        this['metadata'] = metadata;
+        return this;
+    };
+    return Function;
+}());
+exports.Function = Function;
+
+
+/***/ }),
+
 /***/ 3830:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -11303,6 +13247,75 @@ var FunctionAsyncConfig = /** @class */ (function () {
     return FunctionAsyncConfig;
 }());
 exports.FunctionAsyncConfig = FunctionAsyncConfig;
+
+
+/***/ }),
+
+/***/ 2399:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FunctionRefInvokeModeEnum = exports.FunctionRef = void 0;
+var FunctionRef = /** @class */ (function () {
+    function FunctionRef(refName, _arguments) {
+        this['ref_name'] = refName;
+        this['arguments'] = _arguments;
+    }
+    FunctionRef.prototype.withRefName = function (refName) {
+        this['ref_name'] = refName;
+        return this;
+    };
+    Object.defineProperty(FunctionRef.prototype, "refName", {
+        get: function () {
+            return this['ref_name'];
+        },
+        set: function (refName) {
+            this['ref_name'] = refName;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    FunctionRef.prototype.withInvokeMode = function (invokeMode) {
+        this['invoke_mode'] = invokeMode;
+        return this;
+    };
+    Object.defineProperty(FunctionRef.prototype, "invokeMode", {
+        get: function () {
+            return this['invoke_mode'];
+        },
+        set: function (invokeMode) {
+            this['invoke_mode'] = invokeMode;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    FunctionRef.prototype.withArguments = function (_arguments) {
+        this['arguments'] = _arguments;
+        return this;
+    };
+    Object.defineProperty(FunctionRef.prototype, "_arguments", {
+        get: function () {
+            return this['arguments'];
+        },
+        set: function (_arguments) {
+            this['arguments'] = _arguments;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return FunctionRef;
+}());
+exports.FunctionRef = FunctionRef;
+/**
+    * @export
+    * @enum {string}
+    */
+var FunctionRefInvokeModeEnum;
+(function (FunctionRefInvokeModeEnum) {
+    FunctionRefInvokeModeEnum["SYNCHRONIZE"] = "synchronize";
+})(FunctionRefInvokeModeEnum = exports.FunctionRefInvokeModeEnum || (exports.FunctionRefInvokeModeEnum = {}));
 
 
 /***/ }),
@@ -11795,13 +13808,13 @@ var ImportFunctionResponseRuntimeEnum;
     ImportFunctionResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     ImportFunctionResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     ImportFunctionResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    ImportFunctionResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     ImportFunctionResponseRuntimeEnum["GO1_8"] = "Go1.8";
     ImportFunctionResponseRuntimeEnum["GO1_X"] = "Go1.x";
     ImportFunctionResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     ImportFunctionResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     ImportFunctionResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     ImportFunctionResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ImportFunctionResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(ImportFunctionResponseRuntimeEnum = exports.ImportFunctionResponseRuntimeEnum || (exports.ImportFunctionResponseRuntimeEnum = {}));
 /**
     * @export
@@ -12011,13 +14024,13 @@ var ListDependenciesRequestRuntimeEnum;
     ListDependenciesRequestRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     ListDependenciesRequestRuntimeEnum["PYTHON2_7"] = "Python2.7";
     ListDependenciesRequestRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    ListDependenciesRequestRuntimeEnum["PYTHON3_9"] = "Python3.9";
     ListDependenciesRequestRuntimeEnum["GO1_8"] = "Go1.8";
     ListDependenciesRequestRuntimeEnum["GO1_X"] = "Go1.x";
     ListDependenciesRequestRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     ListDependenciesRequestRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     ListDependenciesRequestRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     ListDependenciesRequestRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ListDependenciesRequestRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(ListDependenciesRequestRuntimeEnum = exports.ListDependenciesRequestRuntimeEnum || (exports.ListDependenciesRequestRuntimeEnum = {}));
 
 
@@ -12086,7 +14099,7 @@ exports.ListDependenciesResponse = ListDependenciesResponse;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ListDependenciesResult = void 0;
+exports.ListDependenciesResultRuntimeEnum = exports.ListDependenciesResult = void 0;
 var ListDependenciesResult = /** @class */ (function () {
     function ListDependenciesResult(id, owner, link, runtime, etag, size, name) {
         this['id'] = id;
@@ -12146,6 +14159,29 @@ var ListDependenciesResult = /** @class */ (function () {
     return ListDependenciesResult;
 }());
 exports.ListDependenciesResult = ListDependenciesResult;
+/**
+    * @export
+    * @enum {string}
+    */
+var ListDependenciesResultRuntimeEnum;
+(function (ListDependenciesResultRuntimeEnum) {
+    ListDependenciesResultRuntimeEnum["JAVA8"] = "Java8";
+    ListDependenciesResultRuntimeEnum["JAVA11"] = "Java11";
+    ListDependenciesResultRuntimeEnum["NODE_JS6_10"] = "Node.js6.10";
+    ListDependenciesResultRuntimeEnum["NODE_JS8_10"] = "Node.js8.10";
+    ListDependenciesResultRuntimeEnum["NODE_JS10_16"] = "Node.js10.16";
+    ListDependenciesResultRuntimeEnum["NODE_JS12_13"] = "Node.js12.13";
+    ListDependenciesResultRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
+    ListDependenciesResultRuntimeEnum["PYTHON2_7"] = "Python2.7";
+    ListDependenciesResultRuntimeEnum["PYTHON3_6"] = "Python3.6";
+    ListDependenciesResultRuntimeEnum["GO1_8"] = "Go1.8";
+    ListDependenciesResultRuntimeEnum["GO1_X"] = "Go1.x";
+    ListDependenciesResultRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
+    ListDependenciesResultRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
+    ListDependenciesResultRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
+    ListDependenciesResultRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ListDependenciesResultRuntimeEnum["PYTHON3_9"] = "Python3.9";
+})(ListDependenciesResultRuntimeEnum = exports.ListDependenciesResultRuntimeEnum || (exports.ListDependenciesResultRuntimeEnum = {}));
 
 
 /***/ }),
@@ -12319,6 +14355,10 @@ var ListFunctionAsyncInvocationsRequest = /** @class */ (function () {
     });
     ListFunctionAsyncInvocationsRequest.prototype.withLimit = function (limit) {
         this['limit'] = limit;
+        return this;
+    };
+    ListFunctionAsyncInvocationsRequest.prototype.withMarker = function (marker) {
+        this['marker'] = marker;
         return this;
     };
     ListFunctionAsyncInvocationsRequest.prototype.withStatus = function (status) {
@@ -12701,6 +14741,20 @@ var ListFunctionAsyncInvokeConfigResult = /** @class */ (function () {
         },
         set: function (lastModified) {
             this['last_modified'] = lastModified;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListFunctionAsyncInvokeConfigResult.prototype.withEnableAsyncStatusLog = function (enableAsyncStatusLog) {
+        this['enable_async_status_log'] = enableAsyncStatusLog;
+        return this;
+    };
+    Object.defineProperty(ListFunctionAsyncInvokeConfigResult.prototype, "enableAsyncStatusLog", {
+        get: function () {
+            return this['enable_async_status_log'];
+        },
+        set: function (enableAsyncStatusLog) {
+            this['enable_async_status_log'] = enableAsyncStatusLog;
         },
         enumerable: false,
         configurable: true
@@ -13133,13 +15187,13 @@ var ListFunctionResultRuntimeEnum;
     ListFunctionResultRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     ListFunctionResultRuntimeEnum["PYTHON2_7"] = "Python2.7";
     ListFunctionResultRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    ListFunctionResultRuntimeEnum["PYTHON3_9"] = "Python3.9";
     ListFunctionResultRuntimeEnum["GO1_8"] = "Go1.8";
     ListFunctionResultRuntimeEnum["GO1_X"] = "Go1.x";
     ListFunctionResultRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     ListFunctionResultRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     ListFunctionResultRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     ListFunctionResultRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ListFunctionResultRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(ListFunctionResultRuntimeEnum = exports.ListFunctionResultRuntimeEnum || (exports.ListFunctionResultRuntimeEnum = {}));
 /**
     * @export
@@ -13171,7 +15225,7 @@ var ListFunctionResultTypeEnum;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ListFunctionStatisticsRequest = void 0;
+exports.ListFunctionStatisticsRequestPeriodEnum = exports.ListFunctionStatisticsRequest = void 0;
 var ListFunctionStatisticsRequest = /** @class */ (function () {
     function ListFunctionStatisticsRequest(funcUrn, period) {
         this['func_urn'] = funcUrn;
@@ -13198,6 +15252,16 @@ var ListFunctionStatisticsRequest = /** @class */ (function () {
     return ListFunctionStatisticsRequest;
 }());
 exports.ListFunctionStatisticsRequest = ListFunctionStatisticsRequest;
+/**
+    * @export
+    * @enum {string}
+    */
+var ListFunctionStatisticsRequestPeriodEnum;
+(function (ListFunctionStatisticsRequestPeriodEnum) {
+    ListFunctionStatisticsRequestPeriodEnum["E_5"] = "5";
+    ListFunctionStatisticsRequestPeriodEnum["E_15"] = "15";
+    ListFunctionStatisticsRequestPeriodEnum["E_60"] = "60";
+})(ListFunctionStatisticsRequestPeriodEnum = exports.ListFunctionStatisticsRequestPeriodEnum || (exports.ListFunctionStatisticsRequestPeriodEnum = {}));
 
 
 /***/ }),
@@ -14049,13 +16113,13 @@ var ListFunctionVersionResultRuntimeEnum;
     ListFunctionVersionResultRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     ListFunctionVersionResultRuntimeEnum["PYTHON2_7"] = "Python2.7";
     ListFunctionVersionResultRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    ListFunctionVersionResultRuntimeEnum["PYTHON3_9"] = "Python3.9";
     ListFunctionVersionResultRuntimeEnum["GO1_8"] = "Go1.8";
     ListFunctionVersionResultRuntimeEnum["GO1_X"] = "Go1.x";
     ListFunctionVersionResultRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     ListFunctionVersionResultRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     ListFunctionVersionResultRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     ListFunctionVersionResultRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ListFunctionVersionResultRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(ListFunctionVersionResultRuntimeEnum = exports.ListFunctionVersionResultRuntimeEnum || (exports.ListFunctionVersionResultRuntimeEnum = {}));
 /**
     * @export
@@ -14349,7 +16413,7 @@ exports.ListQuotasResult = ListQuotasResult;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ListStatisticsRequestFilterEnum = exports.ListStatisticsRequest = void 0;
+exports.ListStatisticsRequestOptionEnum = exports.ListStatisticsRequestFilterEnum = exports.ListStatisticsRequest = void 0;
 var ListStatisticsRequest = /** @class */ (function () {
     function ListStatisticsRequest(filter) {
         this['filter'] = filter;
@@ -14360,6 +16424,10 @@ var ListStatisticsRequest = /** @class */ (function () {
     };
     ListStatisticsRequest.prototype.withPeriod = function (period) {
         this['period'] = period;
+        return this;
+    };
+    ListStatisticsRequest.prototype.withOption = function (option) {
+        this['option'] = option;
         return this;
     };
     return ListStatisticsRequest;
@@ -14374,6 +16442,17 @@ var ListStatisticsRequestFilterEnum;
     ListStatisticsRequestFilterEnum["MONITOR_DATA"] = "monitor_data";
     ListStatisticsRequestFilterEnum["MONTHLY_REPORT"] = "monthly_report";
 })(ListStatisticsRequestFilterEnum = exports.ListStatisticsRequestFilterEnum || (exports.ListStatisticsRequestFilterEnum = {}));
+/**
+    * @export
+    * @enum {string}
+    */
+var ListStatisticsRequestOptionEnum;
+(function (ListStatisticsRequestOptionEnum) {
+    ListStatisticsRequestOptionEnum["E_0"] = "0";
+    ListStatisticsRequestOptionEnum["E_1"] = "1";
+    ListStatisticsRequestOptionEnum["E_2"] = "2";
+    ListStatisticsRequestOptionEnum["E_3"] = "3";
+})(ListStatisticsRequestOptionEnum = exports.ListStatisticsRequestOptionEnum || (exports.ListStatisticsRequestOptionEnum = {}));
 
 
 /***/ }),
@@ -14571,6 +16650,427 @@ exports.ListVersionAliasesResponse = ListVersionAliasesResponse;
 
 /***/ }),
 
+/***/ 9081:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ListWorkflowExecutionResultStatusEnum = exports.ListWorkflowExecutionResult = void 0;
+var ListWorkflowExecutionResult = /** @class */ (function () {
+    function ListWorkflowExecutionResult() {
+    }
+    ListWorkflowExecutionResult.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionResult.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionResult.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionResult.prototype.withStatus = function (status) {
+        this['status'] = status;
+        return this;
+    };
+    ListWorkflowExecutionResult.prototype.withBeginTime = function (beginTime) {
+        this['begin_time'] = beginTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "beginTime", {
+        get: function () {
+            return this['begin_time'];
+        },
+        set: function (beginTime) {
+            this['begin_time'] = beginTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionResult.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionResult.prototype.withLastUpdateTime = function (lastUpdateTime) {
+        this['last_update_time'] = lastUpdateTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "lastUpdateTime", {
+        get: function () {
+            return this['last_update_time'];
+        },
+        set: function (lastUpdateTime) {
+            this['last_update_time'] = lastUpdateTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionResult.prototype.withCreatedBy = function (createdBy) {
+        this['created_by'] = createdBy;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionResult.prototype, "createdBy", {
+        get: function () {
+            return this['created_by'];
+        },
+        set: function (createdBy) {
+            this['created_by'] = createdBy;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ListWorkflowExecutionResult;
+}());
+exports.ListWorkflowExecutionResult = ListWorkflowExecutionResult;
+/**
+    * @export
+    * @enum {string}
+    */
+var ListWorkflowExecutionResultStatusEnum;
+(function (ListWorkflowExecutionResultStatusEnum) {
+    ListWorkflowExecutionResultStatusEnum["SUCCESS"] = "success";
+    ListWorkflowExecutionResultStatusEnum["FAIL"] = "fail";
+    ListWorkflowExecutionResultStatusEnum["RUNNING"] = "running";
+    ListWorkflowExecutionResultStatusEnum["TIMEOUT"] = "timeout";
+    ListWorkflowExecutionResultStatusEnum["CANCEL"] = "cancel";
+})(ListWorkflowExecutionResultStatusEnum = exports.ListWorkflowExecutionResultStatusEnum || (exports.ListWorkflowExecutionResultStatusEnum = {}));
+
+
+/***/ }),
+
+/***/ 1848:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ListWorkflowExecutionsRequestStatusEnum = exports.ListWorkflowExecutionsRequest = void 0;
+var ListWorkflowExecutionsRequest = /** @class */ (function () {
+    function ListWorkflowExecutionsRequest(workflowId) {
+        this['workflow_id'] = workflowId;
+    }
+    ListWorkflowExecutionsRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionsRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionsRequest.prototype.withLimit = function (limit) {
+        this['limit'] = limit;
+        return this;
+    };
+    ListWorkflowExecutionsRequest.prototype.withStatus = function (status) {
+        this['status'] = status;
+        return this;
+    };
+    ListWorkflowExecutionsRequest.prototype.withStartTime = function (startTime) {
+        this['start_time'] = startTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionsRequest.prototype, "startTime", {
+        get: function () {
+            return this['start_time'];
+        },
+        set: function (startTime) {
+            this['start_time'] = startTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowExecutionsRequest.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowExecutionsRequest.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ListWorkflowExecutionsRequest;
+}());
+exports.ListWorkflowExecutionsRequest = ListWorkflowExecutionsRequest;
+/**
+    * @export
+    * @enum {string}
+    */
+var ListWorkflowExecutionsRequestStatusEnum;
+(function (ListWorkflowExecutionsRequestStatusEnum) {
+    ListWorkflowExecutionsRequestStatusEnum["SUCCESS"] = "success";
+    ListWorkflowExecutionsRequestStatusEnum["FAIL"] = "fail";
+    ListWorkflowExecutionsRequestStatusEnum["RUNNING"] = "running";
+    ListWorkflowExecutionsRequestStatusEnum["TIMEOUT"] = "timeout";
+    ListWorkflowExecutionsRequestStatusEnum["CANCEL"] = "cancel";
+})(ListWorkflowExecutionsRequestStatusEnum = exports.ListWorkflowExecutionsRequestStatusEnum || (exports.ListWorkflowExecutionsRequestStatusEnum = {}));
+
+
+/***/ }),
+
+/***/ 6627:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ListWorkflowExecutionsResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var ListWorkflowExecutionsResponse = /** @class */ (function (_super) {
+    __extends(ListWorkflowExecutionsResponse, _super);
+    function ListWorkflowExecutionsResponse() {
+        return _super.call(this) || this;
+    }
+    ListWorkflowExecutionsResponse.prototype.withExecutions = function (executions) {
+        this['executions'] = executions;
+        return this;
+    };
+    return ListWorkflowExecutionsResponse;
+}(SdkResponse_1.SdkResponse));
+exports.ListWorkflowExecutionsResponse = ListWorkflowExecutionsResponse;
+
+
+/***/ }),
+
+/***/ 2224:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ListWorkflowsRequest = void 0;
+var ListWorkflowsRequest = /** @class */ (function () {
+    function ListWorkflowsRequest() {
+    }
+    ListWorkflowsRequest.prototype.withWorkflowName = function (workflowName) {
+        this['workflow_name'] = workflowName;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowsRequest.prototype, "workflowName", {
+        get: function () {
+            return this['workflow_name'];
+        },
+        set: function (workflowName) {
+            this['workflow_name'] = workflowName;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowsRequest.prototype.withLimit = function (limit) {
+        this['limit'] = limit;
+        return this;
+    };
+    ListWorkflowsRequest.prototype.withOffset = function (offset) {
+        this['offset'] = offset;
+        return this;
+    };
+    return ListWorkflowsRequest;
+}());
+exports.ListWorkflowsRequest = ListWorkflowsRequest;
+
+
+/***/ }),
+
+/***/ 4053:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ListWorkflowsResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var ListWorkflowsResponse = /** @class */ (function (_super) {
+    __extends(ListWorkflowsResponse, _super);
+    function ListWorkflowsResponse() {
+        return _super.call(this) || this;
+    }
+    ListWorkflowsResponse.prototype.withTotal = function (total) {
+        this['total'] = total;
+        return this;
+    };
+    ListWorkflowsResponse.prototype.withSize = function (size) {
+        this['size'] = size;
+        return this;
+    };
+    ListWorkflowsResponse.prototype.withWorkflows = function (workflows) {
+        this['workflows'] = workflows;
+        return this;
+    };
+    return ListWorkflowsResponse;
+}(SdkResponse_1.SdkResponse));
+exports.ListWorkflowsResponse = ListWorkflowsResponse;
+
+
+/***/ }),
+
+/***/ 2746:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ListWorkflowsResult = void 0;
+var ListWorkflowsResult = /** @class */ (function () {
+    function ListWorkflowsResult() {
+    }
+    ListWorkflowsResult.prototype.withId = function (id) {
+        this['id'] = id;
+        return this;
+    };
+    ListWorkflowsResult.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowsResult.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowsResult.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    ListWorkflowsResult.prototype.withDescription = function (description) {
+        this['description'] = description;
+        return this;
+    };
+    ListWorkflowsResult.prototype.withCreatedTime = function (createdTime) {
+        this['created_time'] = createdTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowsResult.prototype, "createdTime", {
+        get: function () {
+            return this['created_time'];
+        },
+        set: function (createdTime) {
+            this['created_time'] = createdTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowsResult.prototype.withUpdatedTime = function (updatedTime) {
+        this['updated_time'] = updatedTime;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowsResult.prototype, "updatedTime", {
+        get: function () {
+            return this['updated_time'];
+        },
+        set: function (updatedTime) {
+            this['updated_time'] = updatedTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ListWorkflowsResult.prototype.withCreatedBy = function (createdBy) {
+        this['created_by'] = createdBy;
+        return this;
+    };
+    Object.defineProperty(ListWorkflowsResult.prototype, "createdBy", {
+        get: function () {
+            return this['created_by'];
+        },
+        set: function (createdBy) {
+            this['created_by'] = createdBy;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ListWorkflowsResult;
+}());
+exports.ListWorkflowsResult = ListWorkflowsResult;
+
+
+/***/ }),
+
 /***/ 6629:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -14690,6 +17190,395 @@ exports.MountUser = MountUser;
 
 /***/ }),
 
+/***/ 5661:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NodeExecutionStatusEnum = exports.NodeExecution = void 0;
+var NodeExecution = /** @class */ (function () {
+    function NodeExecution() {
+    }
+    NodeExecution.prototype.withStatus = function (status) {
+        this['status'] = status;
+        return this;
+    };
+    NodeExecution.prototype.withInput = function (input) {
+        this['input'] = input;
+        return this;
+    };
+    NodeExecution.prototype.withOutput = function (output) {
+        this['output'] = output;
+        return this;
+    };
+    NodeExecution.prototype.withBeginTime = function (beginTime) {
+        this['begin_time'] = beginTime;
+        return this;
+    };
+    Object.defineProperty(NodeExecution.prototype, "beginTime", {
+        get: function () {
+            return this['begin_time'];
+        },
+        set: function (beginTime) {
+            this['begin_time'] = beginTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NodeExecution.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(NodeExecution.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NodeExecution.prototype.withErrorMessage = function (errorMessage) {
+        this['error_message'] = errorMessage;
+        return this;
+    };
+    Object.defineProperty(NodeExecution.prototype, "errorMessage", {
+        get: function () {
+            return this['error_message'];
+        },
+        set: function (errorMessage) {
+            this['error_message'] = errorMessage;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NodeExecution.prototype.withRequestId = function (requestId) {
+        this['request_id'] = requestId;
+        return this;
+    };
+    Object.defineProperty(NodeExecution.prototype, "requestId", {
+        get: function () {
+            return this['request_id'];
+        },
+        set: function (requestId) {
+            this['request_id'] = requestId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return NodeExecution;
+}());
+exports.NodeExecution = NodeExecution;
+/**
+    * @export
+    * @enum {string}
+    */
+var NodeExecutionStatusEnum;
+(function (NodeExecutionStatusEnum) {
+    NodeExecutionStatusEnum["SUCCESS"] = "success";
+    NodeExecutionStatusEnum["FAIL"] = "fail";
+    NodeExecutionStatusEnum["RUNNING"] = "running";
+    NodeExecutionStatusEnum["TIMEOUT"] = "timeout";
+    NodeExecutionStatusEnum["CANCEL"] = "cancel";
+})(NodeExecutionStatusEnum = exports.NodeExecutionStatusEnum || (exports.NodeExecutionStatusEnum = {}));
+
+
+/***/ }),
+
+/***/ 5444:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NodeExecutionDetail = void 0;
+var NodeExecutionDetail = /** @class */ (function () {
+    function NodeExecutionDetail() {
+    }
+    NodeExecutionDetail.prototype.withNodeId = function (nodeId) {
+        this['node_id'] = nodeId;
+        return this;
+    };
+    Object.defineProperty(NodeExecutionDetail.prototype, "nodeId", {
+        get: function () {
+            return this['node_id'];
+        },
+        set: function (nodeId) {
+            this['node_id'] = nodeId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NodeExecutionDetail.prototype.withNodeName = function (nodeName) {
+        this['node_name'] = nodeName;
+        return this;
+    };
+    Object.defineProperty(NodeExecutionDetail.prototype, "nodeName", {
+        get: function () {
+            return this['node_name'];
+        },
+        set: function (nodeName) {
+            this['node_name'] = nodeName;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NodeExecutionDetail.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(NodeExecutionDetail.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NodeExecutionDetail.prototype.withExecutions = function (executions) {
+        this['executions'] = executions;
+        return this;
+    };
+    return NodeExecutionDetail;
+}());
+exports.NodeExecutionDetail = NodeExecutionDetail;
+
+
+/***/ }),
+
+/***/ 2687:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OBSTriggerConfig = void 0;
+var OBSTriggerConfig = /** @class */ (function () {
+    function OBSTriggerConfig(bucket, events, prefix, suffix) {
+        this['bucket'] = bucket;
+        this['events'] = events;
+        this['prefix'] = prefix;
+        this['suffix'] = suffix;
+    }
+    OBSTriggerConfig.prototype.withBucket = function (bucket) {
+        this['bucket'] = bucket;
+        return this;
+    };
+    OBSTriggerConfig.prototype.withEvents = function (events) {
+        this['events'] = events;
+        return this;
+    };
+    OBSTriggerConfig.prototype.withPrefix = function (prefix) {
+        this['prefix'] = prefix;
+        return this;
+    };
+    OBSTriggerConfig.prototype.withSuffix = function (suffix) {
+        this['suffix'] = suffix;
+        return this;
+    };
+    return OBSTriggerConfig;
+}());
+exports.OBSTriggerConfig = OBSTriggerConfig;
+
+
+/***/ }),
+
+/***/ 3432:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OnError = void 0;
+var OnError = /** @class */ (function () {
+    function OnError() {
+    }
+    OnError.prototype.withError = function (error) {
+        this['error'] = error;
+        return this;
+    };
+    OnError.prototype.withTransition = function (transition) {
+        this['transition'] = transition;
+        return this;
+    };
+    OnError.prototype.withRetryRef = function (retryRef) {
+        this['retry_ref'] = retryRef;
+        return this;
+    };
+    Object.defineProperty(OnError.prototype, "retryRef", {
+        get: function () {
+            return this['retry_ref'];
+        },
+        set: function (retryRef) {
+            this['retry_ref'] = retryRef;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return OnError;
+}());
+exports.OnError = OnError;
+
+
+/***/ }),
+
+/***/ 5012:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OperateErrorInfo = void 0;
+var OperateErrorInfo = /** @class */ (function () {
+    function OperateErrorInfo() {
+    }
+    OperateErrorInfo.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(OperateErrorInfo.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OperateErrorInfo.prototype.withErrorDetail = function (errorDetail) {
+        this['error_detail'] = errorDetail;
+        return this;
+    };
+    Object.defineProperty(OperateErrorInfo.prototype, "errorDetail", {
+        get: function () {
+            return this['error_detail'];
+        },
+        set: function (errorDetail) {
+            this['error_detail'] = errorDetail;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return OperateErrorInfo;
+}());
+exports.OperateErrorInfo = OperateErrorInfo;
+
+
+/***/ }),
+
+/***/ 1454:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OperationStateActionModeEnum = exports.OperationStateTypeEnum = exports.OperationState = void 0;
+var OperationState = /** @class */ (function () {
+    function OperationState(id, name, type, end, transition, actions) {
+        this['id'] = id;
+        this['name'] = name;
+        this['type'] = type;
+        this['end'] = end;
+        this['transition'] = transition;
+        this['actions'] = actions;
+    }
+    OperationState.prototype.withId = function (id) {
+        this['id'] = id;
+        return this;
+    };
+    OperationState.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    OperationState.prototype.withType = function (type) {
+        this['type'] = type;
+        return this;
+    };
+    OperationState.prototype.withEnd = function (end) {
+        this['end'] = end;
+        return this;
+    };
+    OperationState.prototype.withTransition = function (transition) {
+        this['transition'] = transition;
+        return this;
+    };
+    OperationState.prototype.withStateDataFilter = function (stateDataFilter) {
+        this['state_data_filter'] = stateDataFilter;
+        return this;
+    };
+    Object.defineProperty(OperationState.prototype, "stateDataFilter", {
+        get: function () {
+            return this['state_data_filter'];
+        },
+        set: function (stateDataFilter) {
+            this['state_data_filter'] = stateDataFilter;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OperationState.prototype.withActionMode = function (actionMode) {
+        this['action_mode'] = actionMode;
+        return this;
+    };
+    Object.defineProperty(OperationState.prototype, "actionMode", {
+        get: function () {
+            return this['action_mode'];
+        },
+        set: function (actionMode) {
+            this['action_mode'] = actionMode;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OperationState.prototype.withActions = function (actions) {
+        this['actions'] = actions;
+        return this;
+    };
+    OperationState.prototype.withOnErrors = function (onErrors) {
+        this['on_errors'] = onErrors;
+        return this;
+    };
+    Object.defineProperty(OperationState.prototype, "onErrors", {
+        get: function () {
+            return this['on_errors'];
+        },
+        set: function (onErrors) {
+            this['on_errors'] = onErrors;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return OperationState;
+}());
+exports.OperationState = OperationState;
+/**
+    * @export
+    * @enum {string}
+    */
+var OperationStateTypeEnum;
+(function (OperationStateTypeEnum) {
+    OperationStateTypeEnum["OPERATION"] = "Operation";
+    OperationStateTypeEnum["SLEEP"] = "Sleep";
+    OperationStateTypeEnum["END"] = "End";
+})(OperationStateTypeEnum = exports.OperationStateTypeEnum || (exports.OperationStateTypeEnum = {}));
+/**
+    * @export
+    * @enum {string}
+    */
+var OperationStateActionModeEnum;
+(function (OperationStateActionModeEnum) {
+    OperationStateActionModeEnum["SEQUENTIAL"] = "sequential";
+    OperationStateActionModeEnum["PARALLEL"] = "parallel";
+})(OperationStateActionModeEnum = exports.OperationStateActionModeEnum || (exports.OperationStateActionModeEnum = {}));
+
+
+/***/ }),
+
 /***/ 2001:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -14798,6 +17687,128 @@ var ResourcesTypeEnum;
 
 /***/ }),
 
+/***/ 5235:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Retry = void 0;
+var Retry = /** @class */ (function () {
+    function Retry(name) {
+        this['name'] = name;
+    }
+    Retry.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    Retry.prototype.withDelay = function (delay) {
+        this['delay'] = delay;
+        return this;
+    };
+    Retry.prototype.withMaxAttempts = function (maxAttempts) {
+        this['max_attempts'] = maxAttempts;
+        return this;
+    };
+    Object.defineProperty(Retry.prototype, "maxAttempts", {
+        get: function () {
+            return this['max_attempts'];
+        },
+        set: function (maxAttempts) {
+            this['max_attempts'] = maxAttempts;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return Retry;
+}());
+exports.Retry = Retry;
+
+
+/***/ }),
+
+/***/ 4097:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RetryWorkFlowRequest = void 0;
+var RetryWorkFlowRequest = /** @class */ (function () {
+    function RetryWorkFlowRequest(workflowId, executionId) {
+        this['workflow_id'] = workflowId;
+        this['execution_id'] = executionId;
+    }
+    RetryWorkFlowRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(RetryWorkFlowRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    RetryWorkFlowRequest.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(RetryWorkFlowRequest.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return RetryWorkFlowRequest;
+}());
+exports.RetryWorkFlowRequest = RetryWorkFlowRequest;
+
+
+/***/ }),
+
+/***/ 6672:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RetryWorkFlowResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var RetryWorkFlowResponse = /** @class */ (function (_super) {
+    __extends(RetryWorkFlowResponse, _super);
+    function RetryWorkFlowResponse() {
+        return _super.call(this) || this;
+    }
+    return RetryWorkFlowResponse;
+}(SdkResponse_1.SdkResponse));
+exports.RetryWorkFlowResponse = RetryWorkFlowResponse;
+
+
+/***/ }),
+
 /***/ 3992:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -14851,7 +17862,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ShowDependencyResponse = void 0;
+exports.ShowDependencyResponseRuntimeEnum = exports.ShowDependencyResponse = void 0;
 var SdkResponse_1 = __nccwpck_require__(9083);
 var ShowDependencyResponse = /** @class */ (function (_super) {
     __extends(ShowDependencyResponse, _super);
@@ -14907,6 +17918,29 @@ var ShowDependencyResponse = /** @class */ (function (_super) {
     return ShowDependencyResponse;
 }(SdkResponse_1.SdkResponse));
 exports.ShowDependencyResponse = ShowDependencyResponse;
+/**
+    * @export
+    * @enum {string}
+    */
+var ShowDependencyResponseRuntimeEnum;
+(function (ShowDependencyResponseRuntimeEnum) {
+    ShowDependencyResponseRuntimeEnum["JAVA8"] = "Java8";
+    ShowDependencyResponseRuntimeEnum["JAVA11"] = "Java11";
+    ShowDependencyResponseRuntimeEnum["NODE_JS6_10"] = "Node.js6.10";
+    ShowDependencyResponseRuntimeEnum["NODE_JS8_10"] = "Node.js8.10";
+    ShowDependencyResponseRuntimeEnum["NODE_JS10_16"] = "Node.js10.16";
+    ShowDependencyResponseRuntimeEnum["NODE_JS12_13"] = "Node.js12.13";
+    ShowDependencyResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
+    ShowDependencyResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
+    ShowDependencyResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
+    ShowDependencyResponseRuntimeEnum["GO1_8"] = "Go1.8";
+    ShowDependencyResponseRuntimeEnum["GO1_X"] = "Go1.x";
+    ShowDependencyResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
+    ShowDependencyResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
+    ShowDependencyResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
+    ShowDependencyResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ShowDependencyResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
+})(ShowDependencyResponseRuntimeEnum = exports.ShowDependencyResponseRuntimeEnum || (exports.ShowDependencyResponseRuntimeEnum = {}));
 
 
 /***/ }),
@@ -15163,6 +18197,20 @@ var ShowFunctionAsyncInvokeConfigResponse = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    ShowFunctionAsyncInvokeConfigResponse.prototype.withEnableAsyncStatusLog = function (enableAsyncStatusLog) {
+        this['enable_async_status_log'] = enableAsyncStatusLog;
+        return this;
+    };
+    Object.defineProperty(ShowFunctionAsyncInvokeConfigResponse.prototype, "enableAsyncStatusLog", {
+        get: function () {
+            return this['enable_async_status_log'];
+        },
+        set: function (enableAsyncStatusLog) {
+            this['enable_async_status_log'] = enableAsyncStatusLog;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return ShowFunctionAsyncInvokeConfigResponse;
 }(SdkResponse_1.SdkResponse));
 exports.ShowFunctionAsyncInvokeConfigResponse = ShowFunctionAsyncInvokeConfigResponse;
@@ -15414,13 +18462,13 @@ var ShowFunctionCodeResponseRuntimeEnum;
     ShowFunctionCodeResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     ShowFunctionCodeResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     ShowFunctionCodeResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    ShowFunctionCodeResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     ShowFunctionCodeResponseRuntimeEnum["GO1_8"] = "Go1.8";
     ShowFunctionCodeResponseRuntimeEnum["GO1_X"] = "Go1.x";
     ShowFunctionCodeResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     ShowFunctionCodeResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     ShowFunctionCodeResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     ShowFunctionCodeResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ShowFunctionCodeResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(ShowFunctionCodeResponseRuntimeEnum = exports.ShowFunctionCodeResponseRuntimeEnum || (exports.ShowFunctionCodeResponseRuntimeEnum = {}));
 /**
     * @export
@@ -15923,13 +18971,13 @@ var ShowFunctionConfigResponseRuntimeEnum;
     ShowFunctionConfigResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     ShowFunctionConfigResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     ShowFunctionConfigResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    ShowFunctionConfigResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     ShowFunctionConfigResponseRuntimeEnum["GO1_8"] = "Go1.8";
     ShowFunctionConfigResponseRuntimeEnum["GO1_X"] = "Go1.x";
     ShowFunctionConfigResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     ShowFunctionConfigResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     ShowFunctionConfigResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     ShowFunctionConfigResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    ShowFunctionConfigResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(ShowFunctionConfigResponseRuntimeEnum = exports.ShowFunctionConfigResponseRuntimeEnum || (exports.ShowFunctionConfigResponseRuntimeEnum = {}));
 /**
     * @export
@@ -16288,6 +19336,126 @@ exports.ShowLtsLogDetailsResponse = ShowLtsLogDetailsResponse;
 
 /***/ }),
 
+/***/ 6307:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowTenantMetricRequest = void 0;
+var ShowTenantMetricRequest = /** @class */ (function () {
+    function ShowTenantMetricRequest() {
+    }
+    ShowTenantMetricRequest.prototype.withPeriod = function (period) {
+        this['period'] = period;
+        return this;
+    };
+    ShowTenantMetricRequest.prototype.withStartTime = function (startTime) {
+        this['start_time'] = startTime;
+        return this;
+    };
+    Object.defineProperty(ShowTenantMetricRequest.prototype, "startTime", {
+        get: function () {
+            return this['start_time'];
+        },
+        set: function (startTime) {
+            this['start_time'] = startTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowTenantMetricRequest.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(ShowTenantMetricRequest.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowTenantMetricRequest;
+}());
+exports.ShowTenantMetricRequest = ShowTenantMetricRequest;
+
+
+/***/ }),
+
+/***/ 9799:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowTenantMetricResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var ShowTenantMetricResponse = /** @class */ (function (_super) {
+    __extends(ShowTenantMetricResponse, _super);
+    function ShowTenantMetricResponse() {
+        return _super.call(this) || this;
+    }
+    ShowTenantMetricResponse.prototype.withCount = function (count) {
+        this['count'] = count;
+        return this;
+    };
+    ShowTenantMetricResponse.prototype.withDuration = function (duration) {
+        this['duration'] = duration;
+        return this;
+    };
+    ShowTenantMetricResponse.prototype.withFailCount = function (failCount) {
+        this['fail_count'] = failCount;
+        return this;
+    };
+    Object.defineProperty(ShowTenantMetricResponse.prototype, "failCount", {
+        get: function () {
+            return this['fail_count'];
+        },
+        set: function (failCount) {
+            this['fail_count'] = failCount;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowTenantMetricResponse.prototype.withRunningCount = function (runningCount) {
+        this['running_count'] = runningCount;
+        return this;
+    };
+    Object.defineProperty(ShowTenantMetricResponse.prototype, "runningCount", {
+        get: function () {
+            return this['running_count'];
+        },
+        set: function (runningCount) {
+            this['running_count'] = runningCount;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowTenantMetricResponse;
+}(SdkResponse_1.SdkResponse));
+exports.ShowTenantMetricResponse = ShowTenantMetricResponse;
+
+
+/***/ }),
+
 /***/ 3147:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -16519,6 +19687,522 @@ exports.ShowVersionAliasResponse = ShowVersionAliasResponse;
 
 /***/ }),
 
+/***/ 2910:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowWorkFlowMetricRequest = void 0;
+var ShowWorkFlowMetricRequest = /** @class */ (function () {
+    function ShowWorkFlowMetricRequest(workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+    }
+    ShowWorkFlowMetricRequest.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowMetricRequest.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowMetricRequest.prototype.withPeriod = function (period) {
+        this['period'] = period;
+        return this;
+    };
+    ShowWorkFlowMetricRequest.prototype.withStartTime = function (startTime) {
+        this['start_time'] = startTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowMetricRequest.prototype, "startTime", {
+        get: function () {
+            return this['start_time'];
+        },
+        set: function (startTime) {
+            this['start_time'] = startTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowMetricRequest.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowMetricRequest.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowWorkFlowMetricRequest;
+}());
+exports.ShowWorkFlowMetricRequest = ShowWorkFlowMetricRequest;
+
+
+/***/ }),
+
+/***/ 3639:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowWorkFlowMetricResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var ShowWorkFlowMetricResponse = /** @class */ (function (_super) {
+    __extends(ShowWorkFlowMetricResponse, _super);
+    function ShowWorkFlowMetricResponse() {
+        return _super.call(this) || this;
+    }
+    ShowWorkFlowMetricResponse.prototype.withCount = function (count) {
+        this['count'] = count;
+        return this;
+    };
+    ShowWorkFlowMetricResponse.prototype.withDuration = function (duration) {
+        this['duration'] = duration;
+        return this;
+    };
+    ShowWorkFlowMetricResponse.prototype.withFailCount = function (failCount) {
+        this['fail_count'] = failCount;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowMetricResponse.prototype, "failCount", {
+        get: function () {
+            return this['fail_count'];
+        },
+        set: function (failCount) {
+            this['fail_count'] = failCount;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowMetricResponse.prototype.withRunningCount = function (runningCount) {
+        this['running_count'] = runningCount;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowMetricResponse.prototype, "runningCount", {
+        get: function () {
+            return this['running_count'];
+        },
+        set: function (runningCount) {
+            this['running_count'] = runningCount;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowWorkFlowMetricResponse;
+}(SdkResponse_1.SdkResponse));
+exports.ShowWorkFlowMetricResponse = ShowWorkFlowMetricResponse;
+
+
+/***/ }),
+
+/***/ 1105:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowWorkFlowRequest = void 0;
+var ShowWorkFlowRequest = /** @class */ (function () {
+    function ShowWorkFlowRequest(workflowId) {
+        this['workflow_id'] = workflowId;
+    }
+    ShowWorkFlowRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowWorkFlowRequest;
+}());
+exports.ShowWorkFlowRequest = ShowWorkFlowRequest;
+
+
+/***/ }),
+
+/***/ 5212:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowWorkFlowResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var ShowWorkFlowResponse = /** @class */ (function (_super) {
+    __extends(ShowWorkFlowResponse, _super);
+    function ShowWorkFlowResponse() {
+        return _super.call(this) || this;
+    }
+    ShowWorkFlowResponse.prototype.withId = function (id) {
+        this['id'] = id;
+        return this;
+    };
+    ShowWorkFlowResponse.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowResponse.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowResponse.prototype.withCreatedTime = function (createdTime) {
+        this['created_time'] = createdTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowResponse.prototype, "createdTime", {
+        get: function () {
+            return this['created_time'];
+        },
+        set: function (createdTime) {
+            this['created_time'] = createdTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowResponse.prototype.withUpdatedTime = function (updatedTime) {
+        this['updated_time'] = updatedTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowResponse.prototype, "updatedTime", {
+        get: function () {
+            return this['updated_time'];
+        },
+        set: function (updatedTime) {
+            this['updated_time'] = updatedTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowResponse.prototype.withCreatedBy = function (createdBy) {
+        this['created_by'] = createdBy;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowResponse.prototype, "createdBy", {
+        get: function () {
+            return this['created_by'];
+        },
+        set: function (createdBy) {
+            this['created_by'] = createdBy;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowResponse.prototype.withLtsGroupId = function (ltsGroupId) {
+        this['lts_group_id'] = ltsGroupId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowResponse.prototype, "ltsGroupId", {
+        get: function () {
+            return this['lts_group_id'];
+        },
+        set: function (ltsGroupId) {
+            this['lts_group_id'] = ltsGroupId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowResponse.prototype.withLtsStreamId = function (ltsStreamId) {
+        this['lts_stream_id'] = ltsStreamId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkFlowResponse.prototype, "ltsStreamId", {
+        get: function () {
+            return this['lts_stream_id'];
+        },
+        set: function (ltsStreamId) {
+            this['lts_stream_id'] = ltsStreamId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkFlowResponse.prototype.withDefinition = function (definition) {
+        this['definition'] = definition;
+        return this;
+    };
+    return ShowWorkFlowResponse;
+}(SdkResponse_1.SdkResponse));
+exports.ShowWorkFlowResponse = ShowWorkFlowResponse;
+
+
+/***/ }),
+
+/***/ 5374:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowWorkflowExecutionRequest = void 0;
+var ShowWorkflowExecutionRequest = /** @class */ (function () {
+    function ShowWorkflowExecutionRequest(workflowId, executionId) {
+        this['workflow_id'] = workflowId;
+        this['execution_id'] = executionId;
+    }
+    ShowWorkflowExecutionRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionRequest.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionRequest.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowWorkflowExecutionRequest;
+}());
+exports.ShowWorkflowExecutionRequest = ShowWorkflowExecutionRequest;
+
+
+/***/ }),
+
+/***/ 810:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowWorkflowExecutionResponseStatusEnum = exports.ShowWorkflowExecutionResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var ShowWorkflowExecutionResponse = /** @class */ (function (_super) {
+    __extends(ShowWorkflowExecutionResponse, _super);
+    function ShowWorkflowExecutionResponse() {
+        return _super.call(this) || this;
+    }
+    ShowWorkflowExecutionResponse.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withStatus = function (status) {
+        this['status'] = status;
+        return this;
+    };
+    ShowWorkflowExecutionResponse.prototype.withHeaders = function (headers) {
+        this['headers'] = headers;
+        return this;
+    };
+    ShowWorkflowExecutionResponse.prototype.withInput = function (input) {
+        this['input'] = input;
+        return this;
+    };
+    ShowWorkflowExecutionResponse.prototype.withOutput = function (output) {
+        this['output'] = output;
+        return this;
+    };
+    ShowWorkflowExecutionResponse.prototype.withBeginTime = function (beginTime) {
+        this['begin_time'] = beginTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "beginTime", {
+        get: function () {
+            return this['begin_time'];
+        },
+        set: function (beginTime) {
+            this['begin_time'] = beginTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withLastUpdateTime = function (lastUpdateTime) {
+        this['last_update_time'] = lastUpdateTime;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "lastUpdateTime", {
+        get: function () {
+            return this['last_update_time'];
+        },
+        set: function (lastUpdateTime) {
+            this['last_update_time'] = lastUpdateTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withCreatedBy = function (createdBy) {
+        this['created_by'] = createdBy;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "createdBy", {
+        get: function () {
+            return this['created_by'];
+        },
+        set: function (createdBy) {
+            this['created_by'] = createdBy;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShowWorkflowExecutionResponse.prototype.withNodeExecutionDetails = function (nodeExecutionDetails) {
+        this['node_execution_details'] = nodeExecutionDetails;
+        return this;
+    };
+    Object.defineProperty(ShowWorkflowExecutionResponse.prototype, "nodeExecutionDetails", {
+        get: function () {
+            return this['node_execution_details'];
+        },
+        set: function (nodeExecutionDetails) {
+            this['node_execution_details'] = nodeExecutionDetails;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShowWorkflowExecutionResponse;
+}(SdkResponse_1.SdkResponse));
+exports.ShowWorkflowExecutionResponse = ShowWorkflowExecutionResponse;
+/**
+    * @export
+    * @enum {string}
+    */
+var ShowWorkflowExecutionResponseStatusEnum;
+(function (ShowWorkflowExecutionResponseStatusEnum) {
+    ShowWorkflowExecutionResponseStatusEnum["SUCCESS"] = "success";
+    ShowWorkflowExecutionResponseStatusEnum["FAIL"] = "fail";
+    ShowWorkflowExecutionResponseStatusEnum["RUNNING"] = "running";
+    ShowWorkflowExecutionResponseStatusEnum["TIMEOUT"] = "timeout";
+    ShowWorkflowExecutionResponseStatusEnum["CANCEL"] = "cancel";
+})(ShowWorkflowExecutionResponseStatusEnum = exports.ShowWorkflowExecutionResponseStatusEnum || (exports.ShowWorkflowExecutionResponseStatusEnum = {}));
+
+
+/***/ }),
+
 /***/ 424:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -16540,6 +20224,413 @@ var SlaReportsValue = /** @class */ (function () {
     return SlaReportsValue;
 }());
 exports.SlaReportsValue = SlaReportsValue;
+
+
+/***/ }),
+
+/***/ 4404:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StartSyncWorkflowExecutionRequest = void 0;
+var StartSyncWorkflowExecutionRequest = /** @class */ (function () {
+    function StartSyncWorkflowExecutionRequest(workflowId) {
+        this['workflow_id'] = workflowId;
+    }
+    StartSyncWorkflowExecutionRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(StartSyncWorkflowExecutionRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StartSyncWorkflowExecutionRequest.prototype.withBody = function (body) {
+        this['body'] = body;
+        return this;
+    };
+    return StartSyncWorkflowExecutionRequest;
+}());
+exports.StartSyncWorkflowExecutionRequest = StartSyncWorkflowExecutionRequest;
+
+
+/***/ }),
+
+/***/ 3072:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StartSyncWorkflowExecutionRequestBody = void 0;
+var StartSyncWorkflowExecutionRequestBody = /** @class */ (function () {
+    function StartSyncWorkflowExecutionRequestBody(input) {
+        this['input'] = input;
+    }
+    StartSyncWorkflowExecutionRequestBody.prototype.withHeaders = function (headers) {
+        this['headers'] = headers;
+        return this;
+    };
+    StartSyncWorkflowExecutionRequestBody.prototype.withInput = function (input) {
+        this['input'] = input;
+        return this;
+    };
+    return StartSyncWorkflowExecutionRequestBody;
+}());
+exports.StartSyncWorkflowExecutionRequestBody = StartSyncWorkflowExecutionRequestBody;
+
+
+/***/ }),
+
+/***/ 8892:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StartSyncWorkflowExecutionResponseStatusEnum = exports.StartSyncWorkflowExecutionResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var StartSyncWorkflowExecutionResponse = /** @class */ (function (_super) {
+    __extends(StartSyncWorkflowExecutionResponse, _super);
+    function StartSyncWorkflowExecutionResponse() {
+        return _super.call(this) || this;
+    }
+    StartSyncWorkflowExecutionResponse.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(StartSyncWorkflowExecutionResponse.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StartSyncWorkflowExecutionResponse.prototype.withStatus = function (status) {
+        this['status'] = status;
+        return this;
+    };
+    StartSyncWorkflowExecutionResponse.prototype.withOutput = function (output) {
+        this['output'] = output;
+        return this;
+    };
+    StartSyncWorkflowExecutionResponse.prototype.withErrors = function (errors) {
+        this['errors'] = errors;
+        return this;
+    };
+    StartSyncWorkflowExecutionResponse.prototype.withBeginTime = function (beginTime) {
+        this['begin_time'] = beginTime;
+        return this;
+    };
+    Object.defineProperty(StartSyncWorkflowExecutionResponse.prototype, "beginTime", {
+        get: function () {
+            return this['begin_time'];
+        },
+        set: function (beginTime) {
+            this['begin_time'] = beginTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StartSyncWorkflowExecutionResponse.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(StartSyncWorkflowExecutionResponse.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return StartSyncWorkflowExecutionResponse;
+}(SdkResponse_1.SdkResponse));
+exports.StartSyncWorkflowExecutionResponse = StartSyncWorkflowExecutionResponse;
+/**
+    * @export
+    * @enum {string}
+    */
+var StartSyncWorkflowExecutionResponseStatusEnum;
+(function (StartSyncWorkflowExecutionResponseStatusEnum) {
+    StartSyncWorkflowExecutionResponseStatusEnum["SUCCESS"] = "success";
+    StartSyncWorkflowExecutionResponseStatusEnum["FAIL"] = "fail";
+    StartSyncWorkflowExecutionResponseStatusEnum["TIMEOUT"] = "timeout";
+})(StartSyncWorkflowExecutionResponseStatusEnum = exports.StartSyncWorkflowExecutionResponseStatusEnum || (exports.StartSyncWorkflowExecutionResponseStatusEnum = {}));
+
+
+/***/ }),
+
+/***/ 1831:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StartWorkflowExecutionRequest = void 0;
+var StartWorkflowExecutionRequest = /** @class */ (function () {
+    function StartWorkflowExecutionRequest(workflowId) {
+        this['workflow_id'] = workflowId;
+    }
+    StartWorkflowExecutionRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(StartWorkflowExecutionRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StartWorkflowExecutionRequest.prototype.withXCreateTime = function (xCreateTime) {
+        this['X-Create-Time'] = xCreateTime;
+        return this;
+    };
+    Object.defineProperty(StartWorkflowExecutionRequest.prototype, "xCreateTime", {
+        get: function () {
+            return this['X-Create-Time'];
+        },
+        set: function (xCreateTime) {
+            this['X-Create-Time'] = xCreateTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StartWorkflowExecutionRequest.prototype.withXWorkflowRunID = function (xWorkflowRunID) {
+        this['X-WorkflowRun-ID'] = xWorkflowRunID;
+        return this;
+    };
+    Object.defineProperty(StartWorkflowExecutionRequest.prototype, "xWorkflowRunID", {
+        get: function () {
+            return this['X-WorkflowRun-ID'];
+        },
+        set: function (xWorkflowRunID) {
+            this['X-WorkflowRun-ID'] = xWorkflowRunID;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StartWorkflowExecutionRequest.prototype.withBody = function (body) {
+        this['body'] = body;
+        return this;
+    };
+    return StartWorkflowExecutionRequest;
+}());
+exports.StartWorkflowExecutionRequest = StartWorkflowExecutionRequest;
+
+
+/***/ }),
+
+/***/ 3020:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StartWorkflowExecutionRequestBody = void 0;
+var StartWorkflowExecutionRequestBody = /** @class */ (function () {
+    function StartWorkflowExecutionRequestBody(input) {
+        this['input'] = input;
+    }
+    StartWorkflowExecutionRequestBody.prototype.withHeaders = function (headers) {
+        this['headers'] = headers;
+        return this;
+    };
+    StartWorkflowExecutionRequestBody.prototype.withInput = function (input) {
+        this['input'] = input;
+        return this;
+    };
+    return StartWorkflowExecutionRequestBody;
+}());
+exports.StartWorkflowExecutionRequestBody = StartWorkflowExecutionRequestBody;
+
+
+/***/ }),
+
+/***/ 8356:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StartWorkflowExecutionResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var StartWorkflowExecutionResponse = /** @class */ (function (_super) {
+    __extends(StartWorkflowExecutionResponse, _super);
+    function StartWorkflowExecutionResponse() {
+        return _super.call(this) || this;
+    }
+    StartWorkflowExecutionResponse.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(StartWorkflowExecutionResponse.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return StartWorkflowExecutionResponse;
+}(SdkResponse_1.SdkResponse));
+exports.StartWorkflowExecutionResponse = StartWorkflowExecutionResponse;
+
+
+/***/ }),
+
+/***/ 7253:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StateDataFilter = void 0;
+var StateDataFilter = /** @class */ (function () {
+    function StateDataFilter() {
+    }
+    StateDataFilter.prototype.withInput = function (input) {
+        this['input'] = input;
+        return this;
+    };
+    StateDataFilter.prototype.withOutput = function (output) {
+        this['output'] = output;
+        return this;
+    };
+    return StateDataFilter;
+}());
+exports.StateDataFilter = StateDataFilter;
+
+
+/***/ }),
+
+/***/ 8029:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StopWorkFlowRequest = void 0;
+var StopWorkFlowRequest = /** @class */ (function () {
+    function StopWorkFlowRequest(workflowId, executionId) {
+        this['workflow_id'] = workflowId;
+        this['execution_id'] = executionId;
+    }
+    StopWorkFlowRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(StopWorkFlowRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StopWorkFlowRequest.prototype.withExecutionId = function (executionId) {
+        this['execution_id'] = executionId;
+        return this;
+    };
+    Object.defineProperty(StopWorkFlowRequest.prototype, "executionId", {
+        get: function () {
+            return this['execution_id'];
+        },
+        set: function (executionId) {
+            this['execution_id'] = executionId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return StopWorkFlowRequest;
+}());
+exports.StopWorkFlowRequest = StopWorkFlowRequest;
+
+
+/***/ }),
+
+/***/ 5322:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StopWorkFlowResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var StopWorkFlowResponse = /** @class */ (function (_super) {
+    __extends(StopWorkFlowResponse, _super);
+    function StopWorkFlowResponse() {
+        return _super.call(this) || this;
+    }
+    return StopWorkFlowResponse;
+}(SdkResponse_1.SdkResponse));
+exports.StopWorkFlowResponse = StopWorkFlowResponse;
 
 
 /***/ }),
@@ -16576,6 +20667,153 @@ var StrategyConfig = /** @class */ (function () {
     return StrategyConfig;
 }());
 exports.StrategyConfig = StrategyConfig;
+
+
+/***/ }),
+
+/***/ 4557:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SyncExecutionNodeErrorDetail = void 0;
+var SyncExecutionNodeErrorDetail = /** @class */ (function () {
+    function SyncExecutionNodeErrorDetail() {
+    }
+    SyncExecutionNodeErrorDetail.prototype.withNodeId = function (nodeId) {
+        this['node_id'] = nodeId;
+        return this;
+    };
+    Object.defineProperty(SyncExecutionNodeErrorDetail.prototype, "nodeId", {
+        get: function () {
+            return this['node_id'];
+        },
+        set: function (nodeId) {
+            this['node_id'] = nodeId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    SyncExecutionNodeErrorDetail.prototype.withErrorMessage = function (errorMessage) {
+        this['error_message'] = errorMessage;
+        return this;
+    };
+    Object.defineProperty(SyncExecutionNodeErrorDetail.prototype, "errorMessage", {
+        get: function () {
+            return this['error_message'];
+        },
+        set: function (errorMessage) {
+            this['error_message'] = errorMessage;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    SyncExecutionNodeErrorDetail.prototype.withBeginTime = function (beginTime) {
+        this['begin_time'] = beginTime;
+        return this;
+    };
+    Object.defineProperty(SyncExecutionNodeErrorDetail.prototype, "beginTime", {
+        get: function () {
+            return this['begin_time'];
+        },
+        set: function (beginTime) {
+            this['begin_time'] = beginTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    SyncExecutionNodeErrorDetail.prototype.withEndTime = function (endTime) {
+        this['end_time'] = endTime;
+        return this;
+    };
+    Object.defineProperty(SyncExecutionNodeErrorDetail.prototype, "endTime", {
+        get: function () {
+            return this['end_time'];
+        },
+        set: function (endTime) {
+            this['end_time'] = endTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return SyncExecutionNodeErrorDetail;
+}());
+exports.SyncExecutionNodeErrorDetail = SyncExecutionNodeErrorDetail;
+
+
+/***/ }),
+
+/***/ 5355:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TriggerTriggerTypeEnum = exports.Trigger = void 0;
+var Trigger = /** @class */ (function () {
+    function Trigger(triggerName, triggerType) {
+        this['trigger_name'] = triggerName;
+        this['trigger_type'] = triggerType;
+    }
+    Trigger.prototype.withTriggerName = function (triggerName) {
+        this['trigger_name'] = triggerName;
+        return this;
+    };
+    Object.defineProperty(Trigger.prototype, "triggerName", {
+        get: function () {
+            return this['trigger_name'];
+        },
+        set: function (triggerName) {
+            this['trigger_name'] = triggerName;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Trigger.prototype.withTriggerType = function (triggerType) {
+        this['trigger_type'] = triggerType;
+        return this;
+    };
+    Object.defineProperty(Trigger.prototype, "triggerType", {
+        get: function () {
+            return this['trigger_type'];
+        },
+        set: function (triggerType) {
+            this['trigger_type'] = triggerType;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Trigger.prototype.withEnabled = function (enabled) {
+        this['enabled'] = enabled;
+        return this;
+    };
+    Trigger.prototype.withTriggerConfig = function (triggerConfig) {
+        this['trigger_config'] = triggerConfig;
+        return this;
+    };
+    Object.defineProperty(Trigger.prototype, "triggerConfig", {
+        get: function () {
+            return this['trigger_config'];
+        },
+        set: function (triggerConfig) {
+            this['trigger_config'] = triggerConfig;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return Trigger;
+}());
+exports.Trigger = Trigger;
+/**
+    * @export
+    * @enum {string}
+    */
+var TriggerTriggerTypeEnum;
+(function (TriggerTriggerTypeEnum) {
+    TriggerTriggerTypeEnum["FLOWTIMER"] = "FLOWTIMER";
+    TriggerTriggerTypeEnum["OBS"] = "OBS";
+})(TriggerTriggerTypeEnum = exports.TriggerTriggerTypeEnum || (exports.TriggerTriggerTypeEnum = {}));
 
 
 /***/ }),
@@ -16701,13 +20939,13 @@ var UpdateDependencyRequestBodyRuntimeEnum;
     UpdateDependencyRequestBodyRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     UpdateDependencyRequestBodyRuntimeEnum["PYTHON2_7"] = "Python2.7";
     UpdateDependencyRequestBodyRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    UpdateDependencyRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
     UpdateDependencyRequestBodyRuntimeEnum["GO1_8"] = "Go1.8";
     UpdateDependencyRequestBodyRuntimeEnum["GO1_X"] = "Go1.x";
     UpdateDependencyRequestBodyRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     UpdateDependencyRequestBodyRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     UpdateDependencyRequestBodyRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     UpdateDependencyRequestBodyRuntimeEnum["PHP7_3"] = "PHP7.3";
+    UpdateDependencyRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(UpdateDependencyRequestBodyRuntimeEnum = exports.UpdateDependencyRequestBodyRuntimeEnum || (exports.UpdateDependencyRequestBodyRuntimeEnum = {}));
 
 
@@ -16734,7 +20972,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UpdateDependencyResponse = void 0;
+exports.UpdateDependencyResponseRuntimeEnum = exports.UpdateDependencyResponse = void 0;
 var SdkResponse_1 = __nccwpck_require__(9083);
 var UpdateDependencyResponse = /** @class */ (function (_super) {
     __extends(UpdateDependencyResponse, _super);
@@ -16790,6 +21028,29 @@ var UpdateDependencyResponse = /** @class */ (function (_super) {
     return UpdateDependencyResponse;
 }(SdkResponse_1.SdkResponse));
 exports.UpdateDependencyResponse = UpdateDependencyResponse;
+/**
+    * @export
+    * @enum {string}
+    */
+var UpdateDependencyResponseRuntimeEnum;
+(function (UpdateDependencyResponseRuntimeEnum) {
+    UpdateDependencyResponseRuntimeEnum["JAVA8"] = "Java8";
+    UpdateDependencyResponseRuntimeEnum["JAVA11"] = "Java11";
+    UpdateDependencyResponseRuntimeEnum["NODE_JS6_10"] = "Node.js6.10";
+    UpdateDependencyResponseRuntimeEnum["NODE_JS8_10"] = "Node.js8.10";
+    UpdateDependencyResponseRuntimeEnum["NODE_JS10_16"] = "Node.js10.16";
+    UpdateDependencyResponseRuntimeEnum["NODE_JS12_13"] = "Node.js12.13";
+    UpdateDependencyResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
+    UpdateDependencyResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
+    UpdateDependencyResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
+    UpdateDependencyResponseRuntimeEnum["GO1_8"] = "Go1.8";
+    UpdateDependencyResponseRuntimeEnum["GO1_X"] = "Go1.x";
+    UpdateDependencyResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
+    UpdateDependencyResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
+    UpdateDependencyResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
+    UpdateDependencyResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    UpdateDependencyResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
+})(UpdateDependencyResponseRuntimeEnum = exports.UpdateDependencyResponseRuntimeEnum || (exports.UpdateDependencyResponseRuntimeEnum = {}));
 
 
 /***/ }),
@@ -16853,7 +21114,8 @@ exports.UpdateEventRequest = UpdateEventRequest;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateEventRequestBody = void 0;
 var UpdateEventRequestBody = /** @class */ (function () {
-    function UpdateEventRequestBody() {
+    function UpdateEventRequestBody(content) {
+        this['content'] = content;
     }
     UpdateEventRequestBody.prototype.withContent = function (content) {
         this['content'] = content;
@@ -17015,6 +21277,20 @@ var UpdateFunctionAsyncInvokeConfigRequestBody = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    UpdateFunctionAsyncInvokeConfigRequestBody.prototype.withEnableAsyncStatusLog = function (enableAsyncStatusLog) {
+        this['enable_async_status_log'] = enableAsyncStatusLog;
+        return this;
+    };
+    Object.defineProperty(UpdateFunctionAsyncInvokeConfigRequestBody.prototype, "enableAsyncStatusLog", {
+        get: function () {
+            return this['enable_async_status_log'];
+        },
+        set: function (enableAsyncStatusLog) {
+            this['enable_async_status_log'] = enableAsyncStatusLog;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return UpdateFunctionAsyncInvokeConfigRequestBody;
 }());
 exports.UpdateFunctionAsyncInvokeConfigRequestBody = UpdateFunctionAsyncInvokeConfigRequestBody;
@@ -17130,6 +21406,20 @@ var UpdateFunctionAsyncInvokeConfigResponse = /** @class */ (function (_super) {
         },
         set: function (lastModified) {
             this['last_modified'] = lastModified;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateFunctionAsyncInvokeConfigResponse.prototype.withEnableAsyncStatusLog = function (enableAsyncStatusLog) {
+        this['enable_async_status_log'] = enableAsyncStatusLog;
+        return this;
+    };
+    Object.defineProperty(UpdateFunctionAsyncInvokeConfigResponse.prototype, "enableAsyncStatusLog", {
+        get: function () {
+            return this['enable_async_status_log'];
+        },
+        set: function (enableAsyncStatusLog) {
+            this['enable_async_status_log'] = enableAsyncStatusLog;
         },
         enumerable: false,
         configurable: true
@@ -17489,13 +21779,13 @@ var UpdateFunctionCodeResponseRuntimeEnum;
     UpdateFunctionCodeResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     UpdateFunctionCodeResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     UpdateFunctionCodeResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    UpdateFunctionCodeResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     UpdateFunctionCodeResponseRuntimeEnum["GO1_8"] = "Go1.8";
     UpdateFunctionCodeResponseRuntimeEnum["GO1_X"] = "Go1.x";
     UpdateFunctionCodeResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     UpdateFunctionCodeResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     UpdateFunctionCodeResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     UpdateFunctionCodeResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    UpdateFunctionCodeResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(UpdateFunctionCodeResponseRuntimeEnum = exports.UpdateFunctionCodeResponseRuntimeEnum || (exports.UpdateFunctionCodeResponseRuntimeEnum = {}));
 /**
     * @export
@@ -17613,6 +21903,20 @@ var UpdateFunctionConfigRequestBody = /** @class */ (function () {
         },
         set: function (userData) {
             this['user_data'] = userData;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateFunctionConfigRequestBody.prototype.withEncryptedUserData = function (encryptedUserData) {
+        this['encrypted_user_data'] = encryptedUserData;
+        return this;
+    };
+    Object.defineProperty(UpdateFunctionConfigRequestBody.prototype, "encryptedUserData", {
+        get: function () {
+            return this['encrypted_user_data'];
+        },
+        set: function (encryptedUserData) {
+            this['encrypted_user_data'] = encryptedUserData;
         },
         enumerable: false,
         configurable: true
@@ -17751,6 +22055,20 @@ var UpdateFunctionConfigRequestBody = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    UpdateFunctionConfigRequestBody.prototype.withDomainNames = function (domainNames) {
+        this['domain_names'] = domainNames;
+        return this;
+    };
+    Object.defineProperty(UpdateFunctionConfigRequestBody.prototype, "domainNames", {
+        get: function () {
+            return this['domain_names'];
+        },
+        set: function (domainNames) {
+            this['domain_names'] = domainNames;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return UpdateFunctionConfigRequestBody;
 }());
 exports.UpdateFunctionConfigRequestBody = UpdateFunctionConfigRequestBody;
@@ -17769,13 +22087,13 @@ var UpdateFunctionConfigRequestBodyRuntimeEnum;
     UpdateFunctionConfigRequestBodyRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     UpdateFunctionConfigRequestBodyRuntimeEnum["PYTHON2_7"] = "Python2.7";
     UpdateFunctionConfigRequestBodyRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    UpdateFunctionConfigRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
     UpdateFunctionConfigRequestBodyRuntimeEnum["GO1_8"] = "Go1.8";
     UpdateFunctionConfigRequestBodyRuntimeEnum["GO1_X"] = "Go1.x";
     UpdateFunctionConfigRequestBodyRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     UpdateFunctionConfigRequestBodyRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     UpdateFunctionConfigRequestBodyRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     UpdateFunctionConfigRequestBodyRuntimeEnum["PHP7_3"] = "PHP7.3";
+    UpdateFunctionConfigRequestBodyRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(UpdateFunctionConfigRequestBodyRuntimeEnum = exports.UpdateFunctionConfigRequestBodyRuntimeEnum || (exports.UpdateFunctionConfigRequestBodyRuntimeEnum = {}));
 
 
@@ -18217,6 +22535,20 @@ var UpdateFunctionConfigResponse = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    UpdateFunctionConfigResponse.prototype.withDomainNames = function (domainNames) {
+        this['domain_names'] = domainNames;
+        return this;
+    };
+    Object.defineProperty(UpdateFunctionConfigResponse.prototype, "domainNames", {
+        get: function () {
+            return this['domain_names'];
+        },
+        set: function (domainNames) {
+            this['domain_names'] = domainNames;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return UpdateFunctionConfigResponse;
 }(SdkResponse_1.SdkResponse));
 exports.UpdateFunctionConfigResponse = UpdateFunctionConfigResponse;
@@ -18235,13 +22567,13 @@ var UpdateFunctionConfigResponseRuntimeEnum;
     UpdateFunctionConfigResponseRuntimeEnum["NODE_JS14_18"] = "Node.js14.18";
     UpdateFunctionConfigResponseRuntimeEnum["PYTHON2_7"] = "Python2.7";
     UpdateFunctionConfigResponseRuntimeEnum["PYTHON3_6"] = "Python3.6";
-    UpdateFunctionConfigResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
     UpdateFunctionConfigResponseRuntimeEnum["GO1_8"] = "Go1.8";
     UpdateFunctionConfigResponseRuntimeEnum["GO1_X"] = "Go1.x";
     UpdateFunctionConfigResponseRuntimeEnum["C__NET_CORE_2_0"] = "C#(.NET Core 2.0)";
     UpdateFunctionConfigResponseRuntimeEnum["C__NET_CORE_2_1"] = "C#(.NET Core 2.1)";
     UpdateFunctionConfigResponseRuntimeEnum["C__NET_CORE_3_1"] = "C#(.NET Core 3.1)";
     UpdateFunctionConfigResponseRuntimeEnum["PHP7_3"] = "PHP7.3";
+    UpdateFunctionConfigResponseRuntimeEnum["PYTHON3_9"] = "Python3.9";
 })(UpdateFunctionConfigResponseRuntimeEnum = exports.UpdateFunctionConfigResponseRuntimeEnum || (exports.UpdateFunctionConfigResponseRuntimeEnum = {}));
 /**
     * @export
@@ -18819,6 +23151,241 @@ exports.UpdateVersionAliasResponse = UpdateVersionAliasResponse;
 
 /***/ }),
 
+/***/ 8235:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateWorkFlowRequest = void 0;
+var UpdateWorkFlowRequest = /** @class */ (function () {
+    function UpdateWorkFlowRequest(workflowId) {
+        this['workflow_id'] = workflowId;
+    }
+    UpdateWorkFlowRequest.prototype.withWorkflowId = function (workflowId) {
+        this['workflow_id'] = workflowId;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkFlowRequest.prototype, "workflowId", {
+        get: function () {
+            return this['workflow_id'];
+        },
+        set: function (workflowId) {
+            this['workflow_id'] = workflowId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateWorkFlowRequest.prototype.withBody = function (body) {
+        this['body'] = body;
+        return this;
+    };
+    return UpdateWorkFlowRequest;
+}());
+exports.UpdateWorkFlowRequest = UpdateWorkFlowRequest;
+
+
+/***/ }),
+
+/***/ 5959:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateWorkFlowResponse = void 0;
+var SdkResponse_1 = __nccwpck_require__(9083);
+var UpdateWorkFlowResponse = /** @class */ (function (_super) {
+    __extends(UpdateWorkFlowResponse, _super);
+    function UpdateWorkFlowResponse() {
+        return _super.call(this) || this;
+    }
+    UpdateWorkFlowResponse.prototype.withId = function (id) {
+        this['id'] = id;
+        return this;
+    };
+    UpdateWorkFlowResponse.prototype.withWorkflowUrn = function (workflowUrn) {
+        this['workflow_urn'] = workflowUrn;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkFlowResponse.prototype, "workflowUrn", {
+        get: function () {
+            return this['workflow_urn'];
+        },
+        set: function (workflowUrn) {
+            this['workflow_urn'] = workflowUrn;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateWorkFlowResponse.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    UpdateWorkFlowResponse.prototype.withDescription = function (description) {
+        this['description'] = description;
+        return this;
+    };
+    UpdateWorkFlowResponse.prototype.withCreatedTime = function (createdTime) {
+        this['created_time'] = createdTime;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkFlowResponse.prototype, "createdTime", {
+        get: function () {
+            return this['created_time'];
+        },
+        set: function (createdTime) {
+            this['created_time'] = createdTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateWorkFlowResponse.prototype.withUpdatedTime = function (updatedTime) {
+        this['updated_time'] = updatedTime;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkFlowResponse.prototype, "updatedTime", {
+        get: function () {
+            return this['updated_time'];
+        },
+        set: function (updatedTime) {
+            this['updated_time'] = updatedTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateWorkFlowResponse.prototype.withCreatedBy = function (createdBy) {
+        this['created_by'] = createdBy;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkFlowResponse.prototype, "createdBy", {
+        get: function () {
+            return this['created_by'];
+        },
+        set: function (createdBy) {
+            this['created_by'] = createdBy;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return UpdateWorkFlowResponse;
+}(SdkResponse_1.SdkResponse));
+exports.UpdateWorkFlowResponse = UpdateWorkFlowResponse;
+
+
+/***/ }),
+
+/***/ 198:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateWorkflowRequestBodyModeEnum = exports.UpdateWorkflowRequestBody = void 0;
+var UpdateWorkflowRequestBody = /** @class */ (function () {
+    function UpdateWorkflowRequestBody(name, start, functions, states, constants, retries) {
+        this['name'] = name;
+        this['start'] = start;
+        this['functions'] = functions;
+        this['states'] = states;
+        this['constants'] = constants;
+        this['retries'] = retries;
+    }
+    UpdateWorkflowRequestBody.prototype.withName = function (name) {
+        this['name'] = name;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withDescription = function (description) {
+        this['description'] = description;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withTriggers = function (triggers) {
+        this['triggers'] = triggers;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withStart = function (start) {
+        this['start'] = start;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withFunctions = function (functions) {
+        this['functions'] = functions;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withStates = function (states) {
+        this['states'] = states;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withConstants = function (constants) {
+        this['constants'] = constants;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withRetries = function (retries) {
+        this['retries'] = retries;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withMode = function (mode) {
+        this['mode'] = mode;
+        return this;
+    };
+    UpdateWorkflowRequestBody.prototype.withExpressConfig = function (expressConfig) {
+        this['express_config'] = expressConfig;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkflowRequestBody.prototype, "expressConfig", {
+        get: function () {
+            return this['express_config'];
+        },
+        set: function (expressConfig) {
+            this['express_config'] = expressConfig;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UpdateWorkflowRequestBody.prototype.withEnterpriseProjectId = function (enterpriseProjectId) {
+        this['enterprise_project_id'] = enterpriseProjectId;
+        return this;
+    };
+    Object.defineProperty(UpdateWorkflowRequestBody.prototype, "enterpriseProjectId", {
+        get: function () {
+            return this['enterprise_project_id'];
+        },
+        set: function (enterpriseProjectId) {
+            this['enterprise_project_id'] = enterpriseProjectId;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return UpdateWorkflowRequestBody;
+}());
+exports.UpdateWorkflowRequestBody = UpdateWorkflowRequestBody;
+/**
+    * @export
+    * @enum {string}
+    */
+var UpdateWorkflowRequestBodyModeEnum;
+(function (UpdateWorkflowRequestBodyModeEnum) {
+    UpdateWorkflowRequestBodyModeEnum["NORMAL"] = "NORMAL";
+    UpdateWorkflowRequestBodyModeEnum["EXPRESS"] = "EXPRESS";
+})(UpdateWorkflowRequestBodyModeEnum = exports.UpdateWorkflowRequestBodyModeEnum || (exports.UpdateWorkflowRequestBodyModeEnum = {}));
+
+
+/***/ }),
+
 /***/ 3088:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -18840,12 +23407,19 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(7877), exports);
+__exportStar(__nccwpck_require__(7731), exports);
 __exportStar(__nccwpck_require__(1875), exports);
 __exportStar(__nccwpck_require__(4242), exports);
 __exportStar(__nccwpck_require__(7920), exports);
 __exportStar(__nccwpck_require__(7906), exports);
 __exportStar(__nccwpck_require__(7969), exports);
 __exportStar(__nccwpck_require__(5768), exports);
+__exportStar(__nccwpck_require__(1384), exports);
+__exportStar(__nccwpck_require__(8509), exports);
+__exportStar(__nccwpck_require__(6868), exports);
+__exportStar(__nccwpck_require__(7692), exports);
+__exportStar(__nccwpck_require__(2741), exports);
+__exportStar(__nccwpck_require__(1989), exports);
 __exportStar(__nccwpck_require__(1909), exports);
 __exportStar(__nccwpck_require__(9480), exports);
 __exportStar(__nccwpck_require__(7571), exports);
@@ -18864,6 +23438,9 @@ __exportStar(__nccwpck_require__(8077), exports);
 __exportStar(__nccwpck_require__(8966), exports);
 __exportStar(__nccwpck_require__(9212), exports);
 __exportStar(__nccwpck_require__(9010), exports);
+__exportStar(__nccwpck_require__(9810), exports);
+__exportStar(__nccwpck_require__(3648), exports);
+__exportStar(__nccwpck_require__(4450), exports);
 __exportStar(__nccwpck_require__(5761), exports);
 __exportStar(__nccwpck_require__(5377), exports);
 __exportStar(__nccwpck_require__(1745), exports);
@@ -18881,12 +23458,15 @@ __exportStar(__nccwpck_require__(5732), exports);
 __exportStar(__nccwpck_require__(9428), exports);
 __exportStar(__nccwpck_require__(3611), exports);
 __exportStar(__nccwpck_require__(8878), exports);
+__exportStar(__nccwpck_require__(3052), exports);
 __exportStar(__nccwpck_require__(7266), exports);
 __exportStar(__nccwpck_require__(6598), exports);
 __exportStar(__nccwpck_require__(4143), exports);
 __exportStar(__nccwpck_require__(9118), exports);
 __exportStar(__nccwpck_require__(1225), exports);
+__exportStar(__nccwpck_require__(5315), exports);
 __exportStar(__nccwpck_require__(3830), exports);
+__exportStar(__nccwpck_require__(2399), exports);
 __exportStar(__nccwpck_require__(579), exports);
 __exportStar(__nccwpck_require__(2290), exports);
 __exportStar(__nccwpck_require__(2055), exports);
@@ -18924,11 +23504,26 @@ __exportStar(__nccwpck_require__(6934), exports);
 __exportStar(__nccwpck_require__(3743), exports);
 __exportStar(__nccwpck_require__(6382), exports);
 __exportStar(__nccwpck_require__(5993), exports);
+__exportStar(__nccwpck_require__(9081), exports);
+__exportStar(__nccwpck_require__(1848), exports);
+__exportStar(__nccwpck_require__(6627), exports);
+__exportStar(__nccwpck_require__(2224), exports);
+__exportStar(__nccwpck_require__(4053), exports);
+__exportStar(__nccwpck_require__(2746), exports);
 __exportStar(__nccwpck_require__(6629), exports);
 __exportStar(__nccwpck_require__(9420), exports);
 __exportStar(__nccwpck_require__(2458), exports);
+__exportStar(__nccwpck_require__(5661), exports);
+__exportStar(__nccwpck_require__(5444), exports);
+__exportStar(__nccwpck_require__(2687), exports);
+__exportStar(__nccwpck_require__(3432), exports);
+__exportStar(__nccwpck_require__(5012), exports);
+__exportStar(__nccwpck_require__(1454), exports);
 __exportStar(__nccwpck_require__(2001), exports);
 __exportStar(__nccwpck_require__(7221), exports);
+__exportStar(__nccwpck_require__(5235), exports);
+__exportStar(__nccwpck_require__(4097), exports);
+__exportStar(__nccwpck_require__(6672), exports);
 __exportStar(__nccwpck_require__(3992), exports);
 __exportStar(__nccwpck_require__(7100), exports);
 __exportStar(__nccwpck_require__(3155), exports);
@@ -18943,12 +23538,31 @@ __exportStar(__nccwpck_require__(6953), exports);
 __exportStar(__nccwpck_require__(5180), exports);
 __exportStar(__nccwpck_require__(1277), exports);
 __exportStar(__nccwpck_require__(687), exports);
+__exportStar(__nccwpck_require__(6307), exports);
+__exportStar(__nccwpck_require__(9799), exports);
 __exportStar(__nccwpck_require__(3147), exports);
 __exportStar(__nccwpck_require__(3461), exports);
 __exportStar(__nccwpck_require__(9833), exports);
 __exportStar(__nccwpck_require__(9448), exports);
+__exportStar(__nccwpck_require__(2910), exports);
+__exportStar(__nccwpck_require__(3639), exports);
+__exportStar(__nccwpck_require__(1105), exports);
+__exportStar(__nccwpck_require__(5212), exports);
+__exportStar(__nccwpck_require__(5374), exports);
+__exportStar(__nccwpck_require__(810), exports);
 __exportStar(__nccwpck_require__(424), exports);
+__exportStar(__nccwpck_require__(4404), exports);
+__exportStar(__nccwpck_require__(3072), exports);
+__exportStar(__nccwpck_require__(8892), exports);
+__exportStar(__nccwpck_require__(1831), exports);
+__exportStar(__nccwpck_require__(3020), exports);
+__exportStar(__nccwpck_require__(8356), exports);
+__exportStar(__nccwpck_require__(7253), exports);
+__exportStar(__nccwpck_require__(8029), exports);
+__exportStar(__nccwpck_require__(5322), exports);
 __exportStar(__nccwpck_require__(8913), exports);
+__exportStar(__nccwpck_require__(4557), exports);
+__exportStar(__nccwpck_require__(5355), exports);
 __exportStar(__nccwpck_require__(7370), exports);
 __exportStar(__nccwpck_require__(9139), exports);
 __exportStar(__nccwpck_require__(8943), exports);
@@ -18976,6 +23590,10 @@ __exportStar(__nccwpck_require__(2648), exports);
 __exportStar(__nccwpck_require__(4616), exports);
 __exportStar(__nccwpck_require__(5390), exports);
 __exportStar(__nccwpck_require__(6685), exports);
+__exportStar(__nccwpck_require__(8235), exports);
+__exportStar(__nccwpck_require__(5959), exports);
+__exportStar(__nccwpck_require__(198), exports);
+__exportStar(__nccwpck_require__(7625), exports);
 
 
 /***/ }),
@@ -43971,11 +48589,17 @@ class LoggingEvent {
       // duck-typing for Error object
       if (value && value.message && value.stack) {
         // eslint-disable-next-line prefer-object-spread
-        value = Object.assign({message: value.message, stack: value.stack}, value);
+        value = Object.assign(
+          { message: value.message, stack: value.stack },
+          value
+        );
       }
       // JSON.stringify({a: parseInt('abc'), b: 1/0, c: -1/0}) returns {a: null, b: null, c: null}.
       // The following allows us to serialize to NaN, Infinity and -Infinity correctly.
-      else if (typeof value === 'number' && (Number.isNaN(value) || !Number.isFinite(value))) {
+      else if (
+        typeof value === 'number' &&
+        (Number.isNaN(value) || !Number.isFinite(value))
+      ) {
         value = value.toString();
       }
       // JSON.stringify([undefined]) returns [null].
@@ -43993,7 +48617,9 @@ class LoggingEvent {
       const rehydratedEvent = flatted.parse(serialised, (key, value) => {
         if (value && value.message && value.stack) {
           const fakeError = new Error(value);
-          Object.keys(value).forEach((k) => { fakeError[k] = value[k]; });
+          Object.keys(value).forEach((k) => {
+            fakeError[k] = value[k];
+          });
           value = fakeError;
         }
         return value;
@@ -44003,7 +48629,7 @@ class LoggingEvent {
         fileName: rehydratedEvent.fileName,
         lineNumber: rehydratedEvent.lineNumber,
         columnNumber: rehydratedEvent.columnNumber,
-        callStack: rehydratedEvent.callStack
+        callStack: rehydratedEvent.callStack,
       };
       event = new LoggingEvent(
         rehydratedEvent.categoryName,
@@ -44016,11 +48642,12 @@ class LoggingEvent {
       event.pid = rehydratedEvent.pid;
       event.cluster = rehydratedEvent.cluster;
     } catch (e) {
-      event = new LoggingEvent(
-        'log4js',
-        levels.ERROR,
-        ['Unable to parse log:', serialised, 'because: ', e]
-      );
+      event = new LoggingEvent('log4js', levels.ERROR, [
+        'Unable to parse log:',
+        serialised,
+        'because: ',
+        e,
+      ]);
     }
 
     return event;
@@ -44068,7 +48695,7 @@ function adapter(configAdapter, config) {
 
 function fileAppenderAdapter(config) {
   const configAdapter = {
-    maxLogSize: maxFileSizeUnitTransform
+    maxLogSize: maxFileSizeUnitTransform,
   };
   return adapter(configAdapter, config);
 }
@@ -44076,10 +48703,11 @@ function fileAppenderAdapter(config) {
 const adapters = {
   dateFile: fileAppenderAdapter,
   file: fileAppenderAdapter,
-  fileSync: fileAppenderAdapter
+  fileSync: fileAppenderAdapter,
 };
 
-module.exports.modifyConfig = config => (adapters[config.type] ? adapters[config.type](config) : config);
+module.exports.modifyConfig = (config) =>
+  adapters[config.type] ? adapters[config.type](config) : config;
 
 
 /***/ }),
@@ -44144,17 +48772,17 @@ const os = __nccwpck_require__(2087);
 const eol = os.EOL;
 
 function openTheStream(filename, pattern, options) {
-  const stream = new streams.DateRollingFileStream(
-    filename,
-    pattern,
-    options
-  );
+  const stream = new streams.DateRollingFileStream(filename, pattern, options);
   stream.on('error', (err) => {
     // eslint-disable-next-line no-console
-    console.error('log4js.dateFileAppender - Writing to file %s, error happened ', filename, err);
+    console.error(
+      'log4js.dateFileAppender - Writing to file %s, error happened ',
+      filename,
+      err
+    );
   });
-  stream.on("drain", () => {
-    process.emit("log4js:pause", false);
+  stream.on('drain', () => {
+    process.emit('log4js:pause', false);
   });
   return stream;
 }
@@ -44168,13 +48796,7 @@ function openTheStream(filename, pattern, options) {
  * @param options - options to be passed to the underlying stream
  * @param timezoneOffset - optional timezone offset in minutes (default system local)
  */
-function appender(
-  filename,
-  pattern,
-  layout,
-  options,
-  timezoneOffset
-) {
+function appender(filename, pattern, layout, options, timezoneOffset) {
   // the options for file appender use maxLogSize, but the docs say any file appender
   // options should work for dateFile as well.
   options.maxSize = options.maxLogSize;
@@ -44185,8 +48807,8 @@ function appender(
     if (!writer.writable) {
       return;
     }
-    if (!writer.write(layout(logEvent, timezoneOffset) + eol, "utf8")) {
-      process.emit("log4js:pause", true);
+    if (!writer.write(layout(logEvent, timezoneOffset) + eol, 'utf8')) {
+      process.emit('log4js:pause', true);
     }
   };
 
@@ -44255,8 +48877,15 @@ function mainSighupHandler() {
  * @param options - options to be passed to the underlying stream
  * @param timezoneOffset - optional timezone offset in minutes (default system local)
  */
-function fileAppender(file, layout, logSize, numBackups, options, timezoneOffset) {
-  if (typeof file !== "string" || file.length === 0) {
+function fileAppender(
+  file,
+  layout,
+  logSize,
+  numBackups,
+  options,
+  timezoneOffset
+) {
+  if (typeof file !== 'string' || file.length === 0) {
     throw new Error(`Invalid filename: ${file}`);
   } else if (file.endsWith(path.sep)) {
     throw new Error(`Filename is a directory: ${file}`);
@@ -44266,15 +48895,20 @@ function fileAppender(file, layout, logSize, numBackups, options, timezoneOffset
     file = file.replace(new RegExp(`^~(?=${path.sep}.+)`), os.homedir());
   }
   file = path.normalize(file);
-  numBackups = (!numBackups && numBackups !== 0) ? 5 : numBackups;
+  numBackups = !numBackups && numBackups !== 0 ? 5 : numBackups;
 
   debug(
     'Creating file appender (',
-    file, ', ',
-    logSize, ', ',
-    numBackups, ', ',
-    options, ', ',
-    timezoneOffset, ')'
+    file,
+    ', ',
+    logSize,
+    ', ',
+    numBackups,
+    ', ',
+    options,
+    ', ',
+    timezoneOffset,
+    ')'
   );
 
   function openTheStream(filePath, fileSize, numFiles, opt) {
@@ -44286,10 +48920,14 @@ function fileAppender(file, layout, logSize, numBackups, options, timezoneOffset
     );
     stream.on('error', (err) => {
       // eslint-disable-next-line no-console
-      console.error('log4js.fileAppender - Writing to file %s, error happened ', filePath, err);
+      console.error(
+        'log4js.fileAppender - Writing to file %s, error happened ',
+        filePath,
+        err
+      );
     });
     stream.on('drain', () => {
-      process.emit("log4js:pause", false);
+      process.emit('log4js:pause', false);
     });
     return stream;
   }
@@ -44303,18 +48941,20 @@ function fileAppender(file, layout, logSize, numBackups, options, timezoneOffset
     if (options.removeColor === true) {
       // eslint-disable-next-line no-control-regex
       const regex = /\x1b[[0-9;]*m/g;
-      loggingEvent.data = loggingEvent.data.map(d => {
+      loggingEvent.data = loggingEvent.data.map((d) => {
         if (typeof d === 'string') return d.replace(regex, '');
         return d;
       });
     }
-    if (!writer.write(layout(loggingEvent, timezoneOffset) + eol, "utf8")) {
+    if (!writer.write(layout(loggingEvent, timezoneOffset) + eol, 'utf8')) {
       process.emit('log4js:pause', true);
     }
   };
 
   app.reopen = function () {
-    writer.end(() => { writer = openTheStream(file, logSize, numBackups, options); });
+    writer.end(() => {
+      writer = openTheStream(file, logSize, numBackups, options);
+    });
   };
 
   app.sighupHandler = function () {
@@ -44382,9 +49022,8 @@ function touchFile(file, options) {
   const mkdir = (dir) => {
     try {
       return fs.mkdirSync(dir, { recursive: true });
-    }
-    // backward-compatible fs.mkdirSync for nodejs pre-10.12.0 (without recursive option)
-    catch (e) {
+    } catch (e) {
+      // backward-compatible fs.mkdirSync for nodejs pre-10.12.0 (without recursive option)
       // recursive creation of parent first
       if (e.code === 'ENOENT') {
         mkdir(path.dirname(dir));
@@ -44413,7 +49052,7 @@ function touchFile(file, options) {
   mkdir(path.dirname(file));
 
   // try to throw EISDIR, EROFS, EACCES
-  fs.appendFileSync(file, "", { mode: options.mode, flag: options.flags });
+  fs.appendFileSync(file, '', { mode: options.mode, flag: options.flags });
 }
 
 class RollingFileSync {
@@ -44446,7 +49085,11 @@ class RollingFileSync {
   }
 
   shouldRoll() {
-    debug('should roll with current size %d, and max size %d', this.currentSize, this.size);
+    debug(
+      'should roll with current size %d, and max size %d',
+      this.currentSize,
+      this.size
+    );
     return this.currentSize >= this.size;
   }
 
@@ -44459,7 +49102,9 @@ class RollingFileSync {
     }
 
     function index(filename_) {
-      return parseInt(filename_.slice((`${path.basename(filename)}.`).length), 10) || 0;
+      return (
+        parseInt(filename_.slice(`${path.basename(filename)}.`.length), 10) || 0
+      );
     }
 
     function byIndex(a, b) {
@@ -44481,7 +49126,10 @@ class RollingFileSync {
         }
 
         debug(`Renaming ${fileToRename} -> ${filename}.${idx + 1}`);
-        fs.renameSync(path.join(path.dirname(filename), fileToRename), `${filename}.${idx + 1}`);
+        fs.renameSync(
+          path.join(path.dirname(filename), fileToRename),
+          `${filename}.${idx + 1}`
+        );
       }
     }
 
@@ -44490,7 +49138,11 @@ class RollingFileSync {
       debug('Renaming the old files');
 
       const files = fs.readdirSync(path.dirname(filename));
-      files.filter(justTheseFiles).sort(byIndex).reverse().forEach(increaseFileIndex);
+      files
+        .filter(justTheseFiles)
+        .sort(byIndex)
+        .reverse()
+        .forEach(increaseFileIndex);
     }
 
     debug('Rolling, rolling, rolling');
@@ -44501,7 +49153,6 @@ class RollingFileSync {
   write(chunk, encoding) {
     const that = this;
 
-
     function writeTheChunk() {
       debug('writing the chunk to the file');
       that.currentSize += chunk.length;
@@ -44509,7 +49160,6 @@ class RollingFileSync {
     }
 
     debug('in write');
-
 
     if (this.shouldRoll()) {
       this.currentSize = 0;
@@ -44533,8 +49183,15 @@ class RollingFileSync {
  * @param options - options to be passed to the underlying stream
  * @param timezoneOffset - optional timezone offset in minutes (default system local)
  */
-function fileAppender(file, layout, logSize, numBackups, options, timezoneOffset) {
-  if (typeof file !== "string" || file.length === 0) {
+function fileAppender(
+  file,
+  layout,
+  logSize,
+  numBackups,
+  options,
+  timezoneOffset
+) {
+  if (typeof file !== 'string' || file.length === 0) {
     throw new Error(`Invalid filename: ${file}`);
   } else if (file.endsWith(path.sep)) {
     throw new Error(`Filename is a directory: ${file}`);
@@ -44544,38 +49201,38 @@ function fileAppender(file, layout, logSize, numBackups, options, timezoneOffset
     file = file.replace(new RegExp(`^~(?=${path.sep}.+)`), os.homedir());
   }
   file = path.normalize(file);
-  numBackups = (!numBackups && numBackups !== 0) ? 5 : numBackups;
+  numBackups = !numBackups && numBackups !== 0 ? 5 : numBackups;
 
   debug(
     'Creating fileSync appender (',
-    file, ', ',
-    logSize, ', ',
-    numBackups, ', ',
-    options, ', ',
-    timezoneOffset, ')'
+    file,
+    ', ',
+    logSize,
+    ', ',
+    numBackups,
+    ', ',
+    options,
+    ', ',
+    timezoneOffset,
+    ')'
   );
 
   function openTheStream(filePath, fileSize, numFiles) {
     let stream;
 
     if (fileSize) {
-      stream = new RollingFileSync(
-        filePath,
-        fileSize,
-        numFiles,
-        options
-      );
+      stream = new RollingFileSync(filePath, fileSize, numFiles, options);
     } else {
-      stream = (((f) => {
+      stream = ((f) => {
         // touch the file to apply flags (like w to truncate the file)
         touchFile(f, options);
 
         return {
           write(data) {
             fs.appendFileSync(f, data);
-          }
+          },
         };
-      }))(filePath);
+      })(filePath);
     }
 
     return stream;
@@ -44597,7 +49254,7 @@ function configure(config, layouts) {
   const options = {
     flags: config.flags || 'a',
     encoding: config.encoding || 'utf8',
-    mode: config.mode || 0o600
+    mode: config.mode || 0o600,
   };
 
   return fileAppender(
@@ -44642,10 +49299,18 @@ coreAppenders.set('tcp', __nccwpck_require__(2957));
 const appenders = new Map();
 
 const tryLoading = (modulePath, config) => {
-  debug('Loading module from ', modulePath);
+  let resolvedPath;
+  try {
+    const modulePathCJS = `${modulePath}.cjs`;
+    resolvedPath = require.resolve(modulePathCJS);
+    debug('Loading module from ', modulePathCJS);
+  } catch (e) {
+    resolvedPath = modulePath;
+    debug('Loading module from ', modulePath);
+  }
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
-    return require(modulePath);
+    return require(resolvedPath);
   } catch (e) {
     // if the module was found, and we still got an error, then raise it
     configuration.throwExceptionIf(
@@ -44657,18 +49322,22 @@ const tryLoading = (modulePath, config) => {
   }
 };
 
-const loadAppenderModule = (type, config) => coreAppenders.get(type)
-  || tryLoading(`./${type}`, config)
-  || tryLoading(type, config)
-  || (require.main && require.main.filename && tryLoading(path.join(path.dirname(require.main.filename), type), config))
-  || tryLoading(path.join(process.cwd(), type), config);
+const loadAppenderModule = (type, config) =>
+  coreAppenders.get(type) ||
+  tryLoading(`./${type}`, config) ||
+  tryLoading(type, config) ||
+  (require.main &&
+    require.main.filename &&
+    tryLoading(path.join(path.dirname(require.main.filename), type), config)) ||
+  tryLoading(path.join(process.cwd(), type), config);
 
 const appendersLoading = new Set();
 
 const getAppender = (name, config) => {
   if (appenders.has(name)) return appenders.get(name);
   if (!config.appenders[name]) return false;
-  if (appendersLoading.has(name)) throw new Error(`Dependency loop detected for appender ${name}.`);
+  if (appendersLoading.has(name))
+    throw new Error(`Dependency loop detected for appender ${name}.`);
   appendersLoading.add(name);
 
   debug(`Creating appender ${name}`);
@@ -44682,7 +49351,8 @@ const getAppender = (name, config) => {
 const createAppender = (name, config) => {
   const appenderConfig = config.appenders[name];
   const appenderModule = appenderConfig.type.configure
-    ? appenderConfig.type : loadAppenderModule(appenderConfig.type, config);
+    ? appenderConfig.type
+    : loadAppenderModule(appenderConfig.type, config);
   configuration.throwExceptionIf(
     config,
     configuration.not(appenderModule),
@@ -44691,31 +49361,45 @@ const createAppender = (name, config) => {
   if (appenderModule.appender) {
     process.emitWarning(
       `Appender ${appenderConfig.type} exports an appender function.`,
-      "DeprecationWarning", "log4js-node-DEP0001"
+      'DeprecationWarning',
+      'log4js-node-DEP0001'
     );
-    debug("[log4js-node-DEP0001]",
-      `DEPRECATION: Appender ${appenderConfig.type} exports an appender function.`);
+    debug(
+      '[log4js-node-DEP0001]',
+      `DEPRECATION: Appender ${appenderConfig.type} exports an appender function.`
+    );
   }
   if (appenderModule.shutdown) {
     process.emitWarning(
       `Appender ${appenderConfig.type} exports a shutdown function.`,
-      "DeprecationWarning", "log4js-node-DEP0002"
+      'DeprecationWarning',
+      'log4js-node-DEP0002'
     );
-    debug("[log4js-node-DEP0002]",
-      `DEPRECATION: Appender ${appenderConfig.type} exports a shutdown function.`);
+    debug(
+      '[log4js-node-DEP0002]',
+      `DEPRECATION: Appender ${appenderConfig.type} exports a shutdown function.`
+    );
   }
 
   debug(`${name}: clustering.isMaster ? ${clustering.isMaster()}`);
-  debug(`${name}: appenderModule is ${__nccwpck_require__(1669).inspect(appenderModule)}`); // eslint-disable-line global-require
-  return clustering.onlyOnMaster(() => {
-    debug(`calling appenderModule.configure for ${name} / ${appenderConfig.type}`);
-    return appenderModule.configure(
-      adapters.modifyConfig(appenderConfig),
-      layouts,
-      appender => getAppender(appender, config),
-      levels
-    );
-  }, /* istanbul ignore next: fn never gets called by non-master yet needed to pass config validation */ () => {});
+  debug(
+    // eslint-disable-next-line global-require
+    `${name}: appenderModule is ${__nccwpck_require__(1669).inspect(appenderModule)}`
+  );
+  return clustering.onlyOnMaster(
+    () => {
+      debug(
+        `calling appenderModule.configure for ${name} / ${appenderConfig.type}`
+      );
+      return appenderModule.configure(
+        adapters.modifyConfig(appenderConfig),
+        layouts,
+        (appender) => getAppender(appender, config),
+        levels
+      );
+    },
+    /* istanbul ignore next: fn never gets called by non-master yet needed to pass config validation */ () => {}
+  );
 };
 
 const setup = (config) => {
@@ -44726,14 +49410,17 @@ const setup = (config) => {
   }
 
   const usedAppenders = [];
-  Object.values(config.categories).forEach(category => {
+  Object.values(config.categories).forEach((category) => {
     usedAppenders.push(...category.appenders);
   });
   Object.keys(config.appenders).forEach((name) => {
     // dodgy hard-coding of special case for tcp-server and multiprocess which may not have
     // any categories associated with it, but needs to be started up anyway
-    if (usedAppenders.includes(name) || config.appenders[name].type === 'tcp-server' 
-            || config.appenders[name].type === 'multiprocess') {
+    if (
+      usedAppenders.includes(name) ||
+      config.appenders[name].type === 'tcp-server' ||
+      config.appenders[name].type === 'multiprocess'
+    ) {
       getAppender(name, config);
     }
   });
@@ -44782,7 +49469,10 @@ function logLevelFilter(minLevelString, maxLevelString, appender, levels) {
   const maxLevel = levels.getLevel(maxLevelString, levels.FATAL);
   return (logEvent) => {
     const eventLevel = logEvent.level;
-    if (minLevel.isLessThanOrEqualTo(eventLevel) && maxLevel.isGreaterThanOrEqualTo(eventLevel)) {
+    if (
+      minLevel.isLessThanOrEqualTo(eventLevel) &&
+      maxLevel.isGreaterThanOrEqualTo(eventLevel)
+    ) {
       appender(logEvent);
     }
   };
@@ -44801,8 +49491,6 @@ module.exports.configure = configure;
 /***/ 3164:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-
-
 const debug = __nccwpck_require__(8237)('log4js:noLogFilter');
 
 /**
@@ -44811,7 +49499,7 @@ const debug = __nccwpck_require__(8237)('log4js:noLogFilter');
  * @returns {string[]} a filtered string array with not empty or null regexp
  */
 function removeNullOrEmptyRegexp(regexp) {
-  const filtered = regexp.filter(el => ((el != null) && (el !== '')));
+  const filtered = regexp.filter((el) => el != null && el !== '');
   return filtered;
 }
 
@@ -44830,8 +49518,10 @@ function noLogFilter(filters, appender) {
     }
     filters = removeNullOrEmptyRegexp(filters);
     const regex = new RegExp(filters.join('|'), 'i');
-    if (filters.length === 0
-      || logEvent.data.findIndex(value => regex.test(value)) < 0) {
+    if (
+      filters.length === 0 ||
+      logEvent.data.findIndex((value) => regex.test(value)) < 0
+    ) {
       debug('Not excluded, sending to appender');
       appender(logEvent);
     }
@@ -44851,15 +49541,15 @@ module.exports.configure = configure;
 /***/ 578:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-
-
 const debug = __nccwpck_require__(8237)('log4js:recording');
 
 const recordedEvents = [];
 
 function configure() {
   return function (logEvent) {
-    debug(`received logEvent, number of events now ${recordedEvents.length + 1}`);
+    debug(
+      `received logEvent, number of events now ${recordedEvents.length + 1}`
+    );
     debug('log event was ', logEvent);
     recordedEvents.push(logEvent);
   };
@@ -44878,7 +49568,7 @@ module.exports = {
   replay,
   playback: replay,
   reset,
-  erase: reset
+  erase: reset,
 };
 
 
@@ -44886,8 +49576,6 @@ module.exports = {
 
 /***/ 6451:
 /***/ ((module) => {
-
-
 
 function stderrAppender(layout, timezoneOffset) {
   return (loggingEvent) => {
@@ -44911,8 +49599,6 @@ module.exports.configure = configure;
 /***/ 9601:
 /***/ ((__unused_webpack_module, exports) => {
 
-
-
 function stdoutAppender(layout, timezoneOffset) {
   return (loggingEvent) => {
     process.stdout.write(`${layout(loggingEvent, timezoneOffset)}\n`);
@@ -44934,8 +49620,6 @@ exports.configure = configure;
 
 /***/ 2957:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
 
 const debug = __nccwpck_require__(8237)('log4js:tcp');
 const net = __nccwpck_require__(1631);
@@ -44961,9 +49645,16 @@ function appender(config, layout) {
   }
 
   function createSocket() {
-    debug(`appender creating socket to ${config.host || 'localhost'}:${config.port || 5000}`);
+    debug(
+      `appender creating socket to ${config.host || 'localhost'}:${
+        config.port || 5000
+      }`
+    );
     endMsg = `${config.endMsg || '__LOG4JS__'}`;
-    socket = net.createConnection(config.port || 5000, config.host || 'localhost');
+    socket = net.createConnection(
+      config.port || 5000,
+      config.host || 'localhost'
+    );
     socket.on('connect', () => {
       debug('socket connected');
       emptyBuffer();
@@ -45053,7 +49744,6 @@ function inheritFromParent(config, category, categoryName) {
   const parentCategoryName = categoryName.slice(0, lastDotIndex);
   let parentCategory = config.categories[parentCategoryName];
 
-
   if (!parentCategory) {
     // parent is missing, so implicitly create it, so that it can inherit from its parents
     parentCategory = { inherit: true, appenders: [] };
@@ -45064,10 +49754,12 @@ function inheritFromParent(config, category, categoryName) {
 
   // if the parent is not in the config (because we just created it above),
   // and it inherited a valid configuration, add it to config.categories
-  if (!config.categories[parentCategoryName]
-    && parentCategory.appenders
-    && parentCategory.appenders.length
-    && parentCategory.level) {
+  if (
+    !config.categories[parentCategoryName] &&
+    parentCategory.appenders &&
+    parentCategory.appenders.length &&
+    parentCategory.level
+  ) {
     config.categories[parentCategoryName] = parentCategory;
   }
 
@@ -45082,7 +49774,6 @@ function inheritFromParent(config, category, categoryName) {
   });
   category.parent = parentCategory;
 }
-
 
 /**
  * Walk all categories in the config, and pull down any configuration from parent to child.
@@ -45100,7 +49791,9 @@ function addCategoryInheritance(config) {
   });
 }
 
-configuration.addPreProcessingListener(config => addCategoryInheritance(config));
+configuration.addPreProcessingListener((config) =>
+  addCategoryInheritance(config)
+);
 
 configuration.addListener((config) => {
   configuration.throwExceptionIf(
@@ -45122,7 +49815,7 @@ configuration.addListener((config) => {
       config,
       [
         configuration.not(category.appenders),
-        configuration.not(category.level)
+        configuration.not(category.level),
       ],
       `category "${name}" is not valid (must be an object with properties "appenders" and "level")`
     );
@@ -45158,8 +49851,8 @@ configuration.addListener((config) => {
     configuration.throwExceptionIf(
       config,
       configuration.not(levels.getLevel(category.level)),
-      `category "${name}" is not valid (level "${category.level}" not recognised;`
-      + ` valid levels are ${levels.levels.join(', ')})`
+      `category "${name}" is not valid (level "${category.level}" not recognised;` +
+        ` valid levels are ${levels.levels.join(', ')})`
     );
   });
 
@@ -45183,14 +49876,11 @@ const setup = (config) => {
     category.appenders.forEach((appender) => {
       categoryAppenders.push(appenders.get(appender));
       debug(`Creating category ${name}`);
-      categories.set(
-        name,
-        {
-          appenders: categoryAppenders,
-          level: levels.getLevel(category.level),
-          enableCallStack: category.enableCallStack || false
-        }
-      );
+      categories.set(name, {
+        appenders: categoryAppenders,
+        level: levels.getLevel(category.level),
+        enableCallStack: category.enableCallStack || false,
+      });
     });
   });
 };
@@ -45212,7 +49902,9 @@ const configForCategory = (category) => {
   let sourceCategoryConfig;
   if (category.indexOf('.') > 0) {
     debug(`configForCategory: ${category} has hierarchy, cloning from parents`);
-    sourceCategoryConfig = { ...configForCategory(category.slice(0, category.lastIndexOf('.'))) };
+    sourceCategoryConfig = {
+      ...configForCategory(category.slice(0, category.lastIndexOf('.'))),
+    };
   } else {
     if (!categories.has('default')) {
       setup({ categories: { default: { appenders: ['out'], level: 'OFF' } } });
@@ -45224,14 +49916,16 @@ const configForCategory = (category) => {
   return sourceCategoryConfig;
 };
 
-const appendersForCategory = category => configForCategory(category).appenders;
+const appendersForCategory = (category) =>
+  configForCategory(category).appenders;
 
-const getLevelForCategory = category => configForCategory(category).level;
+const getLevelForCategory = (category) => configForCategory(category).level;
 const setLevelForCategory = (category, level) => {
   configForCategory(category).level = level;
 };
 
-const getEnableCallStackForCategory = category => configForCategory(category).enableCallStack === true;
+const getEnableCallStackForCategory = (category) =>
+  configForCategory(category).enableCallStack === true;
 const setEnableCallStackForCategory = (category, useCallStack) => {
   configForCategory(category).enableCallStack = useCallStack;
 };
@@ -45252,7 +49946,7 @@ module.exports = Object.assign(module.exports, {
 /***/ 2560:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const debug = __nccwpck_require__(8237)("log4js:clustering");
+const debug = __nccwpck_require__(8237)('log4js:clustering');
 const LoggingEvent = __nccwpck_require__(9060);
 const configuration = __nccwpck_require__(5813);
 
@@ -45262,47 +49956,48 @@ try {
   // eslint-disable-next-line global-require
   cluster = __nccwpck_require__(1531);
 } catch (e) {
-  debug("cluster module not present");
+  debug('cluster module not present');
   disabled = true;
 }
 
 const listeners = [];
 
 let pm2 = false;
-let pm2InstanceVar = "NODE_APP_INSTANCE";
+let pm2InstanceVar = 'NODE_APP_INSTANCE';
 
-const isPM2Master = () => pm2 && process.env[pm2InstanceVar] === "0";
-const isMaster = () => disabled || (cluster && cluster.isMaster) || isPM2Master();
+const isPM2Master = () => pm2 && process.env[pm2InstanceVar] === '0';
+const isMaster = () =>
+  disabled || (cluster && cluster.isMaster) || isPM2Master();
 
-const sendToListeners = logEvent => {
-  listeners.forEach(l => l(logEvent));
+const sendToListeners = (logEvent) => {
+  listeners.forEach((l) => l(logEvent));
 };
 
 // in a multi-process node environment, worker loggers will use
 // process.send
 const receiver = (worker, message) => {
   // prior to node v6, the worker parameter was not passed (args were message, handle)
-  debug("cluster message received from worker ", worker, ": ", message);
+  debug('cluster message received from worker ', worker, ': ', message);
   if (worker.topic && worker.data) {
     message = worker;
     worker = undefined;
   }
-  if (message && message.topic && message.topic === "log4js:message") {
-    debug("received message: ", message.data);
+  if (message && message.topic && message.topic === 'log4js:message') {
+    debug('received message: ', message.data);
     const logEvent = LoggingEvent.deserialise(message.data);
     sendToListeners(logEvent);
   }
 };
 
 if (!disabled) {
-  configuration.addListener(config => {
+  configuration.addListener((config) => {
     // clear out the listeners, because configure has been called.
     listeners.length = 0;
 
     ({
       pm2,
       disableClustering: disabled,
-      pm2InstanceVar = "NODE_APP_INSTANCE"
+      pm2InstanceVar = 'NODE_APP_INSTANCE',
     } = config);
 
     debug(`clustering disabled ? ${disabled}`);
@@ -45313,25 +50008,25 @@ if (!disabled) {
 
     // just in case configure is called after shutdown
     if (pm2) {
-      process.removeListener("message", receiver);
+      process.removeListener('message', receiver);
     }
     if (cluster && cluster.removeListener) {
-      cluster.removeListener("message", receiver);
+      cluster.removeListener('message', receiver);
     }
 
     if (disabled || config.disableClustering) {
-      debug("Not listening for cluster messages, because clustering disabled.");
+      debug('Not listening for cluster messages, because clustering disabled.');
     } else if (isPM2Master()) {
       // PM2 cluster support
       // PM2 runs everything as workers - install pm2-intercom for this to work.
       // we only want one of the app instances to write logs
-      debug("listening for PM2 broadcast messages");
-      process.on("message", receiver);
+      debug('listening for PM2 broadcast messages');
+      process.on('message', receiver);
     } else if (cluster && cluster.isMaster) {
-      debug("listening for cluster messages");
-      cluster.on("message", receiver);
+      debug('listening for cluster messages');
+      cluster.on('message', receiver);
     } else {
-      debug("not listening for messages, because we are not a master process");
+      debug('not listening for messages, because we are not a master process');
     }
   });
 }
@@ -45339,22 +50034,22 @@ if (!disabled) {
 module.exports = {
   onlyOnMaster: (fn, notMaster) => (isMaster() ? fn() : notMaster),
   isMaster,
-  send: msg => {
+  send: (msg) => {
     if (isMaster()) {
       sendToListeners(msg);
     } else {
       if (!pm2) {
         msg.cluster = {
           workerId: cluster.worker.id,
-          worker: process.pid
+          worker: process.pid,
         };
       }
-      process.send({ topic: "log4js:message", data: msg.serialise() });
+      process.send({ topic: 'log4js:message', data: msg.serialise() });
     }
   },
-  onMessage: listener => {
+  onMessage: (listener) => {
     listeners.push(listener);
-  }
+  },
 };
 
 
@@ -45363,21 +50058,21 @@ module.exports = {
 /***/ 5813:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-
-
 const util = __nccwpck_require__(1669);
 const debug = __nccwpck_require__(8237)('log4js:configuration');
 
 const preProcessingListeners = [];
 const listeners = [];
 
-const not = thing => !thing;
+const not = (thing) => !thing;
 
-const anObject = thing => thing && typeof thing === 'object' && !Array.isArray(thing);
+const anObject = (thing) =>
+  thing && typeof thing === 'object' && !Array.isArray(thing);
 
-const validIdentifier = thing => /^[A-Za-z][A-Za-z0-9_]*$/g.test(thing);
+const validIdentifier = (thing) => /^[A-Za-z][A-Za-z0-9_]*$/g.test(thing);
 
-const anInteger = thing => thing && typeof thing === 'number' && Number.isInteger(thing);
+const anInteger = (thing) =>
+  thing && typeof thing === 'number' && Number.isInteger(thing);
 
 const addListener = (fn) => {
   listeners.push(fn);
@@ -45386,15 +50081,20 @@ const addListener = (fn) => {
 
 const addPreProcessingListener = (fn) => {
   preProcessingListeners.push(fn);
-  debug(`Added pre-processing listener, now ${preProcessingListeners.length} listeners`);
+  debug(
+    `Added pre-processing listener, now ${preProcessingListeners.length} listeners`
+  );
 };
 
 const throwExceptionIf = (config, checks, message) => {
   const tests = Array.isArray(checks) ? checks : [checks];
   tests.forEach((test) => {
     if (test) {
-      throw new Error(`Problem with log4js configuration: (${util.inspect(config, { depth: 5 })})`
-        + ` - ${message}`);
+      throw new Error(
+        `Problem with log4js configuration: (${util.inspect(config, {
+          depth: 5,
+        })}) - ${message}`
+      );
     }
   });
 };
@@ -45404,11 +50104,11 @@ const configure = (candidate) => {
   throwExceptionIf(candidate, not(anObject(candidate)), 'must be an object.');
 
   debug(`Calling pre-processing listeners (${preProcessingListeners.length})`);
-  preProcessingListeners.forEach(listener => listener(candidate));
+  preProcessingListeners.forEach((listener) => listener(candidate));
   debug('Configuration pre-processing finished.');
 
   debug(`Calling configuration listeners (${listeners.length})`);
-  listeners.forEach(listener => listener(candidate));
+  listeners.forEach((listener) => listener(candidate));
   debug('Configuration finished.');
 };
 
@@ -45420,7 +50120,7 @@ module.exports = {
   anObject,
   anInteger,
   validIdentifier,
-  not
+  not,
 };
 
 
@@ -45434,7 +50134,7 @@ module.exports = {
 const levels = __nccwpck_require__(7117);
 
 const DEFAULT_FORMAT =
-  ":remote-addr - -" +
+  ':remote-addr - -' +
   ' ":method :url HTTP/:http-version"' +
   ' :status :content-length ":referrer"' +
   ' ":user-agent"';
@@ -45463,7 +50163,7 @@ function getUrl(req) {
  * @return {Array}
  */
 function assembleTokens(req, res, customTokens) {
-  const arrayUniqueTokens = array => {
+  const arrayUniqueTokens = (array) => {
     const a = array.concat();
     for (let i = 0; i < a.length; ++i) {
       for (let j = i + 1; j < a.length; ++j) {
@@ -45478,53 +50178,53 @@ function assembleTokens(req, res, customTokens) {
   };
 
   const defaultTokens = [];
-  defaultTokens.push({ token: ":url", replacement: getUrl(req) });
-  defaultTokens.push({ token: ":protocol", replacement: req.protocol });
-  defaultTokens.push({ token: ":hostname", replacement: req.hostname });
-  defaultTokens.push({ token: ":method", replacement: req.method });
+  defaultTokens.push({ token: ':url', replacement: getUrl(req) });
+  defaultTokens.push({ token: ':protocol', replacement: req.protocol });
+  defaultTokens.push({ token: ':hostname', replacement: req.hostname });
+  defaultTokens.push({ token: ':method', replacement: req.method });
   defaultTokens.push({
-    token: ":status",
-    replacement: res.__statusCode || res.statusCode
+    token: ':status',
+    replacement: res.__statusCode || res.statusCode,
   });
   defaultTokens.push({
-    token: ":response-time",
-    replacement: res.responseTime
+    token: ':response-time',
+    replacement: res.responseTime,
   });
-  defaultTokens.push({ token: ":date", replacement: new Date().toUTCString() });
+  defaultTokens.push({ token: ':date', replacement: new Date().toUTCString() });
   defaultTokens.push({
-    token: ":referrer",
-    replacement: req.headers.referer || req.headers.referrer || ""
-  });
-  defaultTokens.push({
-    token: ":http-version",
-    replacement: `${req.httpVersionMajor}.${req.httpVersionMinor}`
+    token: ':referrer',
+    replacement: req.headers.referer || req.headers.referrer || '',
   });
   defaultTokens.push({
-    token: ":remote-addr",
+    token: ':http-version',
+    replacement: `${req.httpVersionMajor}.${req.httpVersionMinor}`,
+  });
+  defaultTokens.push({
+    token: ':remote-addr',
     replacement:
-      req.headers["x-forwarded-for"] ||
+      req.headers['x-forwarded-for'] ||
       req.ip ||
       req._remoteAddress ||
       (req.socket &&
         (req.socket.remoteAddress ||
-          (req.socket.socket && req.socket.socket.remoteAddress)))
+          (req.socket.socket && req.socket.socket.remoteAddress))),
   });
   defaultTokens.push({
-    token: ":user-agent",
-    replacement: req.headers["user-agent"]
+    token: ':user-agent',
+    replacement: req.headers['user-agent'],
   });
   defaultTokens.push({
-    token: ":content-length",
+    token: ':content-length',
     replacement:
-      res.getHeader("content-length") ||
-      (res.__headers && res.__headers["Content-Length"]) ||
-      "-"
+      res.getHeader('content-length') ||
+      (res.__headers && res.__headers['Content-Length']) ||
+      '-',
   });
   defaultTokens.push({
     token: /:req\[([^\]]+)]/g,
     replacement(_, field) {
       return req.headers[field.toLowerCase()];
-    }
+    },
   });
   defaultTokens.push({
     token: /:res\[([^\]]+)]/g,
@@ -45533,7 +50233,7 @@ function assembleTokens(req, res, customTokens) {
         res.getHeader(field.toLowerCase()) ||
         (res.__headers && res.__headers[field])
       );
-    }
+    },
   });
 
   return arrayUniqueTokens(customTokens.concat(defaultTokens));
@@ -45588,14 +50288,16 @@ function createNoLogCondition(nolog) {
     regexp = nolog;
   }
 
-  if (typeof nolog === "string") {
+  if (typeof nolog === 'string') {
     regexp = new RegExp(nolog);
   }
 
   if (Array.isArray(nolog)) {
     // convert to strings
-    const regexpsAsStrings = nolog.map(reg => (reg.source ? reg.source : reg));
-    regexp = new RegExp(regexpsAsStrings.join("|"));
+    const regexpsAsStrings = nolog.map((reg) =>
+      reg.source ? reg.source : reg
+    );
+    regexp = new RegExp(regexpsAsStrings.join('|'));
   }
 
   return regexp;
@@ -45621,7 +50323,7 @@ function matchRules(statusCode, currentLevel, ruleSet) {
   let level = currentLevel;
 
   if (ruleSet) {
-    const matchedRule = ruleSet.find(rule => {
+    const matchedRule = ruleSet.find((rule) => {
       let ruleMatched = false;
       if (rule.from && rule.to) {
         ruleMatched = statusCode >= rule.from && statusCode <= rule.to;
@@ -45644,7 +50346,7 @@ function matchRules(statusCode, currentLevel, ruleSet) {
  *
  *   - `format`        Format string, see below for tokens
  *   - `level`         A log4js levels instance. Supports also 'auto'
- *   - `nolog`         A string or RegExp to exclude target logs
+ *   - `nolog`         A string or RegExp to exclude target logs or function(req, res): boolean
  *   - `statusRules`   A array of rules for setting specific logging levels base on status codes
  *   - `context`       Whether to add a response of express to the context
  *
@@ -45668,7 +50370,7 @@ function matchRules(statusCode, currentLevel, ruleSet) {
  * @api public
  */
 module.exports = function getLogger(logger4js, options) {
-  if (typeof options === "string" || typeof options === "function") {
+  if (typeof options === 'string' || typeof options === 'function') {
     options = { format: options };
   } else {
     options = options || {};
@@ -45677,16 +50379,20 @@ module.exports = function getLogger(logger4js, options) {
   const thisLogger = logger4js;
   let level = levels.getLevel(options.level, levels.INFO);
   const fmt = options.format || DEFAULT_FORMAT;
-  const nolog = createNoLogCondition(options.nolog);
 
   return (req, res, next) => {
     // mount safety
     if (req._logging) return next();
 
     // nologs
-    if (nolog && nolog.test(req.originalUrl)) return next();
+    if (typeof options.nolog === 'function') {
+      if (options.nolog(req, res) === true) return next();
+    } else {
+      const nolog = createNoLogCondition(options.nolog);
+      if (nolog && nolog.test(req.originalUrl)) return next();
+    }
 
-    if (thisLogger.isLevelEnabled(level) || options.level === "auto") {
+    if (thisLogger.isLevelEnabled(level) || options.level === 'auto') {
       const start = new Date();
       const { writeHead } = res;
 
@@ -45711,7 +50417,7 @@ module.exports = function getLogger(logger4js, options) {
         finished = true;
         res.responseTime = new Date() - start;
         // status code response level handling
-        if (res.statusCode && options.level === "auto") {
+        if (res.statusCode && options.level === 'auto') {
           level = levels.INFO;
           if (res.statusCode >= 300) level = levels.WARN;
           if (res.statusCode >= 400) level = levels.ERROR;
@@ -45720,19 +50426,19 @@ module.exports = function getLogger(logger4js, options) {
 
         const combinedTokens = assembleTokens(req, res, options.tokens || []);
 
-        if (options.context) thisLogger.addContext("res", res);
-        if (typeof fmt === "function") {
-          const line = fmt(req, res, str => format(str, combinedTokens));
+        if (options.context) thisLogger.addContext('res', res);
+        if (typeof fmt === 'function') {
+          const line = fmt(req, res, (str) => format(str, combinedTokens));
           if (line) thisLogger.log(level, line);
         } else {
           thisLogger.log(level, format(fmt, combinedTokens));
         }
-        if (options.context) thisLogger.removeContext("res");
+        if (options.context) thisLogger.removeContext('res');
       };
-      res.on("end", handler);
-      res.on("finish", handler);
-      res.on("error", handler);
-      res.on("close", handler);
+      res.on('end', handler);
+      res.on('finish', handler);
+      res.on('error', handler);
+      res.on('close', handler);
     }
 
     // ensure next gets always called
@@ -45769,7 +50475,7 @@ const styles = {
   green: [32, 39],
   magenta: [35, 39],
   red: [91, 39],
-  yellow: [33, 39]
+  yellow: [33, 39],
 };
 
 function colorizeStart(style) {
@@ -45809,7 +50515,9 @@ function timestampLevelAndCategory(loggingEvent, colour) {
  * @author Stephan Strittmatter
  */
 function basicLayout(loggingEvent) {
-  return timestampLevelAndCategory(loggingEvent) + util.format(...loggingEvent.data);
+  return (
+    timestampLevelAndCategory(loggingEvent) + util.format(...loggingEvent.data)
+  );
 }
 
 /**
@@ -45817,7 +50525,10 @@ function basicLayout(loggingEvent) {
  * same as basicLayout, but with colours.
  */
 function colouredLayout(loggingEvent) {
-  return timestampLevelAndCategory(loggingEvent, loggingEvent.level.colour) + util.format(...loggingEvent.data);
+  return (
+    timestampLevelAndCategory(loggingEvent, loggingEvent.level.colour) +
+    util.format(...loggingEvent.data)
+  );
 }
 
 function messagePassThroughLayout(loggingEvent) {
@@ -45873,7 +50584,8 @@ function dummyLayout(loggingEvent) {
  */
 function patternLayout(pattern, tokens) {
   const TTCC_CONVERSION_PATTERN = '%r %p %c - %m%n';
-  const regex = /%(-?[0-9]+)?(\.?-?[0-9]+)?([[\]cdhmnprzxXyflos%])(\{([^}]+)\})?|([^%]+)/;
+  const regex =
+    /%(-?[0-9]+)?(\.?-?[0-9]+)?([[\]cdhmnprzxXyflos%])(\{([^}]+)\})?|([^%]+)/;
 
   pattern = pattern || TTCC_CONVERSION_PATTERN;
 
@@ -45883,7 +50595,9 @@ function patternLayout(pattern, tokens) {
       const precision = parseInt(specifier, 10);
       const loggerNameBits = loggerName.split('.');
       if (precision < loggerNameBits.length) {
-        loggerName = loggerNameBits.slice(loggerNameBits.length - precision).join('.');
+        loggerName = loggerNameBits
+          .slice(loggerNameBits.length - precision)
+          .join('.');
       }
     }
     return loggerName;
@@ -45905,26 +50619,32 @@ function patternLayout(pattern, tokens) {
           break;
         case 'ABSOLUTE':
           process.emitWarning(
-            "Pattern %d{ABSOLUTE} is deprecated in favor of %d{ABSOLUTETIME}. " +
-            "Please use %d{ABSOLUTETIME} instead.",
-            "DeprecationWarning", "log4js-node-DEP0003"
+            'Pattern %d{ABSOLUTE} is deprecated in favor of %d{ABSOLUTETIME}. ' +
+              'Please use %d{ABSOLUTETIME} instead.',
+            'DeprecationWarning',
+            'log4js-node-DEP0003'
           );
-          debug("[log4js-node-DEP0003]",
-            "DEPRECATION: Pattern %d{ABSOLUTE} is deprecated and replaced by %d{ABSOLUTETIME}.");
-          // falls through
+          debug(
+            '[log4js-node-DEP0003]',
+            'DEPRECATION: Pattern %d{ABSOLUTE} is deprecated and replaced by %d{ABSOLUTETIME}.'
+          );
+        // falls through
         case 'ABSOLUTETIME':
         case 'ABSOLUTETIME_FORMAT':
           format = dateFormat.ABSOLUTETIME_FORMAT;
           break;
         case 'DATE':
           process.emitWarning(
-            "Pattern %d{DATE} is deprecated due to the confusion it causes when used. " +
-            "Please use %d{DATETIME} instead.",
-            "DeprecationWarning", "log4js-node-DEP0004"
+            'Pattern %d{DATE} is deprecated due to the confusion it causes when used. ' +
+              'Please use %d{DATETIME} instead.',
+            'DeprecationWarning',
+            'log4js-node-DEP0004'
           );
-          debug("[log4js-node-DEP0004]",
-            "DEPRECATION: Pattern %d{DATE} is deprecated and replaced by %d{DATETIME}.");
-          // falls through
+          debug(
+            '[log4js-node-DEP0004]',
+            'DEPRECATION: Pattern %d{DATE} is deprecated and replaced by %d{DATETIME}.'
+          );
+        // falls through
         case 'DATETIME':
         case 'DATETIME_FORMAT':
           format = dateFormat.DATETIME_FORMAT;
@@ -45969,7 +50689,9 @@ function patternLayout(pattern, tokens) {
   }
 
   function pid(loggingEvent) {
-    return loggingEvent && loggingEvent.pid ? loggingEvent.pid.toString() : process.pid.toString();
+    return loggingEvent && loggingEvent.pid
+      ? loggingEvent.pid.toString()
+      : process.pid.toString();
   }
 
   function clusterInfo() {
@@ -45981,7 +50703,9 @@ function patternLayout(pattern, tokens) {
 
   function userDefined(loggingEvent, specifier) {
     if (typeof tokens[specifier] !== 'undefined') {
-      return typeof tokens[specifier] === 'function' ? tokens[specifier](loggingEvent) : tokens[specifier];
+      return typeof tokens[specifier] === 'function'
+        ? tokens[specifier](loggingEvent)
+        : tokens[specifier];
     }
 
     return null;
@@ -46014,7 +50738,9 @@ function patternLayout(pattern, tokens) {
           // posix: file:///hello/world/foo.txt -> /hello/world/foo.txt -> /hello/world/foo.txt
           // win32: file:///C:/path/foo.txt     -> /C:/path/foo.txt     -> \C:\path\foo.txt     -> C:\path\foo.txt
           // win32: file://nas/foo.txt          -> //nas/foo.txt        -> nas\foo.txt          -> \\nas\foo.txt
-          filepath = path.normalize(filepath.replace(new RegExp(`^${urlPrefix}`), ''));
+          filepath = path.normalize(
+            filepath.replace(new RegExp(`^${urlPrefix}`), '')
+          );
           if (process.platform === 'win32') {
             if (filepath.startsWith('\\')) {
               filepath = filepath.slice(1);
@@ -46069,7 +50795,7 @@ function patternLayout(pattern, tokens) {
     f: fileName,
     l: lineNumber,
     o: columnNumber,
-    s: callStack
+    s: callStack,
   };
 
   function replaceToken(conversionCharacter, loggingEvent, specifier) {
@@ -46133,7 +50859,11 @@ function patternLayout(pattern, tokens) {
       } else {
         // Create a raw replacement string based on the conversion
         // character and specifier
-        const replacement = replaceToken(conversionCharacter, loggingEvent, specifier);
+        const replacement = replaceToken(
+          conversionCharacter,
+          loggingEvent,
+          specifier
+        );
         formattedString += truncateAndPad(replacement, truncation, padding);
       }
       searchString = searchString.slice(result.index + result[0].length);
@@ -46143,24 +50873,24 @@ function patternLayout(pattern, tokens) {
 }
 
 const layoutMakers = {
-  messagePassThrough () {
+  messagePassThrough() {
     return messagePassThroughLayout;
   },
-  basic () {
+  basic() {
     return basicLayout;
   },
-  colored () {
+  colored() {
     return colouredLayout;
   },
-  coloured () {
+  coloured() {
     return colouredLayout;
   },
-  pattern (config) {
+  pattern(config) {
     return patternLayout(config && config.pattern, config && config.tokens);
   },
-  dummy () {
+  dummy() {
     return dummyLayout;
-  }
+  },
 };
 
 module.exports = {
@@ -46170,12 +50900,12 @@ module.exports = {
   colouredLayout,
   coloredLayout: colouredLayout,
   dummyLayout,
-  addLayout (name, serializerGenerator) {
+  addLayout(name, serializerGenerator) {
     layoutMakers[name] = serializerGenerator;
   },
-  layout (name, config) {
+  layout(name, config) {
     return layoutMakers[name] && layoutMakers[name](config);
-  }
+  },
 };
 
 
@@ -46184,14 +50914,18 @@ module.exports = {
 /***/ 7117:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-
-
 const configuration = __nccwpck_require__(5813);
 
 const validColours = [
-  'white', 'grey', 'black',
-  'blue', 'cyan', 'green',
-  'magenta', 'red', 'yellow'
+  'white',
+  'grey',
+  'black',
+  'blue',
+  'cyan',
+  'green',
+  'magenta',
+  'red',
+  'yellow',
 ];
 
 class Level {
@@ -46238,7 +50972,9 @@ class Level {
           levelStr,
           customLevels[l].colour
         );
-        const existingLevelIndex = Level.levels.findIndex(lvl => lvl.levelStr === levelStr);
+        const existingLevelIndex = Level.levels.findIndex(
+          (lvl) => lvl.levelStr === levelStr
+        );
         if (existingLevelIndex > -1) {
           Level.levels[existingLevelIndex] = Level[levelStr];
         } else {
@@ -46248,7 +50984,6 @@ class Level {
       Level.levels.sort((a, b) => a.level - b.level);
     }
   }
-
 
   isLessThanOrEqualTo(otherLevel) {
     if (typeof otherLevel === 'string') {
@@ -46282,7 +51017,7 @@ Level.addLevels({
   ERROR: { value: 40000, colour: 'red' },
   FATAL: { value: 50000, colour: 'magenta' },
   MARK: { value: 9007199254740992, colour: 'grey' }, // 2^53
-  OFF: { value: Number.MAX_VALUE, colour: 'grey' }
+  OFF: { value: Number.MAX_VALUE, colour: 'grey' },
 });
 
 configuration.addListener((config) => {
@@ -46361,7 +51096,7 @@ module.exports = Level;
  * @since 2005-05-20
  * Website: http://log4js.berlios.de
  */
-const debug = __nccwpck_require__(8237)("log4js:main");
+const debug = __nccwpck_require__(8237)('log4js:main');
 const fs = __nccwpck_require__(5747);
 const deepClone = __nccwpck_require__(1868)({ proto: true });
 const configuration = __nccwpck_require__(5813);
@@ -46378,11 +51113,11 @@ let enabled = false;
 
 function sendLogEventToAppender(logEvent) {
   if (!enabled) return;
-  debug("Received log event ", logEvent);
+  debug('Received log event ', logEvent);
   const categoryAppenders = categories.appendersForCategory(
     logEvent.categoryName
   );
-  categoryAppenders.forEach(appender => {
+  categoryAppenders.forEach((appender) => {
     appender(logEvent);
   });
 }
@@ -46390,7 +51125,7 @@ function sendLogEventToAppender(logEvent) {
 function loadConfigurationFile(filename) {
   debug(`Loading configuration from ${filename}`);
   try {
-    return JSON.parse(fs.readFileSync(filename, "utf8"));
+    return JSON.parse(fs.readFileSync(filename, 'utf8'));
   } catch (e) {
     throw new Error(
       `Problem reading config from file "${filename}". Error was ${e.message}`,
@@ -46407,7 +51142,7 @@ function configure(configurationFileOrObject) {
 
   let configObject = configurationFileOrObject;
 
-  if (typeof configObject === "string") {
+  if (typeof configObject === 'string') {
     configObject = loadConfigurationFile(configurationFileOrObject);
   }
   debug(`Configuration is ${configObject}`);
@@ -46423,7 +51158,7 @@ function configure(configurationFileOrObject) {
 }
 
 function recording() {
-  return recordingModule
+  return recordingModule;
 }
 
 /**
@@ -46435,7 +51170,7 @@ function recording() {
  *  as the first argument.
  */
 function shutdown(cb) {
-  debug("Shutdown called. Disabling all log writing.");
+  debug('Shutdown called. Disabling all log writing.');
   // First, disable all writing to appenders. This prevents appenders from
   // not being able to be drained because of run-away log writes.
   enabled = false;
@@ -46453,7 +51188,7 @@ function shutdown(cb) {
     0
   );
   if (shutdownFunctions === 0) {
-    debug("No appenders with shutdown functions found.");
+    debug('No appenders with shutdown functions found.');
     return cb !== undefined && cb();
   }
 
@@ -46465,13 +51200,15 @@ function shutdown(cb) {
     completed += 1;
     debug(`Appender shutdowns complete: ${completed} / ${shutdownFunctions}`);
     if (completed >= shutdownFunctions) {
-      debug("All shutdown functions completed.");
+      debug('All shutdown functions completed.');
       if (cb) {
         cb(error);
       }
     }
   }
-  appendersToCheck.filter(a => a.shutdown).forEach(a => a.shutdown(complete));
+  appendersToCheck
+    .filter((a) => a.shutdown)
+    .forEach((a) => a.shutdown(complete));
 
   return null;
 }
@@ -46486,12 +51223,12 @@ function getLogger(category) {
   if (!enabled) {
     configure(
       process.env.LOG4JS_CONFIG || {
-        appenders: { out: { type: "stdout" } },
-        categories: { default: { appenders: ["out"], level: "OFF" } }
+        appenders: { out: { type: 'stdout' } },
+        categories: { default: { appenders: ['out'], level: 'OFF' } },
       }
     );
   }
-  return new Logger(category || "default");
+  return new Logger(category || 'default');
 }
 
 /**
@@ -46521,7 +51258,7 @@ module.exports = log4js;
 
 /* eslint no-underscore-dangle: ["error", { "allow": ["_log"] }] */
 
-const debug = __nccwpck_require__(8237)("log4js:logger");
+const debug = __nccwpck_require__(8237)('log4js:logger');
 const LoggingEvent = __nccwpck_require__(9060);
 const levels = __nccwpck_require__(7117);
 const clustering = __nccwpck_require__(2560);
@@ -46532,7 +51269,7 @@ const stackReg = /at (?:(.+)\s+\()?(?:(.+?):(\d+)(?::(\d+))?|([^)]+))\)?/;
 
 function defaultParseCallStack(data, skipIdx = 4) {
   try {
-    const stacklines = data.stack.split("\n").slice(skipIdx);
+    const stacklines = data.stack.split('\n').slice(skipIdx);
     const lineMatch = stackReg.exec(stacklines[0]);
     /* istanbul ignore else: failsafe */
     if (lineMatch && lineMatch.length === 6) {
@@ -46541,14 +51278,14 @@ function defaultParseCallStack(data, skipIdx = 4) {
         fileName: lineMatch[2],
         lineNumber: parseInt(lineMatch[3], 10),
         columnNumber: parseInt(lineMatch[4], 10),
-        callStack: stacklines.join("\n")
+        callStack: stacklines.join('\n'),
       };
-    } else { // eslint-disable-line no-else-return
+      // eslint-disable-next-line no-else-return
+    } else {
       // will never get here unless nodejs has changes to Error
       console.error('log4js.logger - defaultParseCallStack error'); // eslint-disable-line no-console
     }
-  }
-  catch (err) {
+  } catch (err) {
     // will never get error unless nodejs has breaking changes to Error
     console.error('log4js.logger - defaultParseCallStack error', err); // eslint-disable-line no-console
   }
@@ -46570,7 +51307,7 @@ function defaultParseCallStack(data, skipIdx = 4) {
 class Logger {
   constructor(name) {
     if (!name) {
-      throw new Error("No category provided.");
+      throw new Error('No category provided.');
     }
     this.category = name;
     this.context = {};
@@ -46601,19 +51338,21 @@ class Logger {
   }
 
   log(level, ...args) {
-    let logLevel = levels.getLevel(level);
+    const logLevel = levels.getLevel(level);
     if (!logLevel) {
-      // allow LOG to be synonym of INFO
-      if ((level && level.trim().indexOf(" ") !== -1) || args.length === 0) {
-        args = [level, ...args];
+      if (configuration.validIdentifier(level) && args.length > 0) {
+        // logLevel not found but of valid signature, WARN before fallback to INFO
+        this.log(
+          levels.WARN,
+          'log4js:logger.log: valid log-level not found as first parameter given:',
+          level
+        );
+        this.log(levels.INFO, `[${level}]`, ...args);
       } else {
-        this._log(levels.WARN, ['log4js:logger.log: invalid value for log-level as first parameter given:', level]);
-        args = [`[${level}]`, ...args];
+        // apart from fallback, allow .log(...args) to be synonym with .log("INFO", ...args)
+        this.log(levels.INFO, level, ...args);
       }
-      // fallback to INFO
-      logLevel = levels.INFO;
-    }
-    if (this.isLevelEnabled(logLevel)) {
+    } else if (this.isLevelEnabled(logLevel)) {
       this._log(logLevel, args);
     }
   }
@@ -46655,7 +51394,7 @@ function addLevelMethods(target) {
   const level = levels.getLevel(target);
 
   const levelStrLower = level.toString().toLowerCase();
-  const levelMethod = levelStrLower.replace(/_([a-z])/g, g =>
+  const levelMethod = levelStrLower.replace(/_([a-z])/g, (g) =>
     g[1].toUpperCase()
   );
   const isLevelMethod = levelMethod[0].toUpperCase() + levelMethod.slice(1);
@@ -46816,7 +51555,7 @@ module.exports = {"application/andrew-inset":["ez"],"application/applixware":["a
 
 /* module decorator */ module = __nccwpck_require__.nmd(module);
 //! moment.js
-//! version : 2.29.3
+//! version : 2.29.4
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -49270,7 +54009,7 @@ module.exports = {"application/andrew-inset":["ez"],"application/applixware":["a
     function preprocessRFC2822(s) {
         // Remove comments and folding whitespace and replace multiple-spaces with a single space
         return s
-            .replace(/\([^)]*\)|[\n\t]/g, ' ')
+            .replace(/\([^()]*\)|[\n\t]/g, ' ')
             .replace(/(\s\s+)/g, ' ')
             .replace(/^\s\s*/, '')
             .replace(/\s\s*$/, '');
@@ -52451,7 +57190,7 @@ module.exports = {"application/andrew-inset":["ez"],"application/applixware":["a
 
     //! moment.js
 
-    hooks.version = '2.29.3';
+    hooks.version = '2.29.4';
 
     setHookCallback(createLocal);
 
@@ -54031,7 +58770,7 @@ exports.fromPromise = function (fn) {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"_from":"axios@^0.21.4","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"axios@^0.21.4","name":"axios","escapedName":"axios","rawSpec":"^0.21.4","saveSpec":null,"fetchSpec":"^0.21.4"},"_requiredBy":["/@huaweicloud/huaweicloud-sdk-core"],"_resolved":"https://maven.cloudartifact.lfg.dragon.tools.huawei.com/artifactory/api/npm/cbu-npm-public/axios/-/axios-0.21.4.tgz","_shasum":"c67b90dc0568e5c1cf2b0b858c43ba28e2eda575","_spec":"axios@^0.21.4","_where":"D:\\\\project\\\\依赖\\\\deploy-functiongraph-action\\\\node_modules\\\\@huaweicloud\\\\huaweicloud-sdk-core","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundleDependencies":false,"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"deprecated":false,"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
+module.exports = JSON.parse('{"_from":"axios@^0.21.4","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"axios@^0.21.4","name":"axios","escapedName":"axios","rawSpec":"^0.21.4","saveSpec":null,"fetchSpec":"^0.21.4"},"_requiredBy":["/@huaweicloud/huaweicloud-sdk-core","/@huaweicloud/huaweicloud-sdk-functiongraph/@huaweicloud/huaweicloud-sdk-core"],"_resolved":"https://repo.cloudartifact.lfg.dragon.tools.huawei.com/artifactory/api/npm/cbu-npm-public/axios/-/axios-0.21.4.tgz","_shasum":"c67b90dc0568e5c1cf2b0b858c43ba28e2eda575","_spec":"axios@^0.21.4","_where":"D:\\\\Workspace\\\\VSCode\\\\Codehup\\\\Github Action\\\\deploy-functiongraph-action\\\\node_modules\\\\@huaweicloud\\\\huaweicloud-sdk-core","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundleDependencies":false,"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"deprecated":false,"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
 
 /***/ }),
 
