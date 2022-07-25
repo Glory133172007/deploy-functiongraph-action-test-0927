@@ -76,4 +76,4 @@ export function getInputs(): Inputs {
   }
 }
 
-export const CUSTOM_USER_AGENT_FUNCTIONGRAPH = 'DevKit-GitHub:HuaweiCloud Functiongraph Deploy';
+export const CUSTOM_USER_AGENT_FUNCTIONGRAPH = 'DevKit-GitHub:Huawei Cloud Functiongraph Deploy';
