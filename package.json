@@ -26,9 +26,9 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/io": "^1.1.2",
-    "@huaweicloud/huaweicloud-sdk-core": "^3.0.34-rc",
-    "@huaweicloud/huaweicloud-sdk-devstar": "^3.0.34-rc",
-    "@huaweicloud/huaweicloud-sdk-functiongraph": "^3.0.34-rc",
+    "@huaweicloud/huaweicloud-sdk-core": "^3.0.46-rc",
+    "@huaweicloud/huaweicloud-sdk-devstar": "^3.0.46-rc",
+    "@huaweicloud/huaweicloud-sdk-functiongraph": "^3.0.46-rc",
     "@types/fs-extra": "^9.0.13",
     "fs-extra": "^10.0.1",
     "mime": "^3.0.0",

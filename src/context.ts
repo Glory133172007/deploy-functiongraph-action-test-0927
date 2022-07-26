@@ -75,3 +75,5 @@ export function getInputs(): Inputs {
     function_file: core.getInput('function_file', {required: true})
   }
 }
+
+export const CUSTOM_USER_AGENT_FUNCTIONGRAPH = 'DevKit-GitHub:Huawei Cloud Functiongraph Deploy';
