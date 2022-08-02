@@ -85,14 +85,14 @@ function getInputs() {
         ak: core.getInput('ak', { required: true }),
         sk: core.getInput('sk', { required: true }),
         endpoint: core.getInput('endpoint', { required: true }),
-        project_id: core.getInput('project_id', { required: true }),
-        function_codetype: core.getInput('function_codetype', { required: true }),
-        function_urn: core.getInput('function_urn', { required: true }),
-        function_file: core.getInput('function_file', { required: true })
+        projectId: core.getInput('project_id', { required: true }),
+        functionCodetype: core.getInput('function_codetype', { required: true }),
+        functionUrn: core.getInput('function_urn', { required: true }),
+        functionFile: core.getInput('function_file', { required: true })
     };
 }
 exports.getInputs = getInputs;
-exports.CUSTOM_USER_AGENT_FUNCTIONGRAPH = 'DevKit-GitHub:HuaweiCloud Functiongraph Deploy';
+exports.CUSTOM_USER_AGENT_FUNCTIONGRAPH = 'DevKit-GitHub:Huawei Cloud Functiongraph Deploy';
 
 
 /***/ }),
@@ -212,7 +212,7 @@ exports.zipDirByPath = zipDirByPath;
 function getBase64ZipfileContent(archiveFilePath) {
     return __awaiter(this, void 0, void 0, function* () {
         const base64Command = 'base64 ' + archiveFilePath;
-        const base64ZipFileContent = yield (cp.execSync(base64Command) || '').toString();
+        const base64ZipFileContent = (cp.execSync(base64Command) || '').toString();
         return base64ZipFileContent;
     });
 }
@@ -315,15 +315,13 @@ const os = __importStar(__nccwpck_require__(2087));
 function installBase64OnSystem() {
     return __awaiter(this, void 0, void 0, function* () {
         let platform = os.platform();
-        const isInstalld = yield checkBase64Install(platform);
-        core.info(`is install ${isInstalld}`);
-        if (isInstalld) {
-            core.info('Base64 already installed and set to the path');
-            return isInstalld;
+        const isInstalled = yield checkBase64Install(platform);
+        if (!isInstalled) {
+            core.info('start install base64');
+            installBase64ByPlatform(platform);
+            return checkBase64Install(platform);
         }
-        core.info('start install Base64');
-        installBase64ByPlatform(platform);
-        return checkBase64Install(platform);
+        return true;
     });
 }
 exports.installBase64OnSystem = installBase64OnSystem;
@@ -343,7 +341,7 @@ function checkBase64Install(platform) {
             const macosCheckVersion = `${base64} --help`;
             execCommand(macosCheckVersion);
         }
-        if (platform === 'linux') {
+        else if (platform === 'linux') {
             const linuxCheckVersion = `${base64} --version`;
             execCommand(linuxCheckVersion);
         }
@@ -372,7 +370,7 @@ exports.installBase64ByPlatform = installBase64ByPlatform;
  */
 function installBase64OnMacos() {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('current system is macos,use brew to install Base64');
+        core.info('current system is macos,use brew to install base64');
         const installBase64CMD = 'brew install base64';
         yield execCommand(installBase64CMD);
     });
@@ -396,7 +394,7 @@ function installBase64OnLinux() {
             installCommand = `yum -y install -q coreutils`;
         }
         if (osRelease.indexOf('Fedora') > -1) {
-            core.info('current system is Fedor,use Dnf to install base64');
+            core.info('current system is Fedor,use dnf to install base64');
             installCommand = `dnf install -y -q coreutils`;
         }
         if (osRelease.indexOf('SUSE') > -1) {
@@ -413,7 +411,7 @@ exports.installBase64OnLinux = installBase64OnLinux;
  */
 function execCommand(command) {
     return __awaiter(this, void 0, void 0, function* () {
-        const execCommandResult = yield (cp.execSync(command) || '').toString();
+        const execCommandResult = (cp.execSync(command) || '').toString();
         core.info(execCommandResult);
     });
 }
@@ -477,30 +475,30 @@ const huaweicloud_sdk_functiongraph_1 = __nccwpck_require__(5301);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const inputs = context.getInputs();
-        accore.info('---------- check Base64 on system');
+        accore.info('---------- check base64 on system');
         const installSuccess = yield install.installBase64OnSystem();
         if (!installSuccess) {
-            accore.info('can not install Base64 on system');
+            accore.setFailed('can not install base64 on system');
             return;
         }
         accore.info('---------- check input parameters');
         if (!utils.checkInputs(inputs) ||
-            !utils.checkCodeType(inputs.function_codetype) ||
+            !utils.checkCodeType(inputs.functionCodetype) ||
             !utils.checkRegion(inputs) ||
-            !utils.checkFileOrDirExist(inputs.function_codetype, inputs.function_file)) {
-            accore.info('check input parameter error');
+            !utils.checkFileOrDirExist(inputs.functionCodetype, inputs.functionFile)) {
+            accore.setFailed('check input parameter error');
             return;
         }
         accore.info('---------- check file content');
-        if (!(yield fileutils.checkFileContent(inputs.function_codetype, inputs.function_file))) {
-            accore.info('check file content error');
+        if (!(yield fileutils.checkFileContent(inputs.functionCodetype, inputs.functionFile))) {
+            accore.setFailed('check file content error');
             return;
         }
         accore.info('---------- gen functiongraph basicCredentials');
         const basicCredentials = new huaweicloud_sdk_core_1.BasicCredentials()
             .withAk(inputs.ak)
             .withSk(inputs.sk)
-            .withProjectId(inputs.project_id);
+            .withProjectId(inputs.projectId);
         accore.info('---------- gen functiongraph client');
         const client = huaweicloud_sdk_functiongraph_1.FunctionGraphClient.newBuilder()
             .withCredential(basicCredentials)
@@ -513,10 +511,10 @@ function run() {
         const result = client.updateFunctionCode(request);
         result
             .then((result) => {
-            accore.info('JSON.stringify(result)::' + JSON.stringify(result));
+            accore.info('result:' + JSON.stringify(result));
         })
             .catch((ex) => {
-            accore.info('exception:' + JSON.stringify(ex));
+            accore.setFailed('exception:' + JSON.stringify(ex));
         });
         accore.info('---------- end request');
     });
@@ -525,26 +523,26 @@ exports.run = run;
 function genRequest(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequest();
-        request.functionUrn = inputs.function_urn;
+        request.functionUrn = inputs.functionUrn;
         const body = new huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBody();
         const funcCodebody = new huaweicloud_sdk_functiongraph_1.FuncCode();
         accore.info('---------- gen body');
-        if (inputs.function_codetype === 'obs') {
-            body.withCodeUrl(inputs.function_file);
+        if (inputs.functionCodetype === 'obs') {
+            body.withCodeUrl(inputs.functionFile);
             body.withFuncCode(funcCodebody);
             body.withCodeType(huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBodyCodeTypeEnum.OBS);
         }
         else {
-            const base64Content = yield fileutils.getArchiveBase64Content(inputs.function_codetype, inputs.function_file);
+            const base64Content = yield fileutils.getArchiveBase64Content(inputs.functionCodetype, inputs.functionFile);
             funcCodebody.withFile(base64Content);
             body.withFuncCode(funcCodebody);
             let fileName = context.FUNC_TMP_ZIP;
-            if (inputs.function_codetype === 'jar' ||
-                inputs.function_codetype === 'zip') {
-                fileName = utils.getFileNameFromPath(inputs.function_file);
+            if (inputs.functionCodetype === 'jar' ||
+                inputs.functionCodetype === 'zip') {
+                fileName = utils.getFileNameFromPath(inputs.functionFile);
             }
             body.withCodeFilename(fileName);
-            if (inputs.function_codetype === 'jar') {
+            if (inputs.functionCodetype === 'jar') {
                 body.withCodeType(huaweicloud_sdk_functiongraph_1.UpdateFunctionCodeRequestBodyCodeTypeEnum.JAR);
             }
             else {
@@ -604,10 +602,10 @@ function checkInputs(inputs) {
     if (checkParameterIsNull(inputs.ak) ||
         checkParameterIsNull(inputs.sk) ||
         checkParameterIsNull(inputs.endpoint) ||
-        checkParameterIsNull(inputs.function_codetype) ||
-        checkParameterIsNull(inputs.function_urn) ||
-        checkParameterIsNull(inputs.project_id) ||
-        checkParameterIsNull(inputs.function_file)) {
+        checkParameterIsNull(inputs.functionCodetype) ||
+        checkParameterIsNull(inputs.functionUrn) ||
+        checkParameterIsNull(inputs.projectId) ||
+        checkParameterIsNull(inputs.functionFile)) {
         core.info('Please fill all the required parameters');
         return false;
     }
@@ -628,14 +626,14 @@ function checkCodeType(codeType) {
 exports.checkCodeType = checkCodeType;
 /**
  * 判断字符串是否为空
- * @param s
- * @returns
+ * @param parameter 待判断字符串
+ * @returns boolean 字符串是否为空
  */
 function checkParameterIsNull(parameter) {
     return (parameter === undefined ||
         parameter === null ||
         parameter === '' ||
-        parameter.trim().length == 0);
+        parameter.trim().length === 0);
 }
 exports.checkParameterIsNull = checkParameterIsNull;
 /**
@@ -647,32 +645,28 @@ exports.checkParameterIsNull = checkParameterIsNull;
  * @returns
  */
 function checkFileOrDirExist(function_type, filePath) {
-    core.info('check local file ' + filePath + ' exist');
     let checkResult = false;
     try {
         const stat = fs.statSync(filePath);
-        console.log(stat);
         switch (function_type) {
             case 'jar': {
                 const jarType = fileutil.getFileMimeType(filePath);
-                core.info('filePath: ' + filePath + 'mime type ' + jarType);
                 if (stat.isFile() && jarType === context.JAR_MIME_TYPE) {
-                    checkResult = true;
+                    return true;
                 }
                 break;
             }
             case 'zip': {
                 const zipType = fileutil.getFileMimeType(filePath);
-                core.info('filePath: ' + filePath + 'mime type ' + zipType);
                 if (stat.isFile() && zipType === context.ZIP_MIME_TYPE) {
-                    checkResult = true;
+                    return true;
                 }
                 break;
             }
             case 'file':
                 //文件存在且文件的大小不为0
                 if (stat.isFile() && stat.size > 0) {
-                    checkResult = true;
+                    return true;
                 }
                 else {
                     core.info('file path is not file or file is empty');
@@ -682,7 +676,6 @@ function checkFileOrDirExist(function_type, filePath) {
                 //确实为目录文件，且目录下的文件数量不为0
                 const files = fs.readdirSync(filePath);
                 if (stat.isDirectory() && files.length > 0) {
-                    core.info('dirString[] ' + files);
                     checkResult = true;
                 }
                 else {
@@ -713,25 +706,25 @@ function checkRegion(inputs) {
         core.info('can not find any region in endpoint,or region not in avaiable region list');
         return false;
     }
-    const urnRegion = getRegionFromEndpoint(inputs.function_urn, 2, ':');
-    if (checkParameterIsNull(endpointRegion) ||
-        regionArray.indexOf(endpointRegion) === -1) {
+    const urnRegion = getRegionFromEndpoint(inputs.functionUrn, 2, ':');
+    if (checkParameterIsNull(urnRegion) ||
+        regionArray.indexOf(urnRegion) === -1) {
         core.info('can not find any region in urn,or region not in avaiable region list');
         return false;
     }
-    if (endpointRegion != urnRegion) {
-        core.info('endping region must the same as urn region');
+    if (endpointRegion !== urnRegion) {
+        core.info('endpoint region must be the same as urn region');
         return false;
     }
     //文件为obs类型时，需要单独分析obs
-    if (inputs.function_codetype === 'obs') {
-        const obsRegion = getRegionFromEndpoint(inputs.function_file, 2, '.');
+    if (inputs.functionCodetype === 'obs') {
+        const obsRegion = getRegionFromEndpoint(inputs.functionFile, 2, '.');
         if (checkParameterIsNull(obsRegion) ||
             regionArray.indexOf(obsRegion) === -1) {
             core.info('can not find any region in obs url,or region not in avaiable region list');
             return false;
         }
-        if (endpointRegion != obsRegion) {
+        if (endpointRegion !== obsRegion) {
             core.info('endping region must the same as obs region');
             return false;
         }
@@ -741,12 +734,14 @@ function checkRegion(inputs) {
 exports.checkRegion = checkRegion;
 /**
  * 从指定的url中分离出region信息
- * @param endpoint
+ * @param url 需要分离的url地址
+ * @param index
+ * @param regex 分隔符
  * @returns
  */
-function getRegionFromEndpoint(url, index, regix) {
+function getRegionFromEndpoint(url, index, regex) {
     let region = '';
-    const urlArray = url.split(regix);
+    const urlArray = url.split(regex);
     if (urlArray.length >= index + 1) {
         region = urlArray[index];
     }
