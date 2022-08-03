@@ -46,8 +46,6 @@ export const regionArray = [
     'ap-southeast-1'
 ];
 
-export const codeTypeArray = ['file', 'jar', 'dir', 'obs', 'zip'];
-
 export const JAR_MIME_TYPE = 'application/java-archive';
 
 export const ZIP_MIME_TYPE = 'application/zip';
@@ -78,3 +76,19 @@ export function getInputs(): Inputs {
 
 export const CUSTOM_USER_AGENT_FUNCTIONGRAPH =
     'DevKit-GitHub:Huawei Cloud Functiongraph Deploy';
+
+export const OBJECT_TYPE_ZIP = 'zip';
+export const OBJECT_TYPE_JAR = 'jar';
+export const OBJECT_TYPE_DIR = 'dir';
+export const OBJECT_TYPE_FILE = 'file';
+export const OBJECT_TYPE_OBS = 'obs';
+
+export const codeTypeArray = [OBJECT_TYPE_FILE, OBJECT_TYPE_JAR, OBJECT_TYPE_DIR, OBJECT_TYPE_OBS, OBJECT_TYPE_ZIP];
+
+export const OPERATING_SYSTEM_TYPE_LINUX = 'linux';
+export const OPERATING_SYSTEM_TYPE_DARWIN = 'darwin';
+export const OPERATING_SYSTEM_VENDER_UBUNTU = 'UBUNTU';
+export const OPERATING_SYSTEM_VENDER_CENTOS = 'CENTOS';
+export const OPERATING_SYSTEM_VENDER_FEDORA = 'FEDORA';
+export const OPERATING_SYSTEM_VENDER_SUSE = 'SUSE';
+export const OPERATING_SYSTEM_VENDER_DEBAIN = 'Debain';

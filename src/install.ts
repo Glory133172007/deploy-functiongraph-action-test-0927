@@ -1,14 +1,15 @@
 import * as core from '@actions/core';
 import * as io from '@actions/io';
-import * as cp from 'child_process';
 import * as os from 'os';
+import * as context from './context';
+import * as exec from '@actions/exec';
 
 /**
  * 检查系统上是否安装了base64,如果没有，会尝试进行安装，如果安装不成功，则提示安装失败，结束操作
  * @returns
  */
 export async function installBase64OnSystem(): Promise<boolean> {
-    let platform = os.platform();
+    const platform = os.platform();
     const isInstalled = await checkBase64Install(platform);
     if (!isInstalled) {
       core.info('start install base64');
@@ -23,16 +24,16 @@ export async function installBase64OnSystem(): Promise<boolean> {
  * @returns
  */
 export async function checkBase64Install(platform: string): Promise<boolean> {
-    let base64 = await io.which('base64');
+    const base64 = await io.which('base64');
     if (!base64) {
         core.info('base64 not installed or not set to the path');
         return false;
     }
     core.info('base64 already installed and set to the path');
-    if (platform === 'darwin') {
+    if (platform === context.OPERATING_SYSTEM_TYPE_DARWIN) {
         const macosCheckVersion = `${base64} --help`;
         execCommand(macosCheckVersion);
-    } else if (platform === 'linux') {
+    } else if (platform === context.OPERATING_SYSTEM_TYPE_LINUX) {
         const linuxCheckVersion = `${base64} --version`;
         execCommand(linuxCheckVersion);
     }
@@ -44,10 +45,10 @@ export async function checkBase64Install(platform: string): Promise<boolean> {
  * @param platform
  */
 export async function installBase64ByPlatform(platform: string): Promise<void> {
-    if (platform === 'darwin') {
+    if (platform === context.OPERATING_SYSTEM_TYPE_DARWIN) {
         await installBase64OnMacos();
     }
-    if (platform === 'linux') {
+    if (platform === context.OPERATING_SYSTEM_TYPE_LINUX) {
         await installBase64OnLinux();
     }
 }
@@ -69,26 +70,26 @@ export async function installBase64OnMacos(): Promise<void> {
  */
 export async function installBase64OnLinux(): Promise<void> {
     const osRelease = await (
-        cp.execSync(`cat /etc/os-release`) || ''
+        exec.exec(`cat /etc/os-release`) || ''
     ).toString();
     let installCommand = 'yum -y install -q coreutils';
 
-    if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
+    if (osRelease.indexOf(context.OPERATING_SYSTEM_VENDER_UBUNTU) > -1 || osRelease.indexOf(context.OPERATING_SYSTEM_VENDER_DEBAIN)) {
         core.info('current system is Ubuntu,use apt-get to install base64');
         installCommand = `apt-get -y -q update && apt-get -y install -q coreutils`;
     }
 
-    if (osRelease.indexOf('CentOS') > -1) {
+    if (osRelease.indexOf(context.OPERATING_SYSTEM_VENDER_CENTOS) > -1) {
         core.info('current system is Centos,use yum to install base64');
         installCommand = `yum -y install -q coreutils`;
     }
 
-    if (osRelease.indexOf('Fedora') > -1) {
+    if (osRelease.indexOf(context.OPERATING_SYSTEM_VENDER_FEDORA) > -1) {
         core.info('current system is Fedor,use dnf to install base64');
         installCommand = `dnf install -y -q coreutils`;
     }
 
-    if (osRelease.indexOf('SUSE') > -1) {
+    if (osRelease.indexOf(context.OPERATING_SYSTEM_VENDER_SUSE) > -1) {
         core.info('current system is OpenSuSE,use Zypper to install base64');
         installCommand = `zypper in coreutils`;
     }
@@ -100,6 +101,6 @@ export async function installBase64OnLinux(): Promise<void> {
  * @param command
  */
 export async function execCommand(command: string): Promise<void> {
-    const execCommandResult = (cp.execSync(command) || '').toString();
+    const execCommandResult = (exec.exec(command) || '').toString();
     core.info(execCommandResult);
 }

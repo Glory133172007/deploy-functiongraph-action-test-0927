@@ -63,25 +63,24 @@ export function checkFileOrDirExist(
     function_type: string,
     filePath: string
 ): boolean {
-    let checkResult = false;
     try {
         const stat = fs.statSync(filePath);
         switch (function_type) {
-            case 'jar': {
+            case context.OBJECT_TYPE_JAR: {
                 const jarType = fileutil.getFileMimeType(filePath);
                 if (stat.isFile() && jarType === context.JAR_MIME_TYPE) {
                     return true;
                 }
                 break;
             }
-            case 'zip': {
+            case context.OBJECT_TYPE_ZIP: {
                 const zipType = fileutil.getFileMimeType(filePath);
                 if (stat.isFile() && zipType === context.ZIP_MIME_TYPE) {
                     return true;
                 }
                 break;
             }
-            case 'file':
+            case context.OBJECT_TYPE_FILE: {
                 //文件存在且文件的大小不为0
                 if (stat.isFile() && stat.size > 0) {
                     return true;
@@ -89,11 +88,12 @@ export function checkFileOrDirExist(
                     core.info('file path is not file or file is empty');
                 }
                 break;
-            case 'dir': {
+            }
+            case context.OBJECT_TYPE_DIR: {
                 //确实为目录文件，且目录下的文件数量不为0
                 const files: string[] = fs.readdirSync(filePath);
                 if (stat.isDirectory() && files.length > 0) {
-                    checkResult = true;
+                    return true;
                 } else {
                     core.info(
                         'file path is not directory or dircectory is empty'
@@ -101,12 +101,13 @@ export function checkFileOrDirExist(
                 }
                 break;
             }
+            default:
+                return false;
         }
     } catch (error) {
         core.info('file or directory not exist');
-        console.log(error);
     }
-    return checkResult;
+    return false;
 }
 
 /**
@@ -141,8 +142,8 @@ export function checkRegion(inputs: context.Inputs): boolean {
         core.info('endpoint region must be the same as urn region');
         return false;
     }
-    //文件为obs类型时，需要单独分析obs
-    if (inputs.functionCodetype === 'obs') {
+    // 文件为obs类型时，需要单独分析obs
+    if (inputs.functionCodetype === context.OBJECT_TYPE_OBS) {
         const obsRegion = getRegionFromEndpoint(inputs.functionFile, 2, '.');
         if (
             checkParameterIsNull(obsRegion) ||
@@ -154,7 +155,7 @@ export function checkRegion(inputs: context.Inputs): boolean {
             return false;
         }
         if (endpointRegion !== obsRegion) {
-            core.info('endping region must the same as obs region');
+            core.info('endpoint region must the same as obs region');
             return false;
         }
     }
@@ -164,7 +165,7 @@ export function checkRegion(inputs: context.Inputs): boolean {
 /**
  * 从指定的url中分离出region信息
  * @param url 需要分离的url地址
- * @param index 
+ * @param index
  * @param regex 分隔符
  * @returns
  */
@@ -180,17 +181,4 @@ export function getRegionFromEndpoint(
     }
     core.info('get currentRegion : ' + region);
     return region;
-}
-
-/**
- *
- * @param filePath 从文件路径中获取到文件名，如xxxx.jar,xxxx.zip等
- * @returns
- */
-export function getFileNameFromPath(filePath: string): string {
-    if (filePath.indexOf('/') === -1) {
-        return filePath;
-    }
-    const pathArray = filePath.split('/');
-    return pathArray[pathArray.length - 1];
 }

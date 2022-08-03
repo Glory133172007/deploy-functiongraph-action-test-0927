@@ -17,17 +17,16 @@ export async function checkFileContent(
     fileType: string,
     filePath: string
 ): Promise<boolean> {
-    let checkResult = false;
-    if (fileType === 'zip' || fileType === 'jar') {
-        checkResult = checkFileSize(filePath);
-    } else if (fileType === 'file') {
+    if (fileType === context.OBJECT_TYPE_ZIP || fileType === context.OBJECT_TYPE_JAR) {
+        return checkFileSize(filePath);
+    } else if (fileType === context.OBJECT_TYPE_FILE) {
         await zipFileByPath(filePath);
-        checkResult = checkFileSize(context.FUNC_TMP_ZIP);
-    } else if (fileType === 'dir') {
+        return checkFileSize(context.FUNC_TMP_ZIP);
+    } else if (fileType === context.OBJECT_TYPE_DIR) {
         await zipDirByPath(filePath);
-        checkResult = checkFileSize(context.FUNC_TMP_ZIP);
+        return checkFileSize(context.FUNC_TMP_ZIP);
     }
-    return checkResult;
+    return false;
 }
 
 export async function getArchiveBase64Content(
@@ -35,7 +34,7 @@ export async function getArchiveBase64Content(
     filePath: string
 ): Promise<string> {
     let archiveFilePath = context.FUNC_TMP_ZIP;
-    if (fileType === 'zip' || fileType === 'jar') {
+    if (fileType === context.OBJECT_TYPE_ZIP || fileType === context.OBJECT_TYPE_JAR) {
         archiveFilePath = filePath;
     }
     return await getBase64ZipfileContent(archiveFilePath);
@@ -45,7 +44,7 @@ export async function getArchiveBase64Content(
  * 对于文件，需要将文件打包成zip
  */
 export async function zipFileByPath(filePath: string) {
-    const fileZipCommand = 'zip -j ' + context.FUNC_TMP_ZIP + ' ' + filePath;
+    const fileZipCommand = `zip -j ${context.FUNC_TMP_ZIP} ${filePath}`;
     await install.execCommand(fileZipCommand);
 }
 
@@ -68,7 +67,7 @@ export async function zipDirByPath(dirPath: string) {
 
 /**
  * 除了函数类型为obs的文件，其他文件上传前都需要进行base64编码，拿到编码后的内容上传
- * @param zipfilePath
+ * @param archiveFilePath
  * @returns
  */
 export async function getBase64ZipfileContent(

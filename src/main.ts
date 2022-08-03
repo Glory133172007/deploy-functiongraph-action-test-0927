@@ -11,6 +11,7 @@ import {
     UpdateFunctionCodeRequestBody,
     UpdateFunctionCodeRequestBodyCodeTypeEnum
 } from '@huaweicloud/huaweicloud-sdk-functiongraph';
+import path from 'path';
 
 /**
  * 1、对安装工具，参数和文件进行校验
@@ -70,14 +71,11 @@ export async function run() {
     const request = await genRequest(inputs);
 
     accore.info('---------- start request');
-    const result = client.updateFunctionCode(request);
-    result
-        .then((result: any) => {
-            accore.info('result:' + JSON.stringify(result));
-        })
-        .catch((ex: any) => {
-            accore.setFailed('exception:' + JSON.stringify(ex));
-        });
+    try {
+        accore.info('result:' + JSON.stringify(await client.updateFunctionCode(request)));
+    } catch (ex) {
+        accore.setFailed('exception:' + JSON.stringify(ex));
+    }
     accore.info('---------- end request');
 }
 
@@ -88,7 +86,7 @@ export async function genRequest(inputs: context.Inputs): Promise<any> {
     const funcCodebody = new FuncCode();
 
     accore.info('---------- gen body');
-    if (inputs.functionCodetype === 'obs') {
+    if (inputs.functionCodetype === context.OBJECT_TYPE_OBS) {
         body.withCodeUrl(inputs.functionFile);
         body.withFuncCode(funcCodebody);
         body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.OBS);
@@ -102,13 +100,13 @@ export async function genRequest(inputs: context.Inputs): Promise<any> {
 
         let fileName = context.FUNC_TMP_ZIP;
         if (
-            inputs.functionCodetype === 'jar' ||
-            inputs.functionCodetype === 'zip'
+            inputs.functionCodetype === context.OBJECT_TYPE_JAR ||
+            inputs.functionCodetype === context.OBJECT_TYPE_ZIP
         ) {
-            fileName = utils.getFileNameFromPath(inputs.functionFile);
+            fileName = path.basename(inputs.functionFile);
         }
         body.withCodeFilename(fileName);
-        if (inputs.functionCodetype === 'jar') {
+        if (inputs.functionCodetype === context.OBJECT_TYPE_JAR) {
             body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.JAR);
         } else {
             body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.ZIP);
