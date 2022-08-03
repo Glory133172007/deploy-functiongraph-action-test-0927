@@ -17,7 +17,10 @@ export async function checkFileContent(
     fileType: string,
     filePath: string
 ): Promise<boolean> {
-    if (fileType === context.OBJECT_TYPE_ZIP || fileType === context.OBJECT_TYPE_JAR) {
+    if (
+        fileType === context.OBJECT_TYPE_ZIP ||
+        fileType === context.OBJECT_TYPE_JAR
+    ) {
         return checkFileSize(filePath);
     } else if (fileType === context.OBJECT_TYPE_FILE) {
         await zipFileByPath(filePath);
@@ -34,7 +37,10 @@ export async function getArchiveBase64Content(
     filePath: string
 ): Promise<string> {
     let archiveFilePath = context.FUNC_TMP_ZIP;
-    if (fileType === context.OBJECT_TYPE_ZIP || fileType === context.OBJECT_TYPE_JAR) {
+    if (
+        fileType === context.OBJECT_TYPE_ZIP ||
+        fileType === context.OBJECT_TYPE_JAR
+    ) {
         archiveFilePath = filePath;
     }
     return await getBase64ZipfileContent(archiveFilePath);
@@ -53,15 +59,9 @@ export async function zipFileByPath(filePath: string) {
  */
 export async function zipDirByPath(dirPath: string) {
     const zipDirCommandAll =
-        'mkdir ./tmpdir && cp -r ' +
-        dirPath +
-        '/* ./tmpdir ' +
-        '&& cd ./tmpdir && zip -r ' +
-        context.FUNC_TMP_ZIP +
-        ' ./* ' +
-        '&& cp ' +
-        context.FUNC_TMP_ZIP +
-        ' ../ && cd .. && rm -rf ./tmpdir';
+        `mkdir ./tmpdir && cp -r ${dirPath}/* ` +
+        `./tmpdir && cd ./tmpdir && zip -r ${context.FUNC_TMP_ZIP} ./* ` +
+        `&& cp ${context.FUNC_TMP_ZIP} ../ && cd .. && rm -rf ./tmpdir`;
     await install.execCommand(zipDirCommandAll);
 }
 
@@ -74,9 +74,7 @@ export async function getBase64ZipfileContent(
     archiveFilePath: string
 ): Promise<string> {
     const base64Command = 'base64 ' + archiveFilePath;
-    const base64ZipFileContent = (
-      cp.execSync(base64Command) || ''
-    ).toString();
+    const base64ZipFileContent = (cp.execSync(base64Command) || '').toString();
     return base64ZipFileContent;
 }
 
@@ -92,20 +90,13 @@ export function checkFileSize(filePath: string): boolean {
         core.info('current file size ' + fileSize);
         if (fileSize > context.MAX_UPLOAD_SIZE) {
             core.info(
-                'the upload file ' +
-                    filePath +
-                    ' size  ' +
-                    fileSize +
-                    ' is bigger than 50MB,please upload to OBS first,then deploy by OBS type'
+                `the upload file ${filePath} size ${fileSize} is bigger than 50MB,` + 
+                `please upload to OBS first,then deploy by OBS type`
             );
             return false;
         } else {
             core.info(
-                'the upload file ' +
-                    filePath +
-                    ' size  ' +
-                    fileSize +
-                    ' is smaller than 50MB'
+                `the upload file ${filePath} size ${fileSize} is smaller than 50MB`
             );
             return true;
         }

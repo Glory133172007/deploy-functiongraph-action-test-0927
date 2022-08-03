@@ -35,7 +35,7 @@ const core = __importStar(__nccwpck_require__(2186));
 exports.FUNC_TMP_ZIP = 'functmp.zip';
 //允许通过SDK上传的最大文件尺寸，50M，52428800字节
 exports.MAX_UPLOAD_SIZE = 52428800;
-exports.IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/;
+exports.IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}(?<!\.)$/;
 /**
  * 目前支持函数功能的region列表
  * 非洲-约翰内斯堡	af-south-1		https://functiongraph.af-south-1.myhuaweicloud.com
@@ -162,7 +162,8 @@ const cp = __importStar(__nccwpck_require__(3129));
  */
 function checkFileContent(fileType, filePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (fileType === context.OBJECT_TYPE_ZIP || fileType === context.OBJECT_TYPE_JAR) {
+        if (fileType === context.OBJECT_TYPE_ZIP ||
+            fileType === context.OBJECT_TYPE_JAR) {
             return checkFileSize(filePath);
         }
         else if (fileType === context.OBJECT_TYPE_FILE) {
@@ -180,7 +181,8 @@ exports.checkFileContent = checkFileContent;
 function getArchiveBase64Content(fileType, filePath) {
     return __awaiter(this, void 0, void 0, function* () {
         let archiveFilePath = context.FUNC_TMP_ZIP;
-        if (fileType === context.OBJECT_TYPE_ZIP || fileType === context.OBJECT_TYPE_JAR) {
+        if (fileType === context.OBJECT_TYPE_ZIP ||
+            fileType === context.OBJECT_TYPE_JAR) {
             archiveFilePath = filePath;
         }
         return yield getBase64ZipfileContent(archiveFilePath);
@@ -202,15 +204,9 @@ exports.zipFileByPath = zipFileByPath;
  */
 function zipDirByPath(dirPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const zipDirCommandAll = 'mkdir ./tmpdir && cp -r ' +
-            dirPath +
-            '/* ./tmpdir ' +
-            '&& cd ./tmpdir && zip -r ' +
-            context.FUNC_TMP_ZIP +
-            ' ./* ' +
-            '&& cp ' +
-            context.FUNC_TMP_ZIP +
-            ' ../ && cd .. && rm -rf ./tmpdir';
+        const zipDirCommandAll = `mkdir ./tmpdir && cp -r ${dirPath}/* ` +
+            `./tmpdir && cd ./tmpdir && zip -r ${context.FUNC_TMP_ZIP} ./* ` +
+            `&& cp ${context.FUNC_TMP_ZIP} ../ && cd .. && rm -rf ./tmpdir`;
         yield install.execCommand(zipDirCommandAll);
     });
 }
@@ -239,19 +235,12 @@ function checkFileSize(filePath) {
         const fileSize = stat.size;
         core.info('current file size ' + fileSize);
         if (fileSize > context.MAX_UPLOAD_SIZE) {
-            core.info('the upload file ' +
-                filePath +
-                ' size  ' +
-                fileSize +
-                ' is bigger than 50MB,please upload to OBS first,then deploy by OBS type');
+            core.info(`the upload file ${filePath} size ${fileSize} is bigger than 50MB,` +
+                `please upload to OBS first,then deploy by OBS type`);
             return false;
         }
         else {
-            core.info('the upload file ' +
-                filePath +
-                ' size  ' +
-                fileSize +
-                ' is smaller than 50MB');
+            core.info(`the upload file ${filePath} size ${fileSize} is smaller than 50MB`);
             return true;
         }
     }
@@ -677,7 +666,7 @@ function checkFileOrDirExist(function_type, filePath) {
                 break;
             }
             case context.OBJECT_TYPE_FILE: {
-                //文件存在且文件的大小不为0
+                // 文件存在且文件的大小不为0
                 if (stat.isFile() && stat.size > 0) {
                     return true;
                 }
@@ -687,7 +676,7 @@ function checkFileOrDirExist(function_type, filePath) {
                 break;
             }
             case context.OBJECT_TYPE_DIR: {
-                //确实为目录文件，且目录下的文件数量不为0
+                // 确实为目录文件，且目录下的文件数量不为0
                 const files = fs.readdirSync(filePath);
                 if (stat.isDirectory() && files.length > 0) {
                     return true;

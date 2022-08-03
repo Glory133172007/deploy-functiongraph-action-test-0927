@@ -81,7 +81,7 @@ export function checkFileOrDirExist(
                 break;
             }
             case context.OBJECT_TYPE_FILE: {
-                //文件存在且文件的大小不为0
+                // 文件存在且文件的大小不为0
                 if (stat.isFile() && stat.size > 0) {
                     return true;
                 } else {
@@ -90,7 +90,7 @@ export function checkFileOrDirExist(
                 break;
             }
             case context.OBJECT_TYPE_DIR: {
-                //确实为目录文件，且目录下的文件数量不为0
+                // 确实为目录文件，且目录下的文件数量不为0
                 const files: string[] = fs.readdirSync(filePath);
                 if (stat.isDirectory() && files.length > 0) {
                     return true;

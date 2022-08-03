@@ -14,7 +14,7 @@ export const FUNC_TMP_ZIP = 'functmp.zip';
 //允许通过SDK上传的最大文件尺寸，50M，52428800字节
 export const MAX_UPLOAD_SIZE = 52428800;
 
-export const IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/;
+export const IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}(?<!\.)$/;
 
 /**
  * 目前支持函数功能的region列表
