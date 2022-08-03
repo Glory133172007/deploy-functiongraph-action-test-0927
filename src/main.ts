@@ -79,7 +79,7 @@ export async function run() {
     accore.info('---------- end request');
 }
 
-export async function genRequest(inputs: context.Inputs): Promise<any> {
+export async function genRequest(inputs: context.Inputs): Promise<UpdateFunctionCodeRequest> {
     const request = new UpdateFunctionCodeRequest();
     request.functionUrn = inputs.functionUrn;
     const body = new UpdateFunctionCodeRequestBody();
