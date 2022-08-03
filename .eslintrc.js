@@ -1,6 +1,6 @@
 module.exports = {
     extends: [
-        '@cloud/eslint-config-cbc/typescript',
+        '@cloud/eslint-config-cbc/typescript'
     ],
     globals: {
     },

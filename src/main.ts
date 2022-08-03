@@ -1,16 +1,17 @@
-import * as accore from '@actions/core'
-import * as utils from './utils'
-import * as context from './context'
-import * as fileutils from './fileUtils'
-import * as install from './install'
-import {BasicCredentials} from '@huaweicloud/huaweicloud-sdk-core'
+import * as accore from '@actions/core';
+import * as utils from './utils';
+import * as context from './context';
+import * as fileutils from './fileUtils';
+import * as install from './install';
+import {BasicCredentials} from '@huaweicloud/huaweicloud-sdk-core';
 import {
-  FuncCode,
-  FunctionGraphClient,
-  UpdateFunctionCodeRequest,
-  UpdateFunctionCodeRequestBody,
-  UpdateFunctionCodeRequestBodyCodeTypeEnum
-} from '@huaweicloud/huaweicloud-sdk-functiongraph'
+    FuncCode,
+    FunctionGraphClient,
+    UpdateFunctionCodeRequest,
+    UpdateFunctionCodeRequestBody,
+    UpdateFunctionCodeRequestBodyCodeTypeEnum
+} from '@huaweicloud/huaweicloud-sdk-functiongraph';
+import path from 'path';
 
 /**
  * 1、对安装工具，参数和文件进行校验
@@ -19,100 +20,100 @@ import {
  * @returns
  */
 export async function run() {
-  const inputs: context.Inputs = context.getInputs()
+    const inputs: context.Inputs = context.getInputs();
 
-  accore.info('---------- check Base64 on system')
-  const installSuccess = await install.installBase64OnSystem()
-  if (!installSuccess) {
-    accore.info('can not install Base64 on system')
-    return
-  }
+    accore.info('---------- check base64 on system');
+    const installSuccess = await install.installBase64OnSystem();
+    if (!installSuccess) {
+        accore.setFailed('can not install base64 on system');
+        return;
+    }
 
-  accore.info('---------- check input parameters')
-  if (
-    !utils.checkInputs(inputs) ||
-    !utils.checkCodeType(inputs.function_codetype) ||
-    !utils.checkRegion(inputs) ||
-    !utils.checkFileOrDirExist(inputs.function_codetype, inputs.function_file)
-  ) {
-    accore.info('check input parameter error')
-    return
-  }
-
-  accore.info('---------- check file content')
-  if (
-    !(await fileutils.checkFileContent(
-      inputs.function_codetype,
-      inputs.function_file
-    ))
-  ) {
-    accore.info('check file content error')
-    return
-  }
-
-  accore.info('---------- gen functiongraph basicCredentials')
-  const basicCredentials = new BasicCredentials()
-    .withAk(inputs.ak)
-    .withSk(inputs.sk)
-    .withProjectId(inputs.project_id)
-  accore.info('---------- gen functiongraph client')
-
-  const client = FunctionGraphClient.newBuilder()
-    .withCredential(basicCredentials)
-    .withEndpoint(inputs.endpoint)
-    .withOptions({customUserAgent: context.CUSTOM_USER_AGENT_FUNCTIONGRAPH})
-    .build()
-
-  accore.info('---------- gen request')
-  const request = await genRequest(inputs)
-
-  accore.info('---------- start request')
-  const result = client.updateFunctionCode(request)
-  result
-    .then((result: any) => {
-      accore.info('JSON.stringify(result)::' + JSON.stringify(result))
-    })
-    .catch((ex: any) => {
-      accore.info('exception:' + JSON.stringify(ex))
-    })
-  accore.info('---------- end request')
-}
-
-export async function genRequest(inputs: context.Inputs): Promise<any> {
-  const request = new UpdateFunctionCodeRequest()
-  request.functionUrn = inputs.function_urn
-  const body = new UpdateFunctionCodeRequestBody()
-  const funcCodebody = new FuncCode()
-
-  accore.info('---------- gen body')
-  if (inputs.function_codetype === 'obs') {
-    body.withCodeUrl(inputs.function_file)
-    body.withFuncCode(funcCodebody)
-    body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.OBS)
-  } else {
-    const base64Content = await fileutils.getArchiveBase64Content(
-      inputs.function_codetype,
-      inputs.function_file
-    )
-    funcCodebody.withFile(base64Content)
-    body.withFuncCode(funcCodebody)
-
-    let fileName = context.FUNC_TMP_ZIP
+    accore.info('---------- check input parameters');
     if (
-      inputs.function_codetype === 'jar' ||
-      inputs.function_codetype === 'zip'
+        !utils.checkInputs(inputs) ||
+        !utils.checkCodeType(inputs.functionCodetype) ||
+        !utils.checkRegion(inputs) ||
+        !utils.checkFileOrDirExist(
+            inputs.functionCodetype,
+            inputs.functionFile
+        )
     ) {
-      fileName = utils.getFileNameFromPath(inputs.function_file)
+        accore.setFailed('check input parameter error');
+        return;
     }
-    body.withCodeFilename(fileName)
-    if (inputs.function_codetype === 'jar') {
-      body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.JAR)
-    } else {
-      body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.ZIP)
+
+    accore.info('---------- check file content');
+    if (
+        !(await fileutils.checkFileContent(
+            inputs.functionCodetype,
+            inputs.functionFile
+        ))
+    ) {
+        accore.setFailed('check file content error');
+        return;
     }
-  }
-  request.withBody(body)
-  return request
+
+    accore.info('---------- gen functiongraph basicCredentials');
+    const basicCredentials = new BasicCredentials()
+        .withAk(inputs.ak)
+        .withSk(inputs.sk)
+        .withProjectId(inputs.projectId);
+
+    accore.info('---------- gen functiongraph client');
+    const client = FunctionGraphClient.newBuilder()
+        .withCredential(basicCredentials)
+        .withEndpoint(inputs.endpoint)
+        .withOptions({customUserAgent: context.CUSTOM_USER_AGENT_FUNCTIONGRAPH})
+        .build();
+
+    accore.info('---------- gen request');
+    const request = await genRequest(inputs);
+
+    accore.info('---------- start request');
+    try {
+        accore.info('result:' + JSON.stringify(await client.updateFunctionCode(request)));
+    } catch (ex) {
+        accore.setFailed('exception:' + JSON.stringify(ex));
+    }
+    accore.info('---------- end request');
 }
 
-run()
+export async function genRequest(inputs: context.Inputs): Promise<UpdateFunctionCodeRequest> {
+    const request = new UpdateFunctionCodeRequest();
+    request.functionUrn = inputs.functionUrn;
+    const body = new UpdateFunctionCodeRequestBody();
+    const funcCodebody = new FuncCode();
+
+    accore.info('---------- gen body');
+    if (inputs.functionCodetype === context.OBJECT_TYPE_OBS) {
+        body.withCodeUrl(inputs.functionFile);
+        body.withFuncCode(funcCodebody);
+        body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.OBS);
+    } else {
+        const base64Content = await fileutils.getArchiveBase64Content(
+            inputs.functionCodetype,
+            inputs.functionFile
+        );
+        funcCodebody.withFile(base64Content);
+        body.withFuncCode(funcCodebody);
+
+        let fileName = context.FUNC_TMP_ZIP;
+        if (
+            inputs.functionCodetype === context.OBJECT_TYPE_JAR ||
+            inputs.functionCodetype === context.OBJECT_TYPE_ZIP
+        ) {
+            fileName = path.basename(inputs.functionFile);
+        }
+        body.withCodeFilename(fileName);
+        if (inputs.functionCodetype === context.OBJECT_TYPE_JAR) {
+            body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.JAR);
+        } else {
+            body.withCodeType(UpdateFunctionCodeRequestBodyCodeTypeEnum.ZIP);
+        }
+    }
+    request.withBody(body);
+    return request;
+}
+
+run();
